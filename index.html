@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH Ninja Ranking — Schweizer Meisterschaft</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Variables ── */
+:root {
+  --red: #E63329;
+  --red-dim: #8C1F1B;
+  --bg: #0C0C0C;
+  --bg2: #141414;
+  --bg3: #1C1C1C;
+  --border: #2A2A2A;
+  --border2: #333;
+  --text: #F0F0F0;
+  --muted: #777;
+  --dim: #444;
+  --gold: #C8A84B;
+  --silver: #A0A8B4;
+  --bronze: #A0714A;
+  --green: #34C759;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:16px;scroll-behavior:smooth}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* ── Topbar ── */
+.topbar{background:#000;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:44px;position:sticky;top:0;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:1.5rem}
+.topbar a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.04em;text-transform:uppercase;transition:color .2s}
+.topbar a:hover{color:var(--text)}
+.topbar-pill{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase}
+.topbar-season{display:flex;align-items:center;gap:4px}
+.season-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;letter-spacing:.04em;transition:all .2s}
+.season-btn:hover,.season-btn.active{border-color:var(--red);color:var(--text);background:rgba(230,51,41,.1)}
+
+/* ── Nav ── */
+nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:stretch;justify-content:space-between;padding:0 2rem;position:sticky;top:44px;z-index:199}
+.nav-brand{display:flex;align-items:center;gap:.75rem;padding:.9rem 0;flex-shrink:0}
+.brand-mark{width:34px;height:34px;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;color:#fff;letter-spacing:-.02em;position:relative}
+.brand-mark::before,.brand-mark::after{content:'';position:absolute;background:#fff}
+.brand-mark::before{width:5px;height:20px;left:50%;transform:translateX(-50%)}
+.brand-mark::after{width:18px;height:5px;top:50%;transform:translateY(-50%)}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+.brand-sub{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:-2px}
+.nav-links{display:flex;align-items:stretch;gap:0}
+.nav-link{display:flex;align-items:center;padding:0 1.2rem;font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none}
+.nav-link:hover{color:var(--text);border-bottom-color:var(--dim)}
+.nav-link.active{color:var(--text);border-bottom-color:var(--red)}
+
+/* ── Hero ── */
+.hero{background:linear-gradient(180deg,#181818 0%,var(--bg) 100%);padding:3rem 2rem 2.5rem;border-bottom:1px solid var(--border)}
+.hero-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1.5rem}
+.hero-label{font-size:10px;font-weight:600;color:var(--red);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.4rem}
+.hero-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:58px;line-height:.92;letter-spacing:-.01em;text-transform:uppercase}
+.hero-title span{color:var(--red)}
+.hero-meta{font-size:12px;color:var(--muted);margin-top:.8rem;letter-spacing:.04em}
+.hero-stats{display:flex;gap:2.5rem;flex-shrink:0}
+.stat{text-align:right}
+.stat-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:42px;line-height:1;color:var(--text)}
+.stat-val.red{color:var(--red)}
+.stat-label{font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-top:2px}
+
+/* ── Main ── */
+main{max-width:1100px;margin:0 auto;padding:2rem}
+.page{display:none}
+.page.active{display:block}
+
+/* ── Section Head ── */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.section-title::before{content:'';display:inline-block;width:3px;height:18px;background:var(--red);border-radius:1px;flex-shrink:0}
+.section-sub{font-size:11px;color:var(--muted);letter-spacing:.04em}
+
+/* ── WK Cards ── */
+.wk-row{display:flex;gap:.75rem;margin-bottom:2rem;flex-wrap:wrap}
+.wk-card{flex:1;min-width:150px;max-width:220px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;cursor:pointer;transition:all .2s}
+.wk-card:hover{border-color:var(--dim)}
+.wk-card.active{border-color:var(--red);background:rgba(230,51,41,.07)}
+.wk-card.finale{border-color:var(--gold)!important}
+.wk-card.active.finale{background:rgba(200,168,75,.06)}
+.wk-card.all-wk{border-style:dashed}
+.wk-card.all-wk.active{border-style:solid;border-color:var(--border2)}
+.wk-num{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px}
+.wk-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.wk-date{font-size:11px;color:var(--muted)}
+.wk-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+.finale-badge{background:rgba(200,168,75,.15);color:var(--gold);border:1px solid rgba(200,168,75,.3)}
+.cv-badge{background:rgba(255,255,255,.05);color:var(--dim);border:1px solid var(--border)}
+.upcoming-badge{background:rgba(52,199,89,.1);color:var(--green);border:1px solid rgba(52,199,89,.25)}
+
+/* ── Division Tabs ── */
+.div-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.div-tab{padding:.38rem 1rem;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--border2);border-radius:3px;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;font-family:inherit}
+.div-tab:hover{border-color:var(--dim);color:var(--text)}
+.div-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ── Info / Banner Strips ── */
+.info-strip{background:rgba(230,51,41,.07);border:1px solid rgba(230,51,41,.2);border-radius:4px;padding:.75rem 1rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:.75rem}
+.info-icon{color:var(--red);font-size:14px;flex-shrink:0;margin-top:1px}
+.info-text{font-size:12px;color:var(--muted);line-height:1.6}
+.info-text strong{color:var(--text)}
+.finale-banner{background:linear-gradient(90deg,rgba(200,168,75,.12),rgba(200,168,75,.03));border:1px solid rgba(200,168,75,.25);border-radius:4px;padding:.75rem 1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem}
+.finale-label{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.finale-txt{font-size:12px;color:var(--muted)}
+
+/* ── Ranking Table ── */
+.ranking-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:2rem}
+.ranking-header{display:grid;grid-template-columns:52px 1fr 85px 85px 85px 95px;padding:.65rem 1rem;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;gap:.5rem}
+.ranking-row{display:grid;grid-template-columns:52px 1fr 85px 85px 85px 95px;padding:.8rem 1rem;border-bottom:1px solid var(--border);align-items:center;gap:.5rem;transition:background .15s;cursor:pointer}
+.ranking-row:last-of-type{border-bottom:none}
+.ranking-row:hover{background:rgba(255,255,255,.025)}
+.ranking-row.gold-row{background:rgba(200,168,75,.06)}
+.ranking-row.silver-row{background:rgba(160,168,180,.04)}
+.ranking-row.bronze-row{background:rgba(160,113,74,.04)}
+.ranking-footer{padding:.6rem 1rem;border-top:1px solid var(--border);font-size:10px;color:var(--dim);text-align:center}
+
+.rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;text-align:center}
+.rank.g{color:var(--gold)}
+.rank.s{color:var(--silver)}
+.rank.b{color:var(--bronze)}
+.rank.n{color:var(--dim);font-size:17px}
+
+.athlete-name{font-weight:600;font-size:14px;margin-bottom:1px}
+.athlete-sub{font-size:11px;color:var(--muted)}
+.ch-flag{display:inline-block;width:16px;height:12px;background:#FF0000;position:relative;margin-right:5px;border-radius:1px;vertical-align:middle;flex-shrink:0}
+.ch-flag::before,.ch-flag::after{content:'';position:absolute;background:#fff}
+.ch-flag::before{width:4px;height:10px;left:6px;top:1px}
+.ch-flag::after{width:10px;height:4px;left:3px;top:4px}
+
+.pts{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;text-align:right}
+.pts-sub{font-size:10px;color:var(--muted);text-align:right;margin-top:1px}
+.pts-dash{font-size:16px;color:var(--dim);text-align:right}
+
+.progress-wrap{width:100%;height:3px;background:var(--border);border-radius:2px;margin-top:5px}
+.progress-bar{height:100%;border-radius:2px;background:var(--red);transition:width .6s}
+.progress-bar.gold{background:var(--gold)}
+.progress-bar.silver{background:var(--silver)}
+.progress-bar.bronze{background:var(--bronze)}
+
+.wk-dots{display:flex;gap:4px;justify-content:flex-end;margin-top:4px}
+.dot{width:8px;height:8px;border-radius:50%}
+.dot.ok{background:var(--red)}
+.dot.finale-dot{background:var(--gold)}
+.dot.miss{background:var(--border2)}
+
+/* ── Potential cell ── */
+.pot-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-align:right}
+.pot-lbl{font-size:10px;color:var(--muted);text-align:right}
+
+/* ── Events Page ── */
+.events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin-bottom:2rem}
+.event-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
+.event-card:hover{border-color:var(--dim)}
+.event-card.finale-card{border-color:rgba(200,168,75,.35)}
+.event-card.upcoming-card{border-color:rgba(52,199,89,.25)}
+.event-card-header{padding:1rem 1.2rem .75rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.event-num{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.event-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}
+.event-date{font-size:12px;color:var(--muted)}
+.event-body{padding:.9rem 1.2rem}
+.event-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.event-row:last-child{border-bottom:none}
+.event-key{color:var(--muted)}
+.event-val{font-weight:600}
+.event-footer{padding:.75rem 1.2rem;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:space-between}
+.event-status{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.status-done{color:var(--muted)}
+.status-live{color:var(--red);display:flex;align-items:center;gap:5px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 1.4s infinite;flex-shrink:0}
+.status-upcoming{color:var(--green)}
+
+/* ── Athletes Page ── */
+.athletes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.athlete-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1rem;text-align:center;transition:all .2s;cursor:pointer}
+.athlete-card:hover{border-color:var(--dim);background:rgba(255,255,255,.02)}
+.athlete-avatar{width:64px;height:64px;border-radius:50%;background:var(--bg3);margin:0 auto .75rem;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid var(--border)}
+.athlete-card-name{font-weight:700;font-size:14px;margin-bottom:2px}
+.athlete-card-team{font-size:11px;color:var(--muted);margin-bottom:.5rem}
+.athlete-card-div{font-size:10px;font-weight:700;color:var(--red);letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem}
+.athlete-card-pts{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:24px}
+.athlete-card-rank{font-size:10px;color:var(--muted)}
+.athlete-filter-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.athlete-search{flex:1;min-width:200px;padding:.5rem .9rem;background:var(--bg2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.athlete-search:focus{border-color:var(--red)}
+.athlete-search::placeholder{color:var(--dim)}
+
+/* ── Reglement Page ── */
+.reglement-wrap{display:grid;grid-template-columns:220px 1fr;gap:1.5rem;align-items:start}
+.reglement-nav{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden;position:sticky;top:110px}
+.reglement-nav-item{display:block;padding:.65rem 1rem;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.reglement-nav-item:last-child{border-bottom:none}
+.reglement-nav-item:hover{color:var(--text);background:rgba(255,255,255,.02)}
+.reglement-nav-item.active{color:var(--text);border-left-color:var(--red);background:rgba(230,51,41,.05)}
+.reglement-section{margin-bottom:2.5rem}
+.reg-h1{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.5rem}
+.reg-h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;color:var(--red)}
+.reg-p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:.75rem}
+.reg-p strong{color:var(--text)}
+.reg-table{width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:12px}
+.reg-table th{background:var(--bg3);padding:.5rem .75rem;text-align:left;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.reg-table td{padding:.5rem .75rem;border-bottom:1px solid var(--border);color:var(--muted)}
+.reg-table td:first-child{color:var(--text);font-weight:600}
+.reg-box{background:rgba(230,51,41,.06);border:1px solid rgba(230,51,41,.2);border-radius:4px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:var(--muted);line-height:1.6}
+.reg-box strong{color:var(--text)}
+.algo-box{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:.6rem 1rem;font-family:monospace;font-size:12px;color:#A8D8A8;margin:.5rem 0 1rem}
+
+/* ── Footer ── */
+footer{max-width:1100px;margin:3rem auto 1.5rem;padding:0 2rem;border-top:1px solid var(--border);padding-top:1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+footer div{font-size:11px;color:var(--dim)}
+footer a{color:var(--dim);transition:color .2s}
+footer a:hover{color:var(--muted)}
+
+/* ── Animations ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .25s ease forwards}
+
+/* ── Responsive ── */
+@media(max-width:800px){
+  .topbar{padding:0 1rem}
+  .topbar-left{gap:.8rem}
+  nav{padding:0 1rem}
+  .hero{padding:2rem 1rem 1.5rem}
+  .hero-title{font-size:38px}
+  .hero-stats{gap:1.5rem}
+  main{padding:1.5rem 1rem}
+  .ranking-header,.ranking-row{grid-template-columns:44px 1fr 75px 85px}
+  .col-wk2,.col-pot{display:none}
+  .reglement-wrap{grid-template-columns:1fr}
+  .reglement-nav{position:static}
+  .wk-card{min-width:130px}
+  .events-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .ranking-header,.ranking-row{grid-template-columns:40px 1fr 80px}
+  .col-wk1{display:none}
+  .hero-title{font-size:32px}
+  .stat-val{font-size:32px}
+  .nav-link{padding:0 .7rem;font-size:11px}
+  .athletes-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOPBAR ══ -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="#">IGN-Regelwerk</a>
+    <a href="#" class="topbar-link-og">OG Basel</a>
+    <a href="#" class="topbar-link-s">Schüür Luzern</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <div class="topbar-season">
+      <button class="season-btn" onclick="setSeason(2025,this)">2025</button>
+      <button class="season-btn active" onclick="setSeason(2026,this)">2026</button>
+    </div>
+    <div class="topbar-pill" id="live-pill">Saison 2026 · Live</div>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-brand">
+    <div class="brand-mark"></div>
+    <div>
+      <div class="brand-name">CH Ninja Ranking</div>
+      <div class="brand-sub">Schweizer Meisterschaft</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('ranking',this)">Ranking</button>
+    <button class="nav-link" onclick="showPage('events',this)">Wettkämpfe</button>
+    <button class="nav-link" onclick="showPage('athletes',this)">Athleten</button>
+    <button class="nav-link" onclick="showPage('reglement',this)">Reglement</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<div class="hero" id="hero-section">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-label" id="hero-label">Saison 2026 — Offizielle Rangliste</div>
+      <div class="hero-title">CH Ninja<br><span>Ranking</span></div>
+      <div class="hero-meta">IGN-Regelwerk · 2–3 Wettkämpfe · OG Basel &amp; Schüür Luzern</div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-val" id="stat-wk">2</div>
+        <div class="stat-label">Wettkämpfe</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val red" id="stat-ath">—</div>
+        <div class="stat-label">CH-Athleten</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-div">15</div>
+        <div class="stat-label">Divisionen</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<main>
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: RANKING              ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page active" id="page-ranking">
+
+  <!-- WK Cards -->
+  <div class="section-head">
+    <div class="section-title">Wettkämpfe 2026</div>
+    <div class="section-sub" id="ranking-season-label">Saison 2026</div>
+  </div>
+
+  <div class="wk-row" id="wk-row">
+    <!-- Dynamically rendered -->
+  </div>
+
+  <!-- Division Tabs -->
+  <div class="section-head">
+    <div class="section-title" id="div-section-title">Adults LK1</div>
+    <div class="section-sub" id="div-section-sub"></div>
+  </div>
+
+  <div id="finale-banner-wrap"></div>
+
+  <div class="div-tabs" id="div-tabs">
+    <!-- Dynamically rendered -->
+  </div>
+
+  <div class="info-strip">
+    <div class="info-icon">ⓘ</div>
+    <div class="info-text">
+      <strong>Schweizer Meisterschaft</strong> · Nur CH-lizenzierte Athleten · Mindestens 2 Wettkämpfe für Titelberechtigung ·
+      Punkte: Placement-Funktion × Competition Value (Feldstärke)
+    </div>
+  </div>
+
+  <!-- Ranking Table -->
+  <div class="ranking-wrap" id="ranking-table">
+    <!-- Dynamically rendered -->
+  </div>
+
+</div>
+
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: EVENTS               ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-events">
+
+  <div class="section-head" style="margin-bottom:1.5rem">
+    <div class="section-title">Wettkämpfe</div>
+    <div class="section-sub" id="events-season-label">Saison 2026</div>
+  </div>
+
+  <div class="events-grid" id="events-grid">
+    <!-- Dynamically rendered -->
+  </div>
+
+  <!-- Past Seasons -->
+  <div class="section-head" style="margin-top:2.5rem">
+    <div class="section-title">Saison 2025</div>
+    <div class="section-sub">Abgeschlossen</div>
+  </div>
+  <div class="events-grid">
+    <div class="event-card">
+      <div class="event-card-header">
+        <div><div class="event-num">WK 1 · 2025</div><div class="event-title">OG Ninja Open</div><div class="event-date">15. März 2025 · Basel</div></div>
+        <span class="wk-badge cv-badge">CV: 4'820</span>
+      </div>
+      <div class="event-body">
+        <div class="event-row"><span class="event-key">Location</span><span class="event-val">Overground Basel</span></div>
+        <div class="event-row"><span class="event-key">Athleten</span><span class="event-val">86</span></div>
+        <div class="event-row"><span class="event-key">Divisionen</span><span class="event-val">12</span></div>
+        <div class="event-row"><span class="event-key">Regelwerk</span><span class="event-val">IGN 2025</span></div>
+      </div>
+      <div class="event-footer"><span class="event-status status-done">Abgeschlossen</span></div>
+    </div>
+    <div class="event-card">
+      <div class="event-card-header">
+        <div><div class="event-num">WK 2 · 2025</div><div class="event-title">Schüür Challenge</div><div class="event-date">7. Juni 2025 · Luzern</div></div>
+        <span class="wk-badge cv-badge">CV: 3'960</span>
+      </div>
+      <div class="event-body">
+        <div class="event-row"><span class="event-key">Location</span><span class="event-val">Schüür Luzern</span></div>
+        <div class="event-row"><span class="event-key">Athleten</span><span class="event-val">74</span></div>
+        <div class="event-row"><span class="event-key">Divisionen</span><span class="event-val">12</span></div>
+        <div class="event-row"><span class="event-key">Regelwerk</span><span class="event-val">IGN 2025</span></div>
+      </div>
+      <div class="event-footer"><span class="event-status status-done">Abgeschlossen</span></div>
+    </div>
+    <div class="event-card finale-card">
+      <div class="event-card-header">
+        <div><div class="event-num">Finale · WK 3 · 2025</div><div class="event-title">OG Games 2025</div><div class="event-date">13. Dez. 2025 · Basel</div></div>
+        <span class="wk-badge finale-badge">★ Finale</span>
+      </div>
+      <div class="event-body">
+        <div class="event-row"><span class="event-key">Location</span><span class="event-val">Overground Basel</span></div>
+        <div class="event-row"><span class="event-key">CV</span><span class="event-val">6'340</span></div>
+        <div class="event-row"><span class="event-key">Titelübergabe</span><span class="event-val">✓ CH Meister 2025</span></div>
+      </div>
+      <div class="event-footer"><span class="event-status status-done">Abgeschlossen · Titel vergeben</span></div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: ATHLETES             ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-athletes">
+
+  <div class="section-head" style="margin-bottom:1.5rem">
+    <div class="section-title">Athleten</div>
+    <div class="section-sub">CH-lizenzierte Ninja-Sport-Athleten</div>
+  </div>
+
+  <div class="athlete-filter-row">
+    <input class="athlete-search" type="text" placeholder="Athlet suchen…" oninput="filterAthletes(this.value)" id="athlete-search"/>
+    <div class="div-tabs" style="margin:0">
+      <button class="div-tab active" onclick="filterAthletesDiv('all',this)">Alle</button>
+      <button class="div-tab" onclick="filterAthletesDiv('am1',this)">Adults LK1 ♂</button>
+      <button class="div-tab" onclick="filterAthletesDiv('af1',this)">Adults LK1 ♀</button>
+      <button class="div-tab" onclick="filterAthletesDiv('tm1',this)">Teens LK1 ♂</button>
+      <button class="div-tab" onclick="filterAthletesDiv('mast',this)">Masters</button>
+    </div>
+  </div>
+
+  <div class="athletes-grid" id="athletes-grid">
+    <!-- Dynamically rendered -->
+  </div>
+
+</div>
+
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: REGLEMENT            ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-reglement">
+
+  <div class="section-head" style="margin-bottom:1.5rem">
+    <div class="section-title">Reglement</div>
+    <div class="section-sub">IGN-Regelwerk · CH Ninja Ranking 2026</div>
+  </div>
+
+  <div class="reglement-wrap">
+
+    <!-- Sidebar Nav -->
+    <div class="reglement-nav">
+      <a class="reglement-nav-item active" onclick="scrollReg('reg-1',this)">1 · Ausgangslage</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-2',this)">2 · Algorithmus</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-3',this)">3 · CH-Filter</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-4',this)">4 · App-Workflow</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-5',this)">5 · Divisionen</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-6',this)">6 · Titelstruktur</a>
+      <a class="reglement-nav-item" onclick="scrollReg('reg-7',this)">7 · Offene Fragen</a>
+    </div>
+
+    <!-- Content -->
+    <div>
+
+      <div class="reglement-section" id="reg-1">
+        <div class="reg-h1">CH Ninja Ranking</div>
+        <div class="reg-h2">1 · Ausgangslage &amp; Ziel</div>
+        <div class="reg-p">Ziel ist die Einführung einer offiziellen <strong>Schweizer Ninja-Sport-Meisterschaft</strong>, die aus 2–3 akkreditierten Wettkämpfen pro Saison besteht. Der letzte Wettkampf des Jahres (OG Games, Dezember) wird als <strong>Finale</strong> ausgezeichnet. Die Rangliste wird vollautomatisch über die <strong>OG Ninja Comp App</strong> ermittelt und auf einer öffentlichen Ranking-Website publiziert.</div>
+        <div class="reg-box"><strong>Pilotjahr 2026:</strong> 2–3 Wettkämpfe · Vollautomatische Verwaltung · Titelübergabe an OG Games im Dezember</div>
+
+        <table class="reg-table">
+          <tr><th>Parameter</th><th>Definition</th></tr>
+          <tr><td>Anzahl WK</td><td>2–3 akkreditierte Wettkämpfe pro Saison (vorab bestimmt)</td></tr>
+          <tr><td>Finale-WK</td><td>Letzter WK der Saison, in App als «Finale» markiert</td></tr>
+          <tr><td>CH-Filterkriterium</td><td>CH-Lizenz (wird vom Veranstalter vor Ort geprüft)</td></tr>
+          <tr><td>Titelberechtigung</td><td>Mindestens 2 gewertete Wettkämpfe pro Saison</td></tr>
+          <tr><td>Regelwerk</td><td>IGN-Regelwerk 2025/2026 verpflichtend für alle WK</td></tr>
+          <tr><td>Divisionen</td><td>IGN-Standard: Adults / Teens / Kids LK1+LK2, Masters, Bambini</td></tr>
+          <tr><td>Titelübergabe</td><td>Am Finale-WK (OG Games, Dezember)</td></tr>
+          <tr><td>Preise</td><td>Diplom + optionale Trophäe</td></tr>
+          <tr><td>Verwaltung</td><td>Vollautomatisch via OG Ninja Comp App + Ranking-Backend</td></tr>
+        </table>
+      </div>
+
+      <div class="reglement-section" id="reg-2">
+        <div class="reg-h2">2 · Algorithmus — Option B+</div>
+        <div class="reg-p">Das System basiert auf dem bewährten deutschen <strong>Ninja-Sport-Ranking (NSR)</strong> der IGN, adaptiert für den Schweizer Kontext mit 2–3 Wettkämpfen pro Saison. Kernprinzip: Feldstärke bestimmt Punktewert — ein Sieg gegen ein starkes Feld zählt mehr als ein Sieg gegen wenige Neulinge.</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 1 · Potential-Berechnung</div>
+        <div class="reg-p">Für jeden Athleten wird aus dem Lookback-Zeitraum (alle gewerteten WK der letzten 53 Wochen) der rohe Leistungswert ermittelt: Summe der besten x Resultate (x = 2 bei ≤4 WK/Jahr).</div>
+        <div class="algo-box">raw(A) = Summe der besten 2 WK-Punkte aus dem Lookback</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 2 · Normierung des Potentials</div>
+        <div class="reg-p">Alle Rohwerte einer Division werden so skaliert, dass ihre Summe genau 100 × Anzahl Athleten ergibt. Damit sind Potentiale zwischen Saisons und Divisionen vergleichbar.</div>
+        <div class="algo-box">Potential(A) = raw(A) × (100 × nAthleten / Σ raw)</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 3 · Newbie-Regelung</div>
+        <div class="reg-p">Athleten ohne Lookback-Daten (Erststart oder Saison 1) erhalten ein fixes Newbie-Potential von 70 Punkten. Damit werden sie nicht bestraft, aber auch nicht bevorzugt.</div>
+        <div class="algo-box">Potential(Newbie) = 70 Punkte (Standard, einstellbar)</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 4 · Competition Value (CV)</div>
+        <div class="reg-p">Die Summe aller Potentiale der Teilnehmer einer Division an einem Wettkampf ergibt den Competition Value. Höheres CV = stärkeres Feld = mehr Punkte für alle.</div>
+        <div class="algo-box">CV = Σ Potential(TN) über alle Teilnehmer der Division</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 5 · Punkt-Verteilung</div>
+        <div class="reg-p">Die Punkte werden nach einer gedämpften Funktion verteilt. Im Vergleich zur einfachen 1/x-Kurve fallen die Punkte langsamer ab, was Konstanz über mehrere Plätze belohnt.</div>
+        <div class="algo-box">f(x) = 1 − (1 − 0.8^(x−1)) × (1 − 1/numTN) / (1 − 0.8^(numTN−1))</div>
+
+        <div class="reg-h2" style="font-size:14px;margin-top:1.25rem">Schritt 6 · Punkte pro Athlet</div>
+        <div class="reg-p">Die Platzierungs-Funktion wird mit dem CV multipliziert. So spiegeln die Punkte sowohl die Platzierung als auch die Feldstärke wider.</div>
+        <div class="algo-box">Punkte(A) = f(Rang_A) × CV</div>
+      </div>
+
+      <div class="reglement-section" id="reg-3">
+        <div class="reg-h2">3 · Jahres-Ranking &amp; CH-Filter</div>
+        <div class="reg-p">→ Nur Athleten mit <strong>CH-Lizenz-Flag</strong> erscheinen im offiziellen CH-Ranking (alle anderen Athleten nehmen am WK teil, zählen aber nicht zum CH-Ranking).</div>
+        <div class="reg-p">→ Gewertet werden <strong>alle akkreditierten WK</strong> der Saison (kein Drop — bei nur 2–3 WK macht das Weglassen des schlechten Resultats keinen Sinn).</div>
+        <div class="reg-p">→ Mindestvoraussetzung für Titelberechtigung: <strong>Teilnahme an mind. 2 WK</strong> der Saison.</div>
+        <div class="reg-p">→ Der <strong>Finale-WK</strong> läuft durch denselben Algorithmus. Er erhält kein separates Gewicht — das stärkere Feld (OG Games) sorgt automatisch für höheren CV und damit mehr Punkte.</div>
+      </div>
+
+      <div class="reglement-section" id="reg-4">
+        <div class="reg-h2">4 · App-Workflow &amp; Technische Anbindung</div>
+        <table class="reg-table">
+          <tr><th>#</th><th>Aktion</th><th>Zuständig</th></tr>
+          <tr><td>1</td><td>WK in App anlegen: «CH-Ranking akkreditiert» + «Finale» Toggle setzen</td><td>Veranstalter</td></tr>
+          <tr><td>2</td><td>Athleten-Eintrag: CH-Lizenz-Flag setzen (manuell vor Ort geprüft)</td><td>Veranstalter</td></tr>
+          <tr><td>3</td><td>WK durchführen, Resultate in App erfassen</td><td>Veranstalter / App</td></tr>
+          <tr><td>4</td><td>App exportiert Resultate-JSON nach WK-Abschluss (automatisch)</td><td>App</td></tr>
+          <tr><td>5</td><td>Ranking-Backend berechnet Potential, CV und Punkte pro Division</td><td>Backend</td></tr>
+          <tr><td>6</td><td>Ranking-Website aktualisiert sich live (CH-Athleten-Filter)</td><td>Website</td></tr>
+          <tr><td>7</td><td>Titelübergabe am Finale-WK, basierend auf aktuellem Jahresranking</td><td>OG / Veranstalter</td></tr>
+        </table>
+      </div>
+
+      <div class="reglement-section" id="reg-5">
+        <div class="reg-h2">5 · Divisionen</div>
+        <div class="reg-p">Das CH Ninja Ranking umfasst alle IGN-Standarddivisionen. Jede Division wird separat gewertet und hat ein eigenes Jahresranking.</div>
+        <table class="reg-table">
+          <tr><th>Kürzel</th><th>Division</th><th>Geschlecht</th></tr>
+          <tr><td>am1</td><td>Adults LK1</td><td>♂</td></tr>
+          <tr><td>af1</td><td>Adults LK1</td><td>♀</td></tr>
+          <tr><td>am2</td><td>Adults LK2</td><td>♂</td></tr>
+          <tr><td>af2</td><td>Adults LK2</td><td>♀</td></tr>
+          <tr><td>tm1</td><td>Teens LK1</td><td>♂</td></tr>
+          <tr><td>tf1</td><td>Teens LK1</td><td>♀</td></tr>
+          <tr><td>tm2</td><td>Teens LK2</td><td>♂</td></tr>
+          <tr><td>tf2</td><td>Teens LK2</td><td>♀</td></tr>
+          <tr><td>km1</td><td>Kids LK1</td><td>♂</td></tr>
+          <tr><td>kf1</td><td>Kids LK1</td><td>♀</td></tr>
+          <tr><td>km2</td><td>Kids LK2</td><td>♂</td></tr>
+          <tr><td>kf2</td><td>Kids LK2</td><td>♀</td></tr>
+          <tr><td>mast</td><td>Masters (40+)</td><td>gemischt</td></tr>
+          <tr><td>bam</td><td>Bambini</td><td>gemischt</td></tr>
+        </table>
+        <div class="reg-box"><strong>LK2 → LK1 Aufstieg:</strong> Nach 3 Podestplätzen (Top 3) in der LK2 erfolgt der automatische Aufstieg in die LK1. Die App verfolgt diese Entwicklung pro Athlet.</div>
+      </div>
+
+      <div class="reglement-section" id="reg-6">
+        <div class="reg-h2">6 · Titelstruktur</div>
+        <div class="reg-p">Die Titelstruktur folgt dem deutschen Vorbild: Nur die Gewinner der LK1-Divisionen führen den Titel «Schweizer Meister/in». Die übrigen Divisionen erhalten den Titel «Ninja-Sport-Ranking-Sieger/in Schweiz».</div>
+        <table class="reg-table">
+          <tr><th>Division</th><th>Geschlecht</th><th>Titel</th></tr>
+          <tr><td>Adults LK1</td><td>♂ und ♀</td><td>🥇 Schweizer Meisterin / Meister</td></tr>
+          <tr><td>Teens LK1</td><td>♂ und ♀</td><td>🥇 Schweizer Meisterin / Meister</td></tr>
+          <tr><td>Kids LK1</td><td>♂ und ♀</td><td>🥇 Schweizer Meisterin / Meister</td></tr>
+          <tr><td>Adults LK2</td><td>♂ und ♀</td><td>Ninja-Sport-Ranking-Sieger/in Schweiz</td></tr>
+          <tr><td>Teens LK2</td><td>♂ und ♀</td><td>Ninja-Sport-Ranking-Sieger/in Schweiz</td></tr>
+          <tr><td>Kids LK2</td><td>♂ und ♀</td><td>Ninja-Sport-Ranking-Sieger/in Schweiz</td></tr>
+          <tr><td>Masters</td><td>♂ und ♀</td><td>Ninja-Sport-Ranking-Sieger/in Schweiz</td></tr>
+          <tr><td>Bambini</td><td>gemischt</td><td>Ninja-Sport-Ranking-Sieger/in Schweiz</td></tr>
+        </table>
+      </div>
+
+      <div class="reglement-section" id="reg-7">
+        <div class="reg-h2">7 · Offene Entscheidungen</div>
+        <table class="reg-table">
+          <tr><th>Thema</th><th>Optionen</th><th>Empfehlung</th></tr>
+          <tr><td>CH-Kriterium</td><td>Staatsbürgerschaft / Wohnsitz / Vereinsmitglied</td><td>CH-Pass oder Hauptwohnsitz CH</td></tr>
+          <tr><td>Doppelstaatler</td><td>Hauptwohnsitz-Prinzip / Selbstdeklaration</td><td>Hauptwohnsitz entscheidet</td></tr>
+          <tr><td>Ranking-Träger</td><td>OG allein / OG + Schüür / neutraler Verein</td><td>Gemeinsame Kommission (OG + Schüür + 1 neutral)</td></tr>
+          <tr><td>Akkreditierung</td><td>Selbstdeklaration / IGN-Prüfung / CH-Kommission</td><td>CH-Kommission prüft vor Saison</td></tr>
+          <tr><td>Newbie-Potential</td><td>Standard 70 / Division angepasst</td><td>70 für Pilotjahr (Review nach Saison 1)</td></tr>
+          <tr><td>Competition Cap</td><td>Kein Cap / 1.8× Saisondurchschnitt</td><td>Kein Cap im Pilotjahr</td></tr>
+        </table>
+        <div class="reg-box" style="margin-top:1rem">Entwurf v1.0 · Überground Basel / OG Ninja Comp App · April 2026 · Basierend auf dem IGN Ninja-Sport-Ranking (Deutschland)</div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end reglement-wrap -->
+
+</div>
+
+</main>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div>CH Ninja Ranking · Powered by OG Ninja Comp App · IGN-Regelwerk 2026 · <a href="#">Datenschutz</a></div>
+  <div>Overground Basel &amp; Schüür Luzern</div>
+</footer>
+
+
+<script>
+// ════════════════════════════════════════════
+// DATA — replace with real API/JSON fetch
+// ════════════════════════════════════════════
+const DATA = {
+  seasons: {
+    2026: {
+      wks: [
+        {id:'wk1-2026', num:'WK 1', name:'OG Ninja Open 2026', date:'14. März 2026', location:'Basel', venue:'Overground Basel', isFinale:false, cv:{am1:5120,af1:3840,tm1:2960,tf1:1980,am2:2340,mast:1540}, status:'done'},
+        {id:'wk2-2026', num:'WK 2', name:'Schüür Challenge 2026', date:'6. Juni 2026', location:'Luzern', venue:'Schüür Luzern', isFinale:false, cv:{am1:4680,af1:3210,tm1:2740,tf1:1820,am2:2080,mast:1320}, status:'upcoming'},
+        {id:'finale-2026', num:'Finale · WK 3', name:'OG Games 2026', date:'12. Dez. 2026', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
+      ],
+      divisions: [
+        {id:'am1', label:'Adults LK1 ♂'},
+        {id:'af1', label:'Adults LK1 ♀'},
+        {id:'am2', label:'Adults LK2 ♂'},
+        {id:'af2', label:'Adults LK2 ♀'},
+        {id:'tm1', label:'Teens LK1 ♂'},
+        {id:'tf1', label:'Teens LK1 ♀'},
+        {id:'mast', label:'Masters'},
+        {id:'bam', label:'Bambini'},
+      ],
+      ranking: {
+        am1: [
+          {rank:1,name:'Chris Harmat',team:'Overground Basel',pot:142,wk1:2840,wk2:null,total:2840,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Luca Bernasconi',team:'Schüür Luzern',pot:128,wk1:2210,wk2:null,total:2210,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:3,name:'Fabian Müller',team:'OG Basel',pot:115,wk1:1980,wk2:null,total:1980,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:4,name:'Adrian Steiner',team:'Schüür Luzern',pot:102,wk1:1640,wk2:null,total:1640,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:5,name:'Marco Zanetti',team:'Newbie · OG Basel',pot:70,wk1:null,wk2:null,total:0,hasWk1:false,hasWk2:false,hasFinale:false,isNewbie:true},
+          {rank:6,name:'Tobias Keller',team:'Schüür Luzern',pot:88,wk1:1210,wk2:null,total:1210,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        af1: [
+          {rank:1,name:'Sophia Maurer',team:'OG Basel',pot:138,wk1:2680,wk2:null,total:2680,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Elena Vogt',team:'Schüür Luzern',pot:122,wk1:2040,wk2:null,total:2040,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:3,name:'Nina Bauer',team:'OG Basel',pot:109,wk1:1760,wk2:null,total:1760,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:4,name:'Laura Fischer',team:'Schüür Luzern',pot:95,wk1:1430,wk2:null,total:1430,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        am2: [
+          {rank:1,name:'Simon Gerber',team:'OG Basel',pot:105,wk1:1920,wk2:null,total:1920,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Nico Huber',team:'Schüür Luzern',pot:98,wk1:1650,wk2:null,total:1650,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:3,name:'David Wyss',team:'OG Basel',pot:82,wk1:1380,wk2:null,total:1380,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        tm1: [
+          {rank:1,name:'Jonas Meier',team:'OG Basel',pot:125,wk1:2340,wk2:null,total:2340,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Lukas Zimmermann',team:'Schüür Luzern',pot:118,wk1:2090,wk2:null,total:2090,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:3,name:'Felix Brunner',team:'OG Basel',pot:104,wk1:1780,wk2:null,total:1780,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        tf1: [
+          {rank:1,name:'Mia Schneider',team:'OG Basel',pot:119,wk1:2150,wk2:null,total:2150,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Anna Weber',team:'Schüür Luzern',pot:103,wk1:1840,wk2:null,total:1840,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        mast: [
+          {rank:1,name:'Stefan Bär',team:'OG Basel',pot:98,wk1:1540,wk2:null,total:1540,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:2,name:'Thomas Frei',team:'Schüür Luzern',pot:87,wk1:1280,wk2:null,total:1280,hasWk1:true,hasWk2:false,hasFinale:false},
+        ],
+        af2: [],
+        bam: [],
+      }
+    }
+  }
+};
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let currentSeason = 2026;
+let currentPage = 'ranking';
+let currentDiv = 'am1';
+let currentWk = 'all'; // 'all' = Jahresranking
+let athleteDivFilter = 'all';
+let athleteSearch = '';
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showPage(pageId, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  if(btn) btn.classList.add('active');
+  currentPage = pageId;
+  if(pageId === 'athletes') renderAthletes();
+  if(pageId === 'events') renderEvents();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function setSeason(year, btn) {
+  document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentSeason = year;
+  document.getElementById('hero-label').textContent = `Saison ${year} — Offizielle Rangliste`;
+  document.getElementById('live-pill').textContent = `Saison ${year} · Live`;
+  document.getElementById('ranking-season-label').textContent = `Saison ${year}`;
+  document.getElementById('events-season-label').textContent = `Saison ${year}`;
+  renderAll();
+}
+
+// ════════════════════════════════════════════
+// RENDER — WK CARDS
+// ════════════════════════════════════════════
+function renderWkCards() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const container = document.getElementById('wk-row');
+  let html = '';
+  season.wks.forEach((wk, i) => {
+    const isActive = (currentWk === wk.id) || (currentWk === 'all' && i === 0);
+    const cv = wk.cv[currentDiv] ? formatNum(wk.cv[currentDiv]) : '—';
+    const badge = wk.isFinale
+      ? `<span class="wk-badge finale-badge">★ Finale · Titelübergabe</span>`
+      : (wk.status === 'upcoming'
+          ? `<span class="wk-badge upcoming-badge">Nächster WK</span>`
+          : `<span class="wk-badge cv-badge">CV: ${cv}</span>`);
+    html += `<div class="wk-card${isActive?' active':''}${wk.isFinale?' finale':''}${wk.status==='future'?' all-wk':''}" onclick="selectWk('${wk.id}',this)">
+      <div class="wk-num">${wk.num}</div>
+      <div class="wk-name">${wk.name}</div>
+      <div class="wk-date">${wk.date} · ${wk.location}</div>
+      ${badge}
+    </div>`;
+  });
+  // "Alle WK" card
+  html += `<div class="wk-card all-wk${currentWk==='all'?' active':''}" onclick="selectWk('all',this)">
+    <div class="wk-num">Alle WK</div>
+    <div class="wk-name">Jahresranking</div>
+    <div class="wk-date">Kumulierte Punkte</div>
+    <span class="wk-badge cv-badge">Gesamt</span>
+  </div>`;
+  container.innerHTML = html;
+}
+
+function selectWk(id, card) {
+  currentWk = id;
+  document.querySelectorAll('.wk-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  renderRankingTable();
+}
+
+// ════════════════════════════════════════════
+// RENDER — DIVISION TABS
+// ════════════════════════════════════════════
+function renderDivTabs() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const container = document.getElementById('div-tabs');
+  let html = '';
+  season.divisions.forEach(div => {
+    html += `<button class="div-tab${currentDiv===div.id?' active':''}" onclick="selectDiv('${div.id}',this)">${div.label}</button>`;
+  });
+  container.innerHTML = html;
+  updateDivSection();
+}
+
+function selectDiv(id, btn) {
+  currentDiv = id;
+  document.querySelectorAll('.div-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateDivSection();
+  renderWkCards();
+  renderRankingTable();
+}
+
+function updateDivSection() {
+  const season = DATA.seasons[currentSeason];
+  const div = season?.divisions.find(d => d.id === currentDiv);
+  if(!div) return;
+  document.getElementById('div-section-title').textContent = div.label;
+  // Find current WK name
+  let wkName = 'Jahresranking';
+  if(currentWk !== 'all') {
+    const wk = season.wks.find(w => w.id === currentWk);
+    if(wk) wkName = wk.name + (wk.isFinale ? ' · Finale' : '');
+  }
+  document.getElementById('div-section-sub').textContent = wkName;
+  // Finale banner
+  const banner = document.getElementById('finale-banner-wrap');
+  const wk = season?.wks.find(w => w.id === currentWk);
+  if(wk?.isFinale) {
+    banner.innerHTML = `<div class="finale-banner"><div><div class="finale-label">★ Finale-Wettkampf</div><div class="finale-txt">${wk.name} · Titelübergabe am ${wk.date} · Competition Value: ${formatNum(wk.cv[currentDiv]||0)}</div></div></div>`;
+  } else {
+    banner.innerHTML = '';
+  }
+}
+
+// ════════════════════════════════════════════
+// RENDER — RANKING TABLE
+// ════════════════════════════════════════════
+function renderRankingTable() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const rows = season.ranking[currentDiv] || [];
+  const wks = season.wks;
+  const maxPts = rows[0]?.total || 1;
+
+  let html = `<div class="ranking-header">
+    <div>#</div>
+    <div>Athlet</div>
+    <div class="col-pot" style="text-align:right">Potential</div>
+    <div class="col-wk1" style="text-align:right">WK 1</div>
+    <div class="col-wk2" style="text-align:right">WK 2</div>
+    <div style="text-align:right">Gesamt</div>
+  </div>`;
+
+  if(rows.length === 0) {
+    html += `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">Noch keine Daten für diese Division.</div>`;
+  } else {
+    rows.forEach((r, i) => {
+      const rankClass = i===0?'g':i===1?'s':i===2?'b':'n';
+      const rowClass = i===0?'gold-row':i===1?'silver-row':i===2?'bronze-row':'';
+      const barClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const barPct = maxPts > 0 ? Math.round((r.total/maxPts)*100) : 0;
+      const ptsColor = i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text)';
+
+      const dot1 = r.hasWk1 ? `<div class="dot ok"></div>` : `<div class="dot miss"></div>`;
+      const dot2 = r.hasWk2 ? `<div class="dot ok"></div>` : `<div class="dot miss"></div>`;
+      const dotF = r.hasFinale ? `<div class="dot finale-dot"></div>` : `<div class="dot miss"></div>`;
+
+      html += `<div class="ranking-row ${rowClass}">
+        <div class="rank ${rankClass}">${r.rank}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="ch-flag"></div>
+            <div class="athlete-name">${r.name}</div>
+            ${r.isNewbie?'<span style="font-size:9px;color:var(--gold);font-weight:700;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:2px">NEWBIE</span>':''}
+          </div>
+          <div class="athlete-sub">${r.team}</div>
+          <div class="progress-wrap"><div class="progress-bar ${barClass}" style="width:${barPct}%"></div></div>
+        </div>
+        <div class="col-pot">
+          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'★':''}</div>
+          <div class="pot-lbl">Potential</div>
+        </div>
+        <div class="col-wk1">
+          ${r.wk1!=null ? `<div class="pts">${formatNum(r.wk1)}</div><div class="pts-sub">WK 1</div>` : `<div class="pts-dash">—</div>`}
+        </div>
+        <div class="col-wk2">
+          ${r.wk2!=null ? `<div class="pts">${formatNum(r.wk2)}</div><div class="pts-sub">WK 2</div>` : `<div class="pts-dash">—</div>`}
+        </div>
+        <div>
+          <div class="pts" style="color:${ptsColor}">${r.total>0?formatNum(r.total):'—'}</div>
+          <div class="wk-dots">${dot1}${dot2}${dotF}</div>
+        </div>
+      </div>`;
+    });
+  }
+
+  const champ = rows[0];
+  html += `<div class="ranking-footer">
+    ${rows.length>0&&champ?.total>0 ? `★ Newbie-Potential (70 Punkte) · ⦿ Aktuell führt: <strong style="color:var(--gold)">${champ.name}</strong>` : 'Noch keine abgeschlossenen Wettkämpfe'}
+  </div>`;
+
+  document.getElementById('ranking-table').innerHTML = html;
+
+  // Update hero stats
+  const allAthletes = new Set();
+  Object.values(season.ranking).forEach(divRows => divRows.forEach(r => allAthletes.add(r.name)));
+  document.getElementById('stat-ath').textContent = allAthletes.size || '—';
+  document.getElementById('stat-wk').textContent = season.wks.filter(w=>w.status==='done').length;
+}
+
+// ════════════════════════════════════════════
+// RENDER — EVENTS PAGE
+// ════════════════════════════════════════════
+function renderEvents() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const container = document.getElementById('events-grid');
+  let html = '';
+  season.wks.forEach(wk => {
+    const totalAthletes = Object.values(wk.cv).reduce((a,b)=>a+b,0) > 0
+      ? Math.round(Object.values(wk.cv).reduce((a,b)=>a+b,0)/1000*20) : '—';
+    const statusHtml = wk.status==='done'
+      ? '<span class="event-status status-done">Abgeschlossen</span>'
+      : wk.status==='upcoming'
+        ? `<span class="event-status status-upcoming">Nächster Wettkampf</span>`
+        : `<span class="event-status" style="color:var(--dim)">Geplant</span>`;
+    html += `<div class="event-card${wk.isFinale?' finale-card':''}${wk.status==='upcoming'?' upcoming-card':''}">
+      <div class="event-card-header">
+        <div>
+          <div class="event-num">${wk.num} · ${currentSeason}</div>
+          <div class="event-title">${wk.name}</div>
+          <div class="event-date">${wk.date} · ${wk.location}</div>
+        </div>
+        ${wk.isFinale?'<span class="wk-badge finale-badge">★ Finale</span>':wk.status==='upcoming'?'<span class="wk-badge upcoming-badge">Coming</span>':''}
+      </div>
+      <div class="event-body">
+        <div class="event-row"><span class="event-key">Venue</span><span class="event-val">${wk.venue}</span></div>
+        <div class="event-row"><span class="event-key">Divisionen</span><span class="event-val">${Object.keys(wk.cv).length>0?Object.keys(wk.cv).length:'—'}</span></div>
+        <div class="event-row"><span class="event-key">Regelwerk</span><span class="event-val">IGN 2026</span></div>
+        ${wk.isFinale?'<div class="event-row"><span class="event-key">Titelübergabe</span><span class="event-val" style="color:var(--gold)">★ CH Meister 2026</span></div>':''}
+      </div>
+      <div class="event-footer">${statusHtml}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ════════════════════════════════════════════
+// RENDER — ATHLETES PAGE
+// ════════════════════════════════════════════
+const EMOJIS = ['🥷','💪','🔥','⚡','🌟','🏅','🤸','🧗','🦸','🐉','🦅','🏆','🥇','🎯','🦁'];
+function renderAthletes() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const container = document.getElementById('athletes-grid');
+  let all = [];
+  season.divisions.forEach(div => {
+    const rows = season.ranking[div.id] || [];
+    rows.forEach(r => {
+      all.push({...r, divId: div.id, divLabel: div.label});
+    });
+  });
+  // Deduplicate by name
+  const seen = new Set();
+  all = all.filter(a => { if(seen.has(a.name)) return false; seen.add(a.name); return true; });
+
+  // Filter
+  let filtered = all;
+  if(athleteDivFilter !== 'all') filtered = filtered.filter(a => a.divId === athleteDivFilter);
+  if(athleteSearch.trim()) {
+    const q = athleteSearch.toLowerCase();
+    filtered = filtered.filter(a => a.name.toLowerCase().includes(q) || a.team.toLowerCase().includes(q));
+  }
+
+  let html = '';
+  filtered.forEach((a, i) => {
+    const emoji = EMOJIS[i % EMOJIS.length];
+    const rankColor = a.rank===1?'var(--gold)':a.rank===2?'var(--silver)':a.rank===3?'var(--bronze)':'var(--text)';
+    html += `<div class="athlete-card">
+      <div class="athlete-avatar">${emoji}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+        <div class="ch-flag" style="width:13px;height:10px"></div>
+        <div class="athlete-card-name">${a.name}</div>
+      </div>
+      <div class="athlete-card-team">${a.team}</div>
+      <div class="athlete-card-div">${a.divLabel}</div>
+      <div class="athlete-card-pts" style="color:${rankColor}">${a.total>0?formatNum(a.total):'—'}</div>
+      <div class="athlete-card-rank">Rang ${a.rank} · ${currentSeason}</div>
+    </div>`;
+  });
+  if(!html) html = `<div style="color:var(--muted);font-size:13px;padding:2rem;grid-column:1/-1">Keine Athleten gefunden.</div>`;
+  container.innerHTML = html;
+}
+
+function filterAthletes(q) {
+  athleteSearch = q;
+  renderAthletes();
+}
+
+function filterAthletesDiv(div, btn) {
+  athleteDivFilter = div;
+  document.querySelectorAll('#page-athletes .div-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAthletes();
+}
+
+// ════════════════════════════════════════════
+// REGLEMENT NAV
+// ════════════════════════════════════════════
+function scrollReg(id, link) {
+  document.querySelectorAll('.reglement-nav-item').forEach(a => a.classList.remove('active'));
+  link.classList.add('active');
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════
+function formatNum(n) {
+  return n >= 1000 ? (Math.floor(n/1000)) + "'" + String(n%1000).padStart(3,'0') : String(n);
+}
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+function renderAll() {
+  renderDivTabs();
+  renderWkCards();
+  renderRankingTable();
+}
+
+// Load real data from JSON if available
+async function tryLoadData() {
+  try {
+    const res = await fetch('./data/ranking-2026.json');
+    if(res.ok) {
+      const json = await res.json();
+      if(json.seasons) Object.assign(DATA.seasons, json.seasons);
+    }
+  } catch(e) { /* use sample data */ }
+  renderAll();
+}
+
+tryLoadData();
+</script>
+</body>
+</html>
