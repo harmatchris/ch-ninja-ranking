@@ -1,7 +1,7 @@
 {
-  "_comment": "CH Ninja Ranking – Saison 2026. Diese Datei wird automatisch von der OG Ninja Comp App nach jedem akkreditierten Wettkampf aktualisiert.",
-  "_version": "1.0",
-  "_lastUpdated": "2026-03-14T20:30:00Z",
+  "_comment": "CH Ninja Ranking – Saison 2026. Wird nach jedem akkreditierten Wettkampf aktualisiert.",
+  "_version": "1.1",
+  "_lastUpdated": "2026-04-03T00:00:00Z",
   "seasons": {
     "2026": {
       "wks": [
@@ -13,26 +13,20 @@
           "location": "Basel",
           "venue": "Overground Basel",
           "isFinale": false,
-          "cv": {
-            "am1": 5120,
-            "af1": 3840,
-            "tm1": 2960,
-            "tf1": 1980,
-            "am2": 2340,
-            "mast": 1540
-          },
+          "cv": {"am1": 5120, "af1": 3840, "tm1": 2960, "tf1": 1980, "am2": 2340, "mast": 1540},
           "status": "done"
         },
         {
           "id": "wk2-2026",
           "num": "WK 2",
-          "name": "Schüür Challenge 2026",
-          "date": "6. Juni 2026",
-          "location": "Luzern",
-          "venue": "Schüür Luzern",
+          "name": "Test Wettkampf 234",
+          "date": "3. April 2026",
+          "location": "Basel",
+          "venue": "OG Ninja Comp App · EE92HC",
           "isFinale": false,
-          "cv": {},
-          "status": "upcoming"
+          "cv": {"am1": 2000},
+          "status": "done",
+          "compCode": "EE92HC"
         },
         {
           "id": "finale-2026",
@@ -62,41 +56,39 @@
       ],
       "ranking": {
         "am1": [
-          {"rank": 1, "name": "Chris Harmat", "team": "Overground Basel", "pot": 142, "wk1": 2840, "wk2": null, "total": 2840, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Luca Bernasconi", "team": "Schüür Luzern", "pot": 128, "wk1": 2210, "wk2": null, "total": 2210, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 3, "name": "Fabian Müller", "team": "OG Basel", "pot": 115, "wk1": 1980, "wk2": null, "total": 1980, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 4, "name": "Adrian Steiner", "team": "Schüür Luzern", "pot": 102, "wk1": 1640, "wk2": null, "total": 1640, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 5, "name": "Tobias Keller", "team": "Schüür Luzern", "pot": 88, "wk1": 1210, "wk2": null, "total": 1210, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 6, "name": "Marco Zanetti", "team": "OG Basel", "pot": 70, "wk1": null, "wk2": null, "total": 0, "hasWk1": false, "hasWk2": false, "hasFinale": false, "isNewbie": true}
+          {"rank": 1, "name": "Chris Harmat",     "team": "Overground Basel", "pot": 142, "wk1": 2840, "wk2": 580,  "total": 3420, "hasWk1": true,  "hasWk2": true,  "hasFinale": false},
+          {"rank": 2, "name": "Luca Bernasconi",  "team": "Schüür Luzern",    "pot": 128, "wk1": 2210, "wk2": 950,  "total": 3160, "hasWk1": true,  "hasWk2": true,  "hasFinale": false},
+          {"rank": 3, "name": "Fabian Müller",    "team": "OG Basel",         "pot": 115, "wk1": 1980, "wk2": null, "total": 1980, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 4, "name": "Adrian Steiner",   "team": "Schüür Luzern",    "pot": 102, "wk1": 1640, "wk2": null, "total": 1640, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 5, "name": "Tobias Keller",    "team": "Schüür Luzern",    "pot": 88,  "wk1": 1210, "wk2": null, "total": 1210, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 6, "name": "Anna Müller",      "team": "OG Basel",         "pot": 95,  "wk1": null, "wk2": 1200, "total": 1200, "hasWk1": false, "hasWk2": true,  "hasFinale": false, "isNewbie": true},
+          {"rank": 7, "name": "Marco Zanetti",    "team": "OG Basel",         "pot": 70,  "wk1": null, "wk2": 750,  "total": 750,  "hasWk1": false, "hasWk2": true,  "hasFinale": false, "isNewbie": true}
         ],
         "af1": [
-          {"rank": 1, "name": "Sophia Maurer", "team": "OG Basel", "pot": 138, "wk1": 2680, "wk2": null, "total": 2680, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Elena Vogt", "team": "Schüür Luzern", "pot": 122, "wk1": 2040, "wk2": null, "total": 2040, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 3, "name": "Nina Bauer", "team": "OG Basel", "pot": 109, "wk1": 1760, "wk2": null, "total": 1760, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 4, "name": "Laura Fischer", "team": "Schüür Luzern", "pot": 95, "wk1": 1430, "wk2": null, "total": 1430, "hasWk1": true, "hasWk2": false, "hasFinale": false}
+          {"rank": 1, "name": "Sophia Maurer",    "team": "OG Basel",         "pot": 138, "wk1": 2680, "wk2": null, "total": 2680, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 2, "name": "Elena Vogt",       "team": "Schüür Luzern",    "pot": 122, "wk1": 2040, "wk2": null, "total": 2040, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 3, "name": "Nina Bauer",       "team": "OG Basel",         "pot": 109, "wk1": 1760, "wk2": null, "total": 1760, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 4, "name": "Laura Fischer",    "team": "Schüür Luzern",    "pot": 95,  "wk1": 1430, "wk2": null, "total": 1430, "hasWk1": true,  "hasWk2": false, "hasFinale": false}
         ],
         "am2": [
-          {"rank": 1, "name": "Simon Gerber", "team": "OG Basel", "pot": 105, "wk1": 1920, "wk2": null, "total": 1920, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Nico Huber", "team": "Schüür Luzern", "pot": 98, "wk1": 1650, "wk2": null, "total": 1650, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 3, "name": "David Wyss", "team": "OG Basel", "pot": 82, "wk1": 1380, "wk2": null, "total": 1380, "hasWk1": true, "hasWk2": false, "hasFinale": false}
+          {"rank": 1, "name": "Simon Gerber",     "team": "OG Basel",         "pot": 105, "wk1": 1920, "wk2": null, "total": 1920, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 2, "name": "Nico Huber",       "team": "Schüür Luzern",    "pot": 98,  "wk1": 1650, "wk2": null, "total": 1650, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 3, "name": "David Wyss",       "team": "OG Basel",         "pot": 82,  "wk1": 1380, "wk2": null, "total": 1380, "hasWk1": true,  "hasWk2": false, "hasFinale": false}
         ],
         "af2": [],
         "tm1": [
-          {"rank": 1, "name": "Jonas Meier", "team": "OG Basel", "pot": 125, "wk1": 2340, "wk2": null, "total": 2340, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Lukas Zimmermann", "team": "Schüür Luzern", "pot": 118, "wk1": 2090, "wk2": null, "total": 2090, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 3, "name": "Felix Brunner", "team": "OG Basel", "pot": 104, "wk1": 1780, "wk2": null, "total": 1780, "hasWk1": true, "hasWk2": false, "hasFinale": false}
+          {"rank": 1, "name": "Jonas Meier",      "team": "OG Basel",         "pot": 125, "wk1": 2340, "wk2": null, "total": 2340, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 2, "name": "Lukas Zimmermann", "team": "Schüür Luzern",    "pot": 118, "wk1": 2090, "wk2": null, "total": 2090, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 3, "name": "Felix Brunner",    "team": "OG Basel",         "pot": 104, "wk1": 1780, "wk2": null, "total": 1780, "hasWk1": true,  "hasWk2": false, "hasFinale": false}
         ],
         "tf1": [
-          {"rank": 1, "name": "Mia Schneider", "team": "OG Basel", "pot": 119, "wk1": 2150, "wk2": null, "total": 2150, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Anna Weber", "team": "Schüür Luzern", "pot": 103, "wk1": 1840, "wk2": null, "total": 1840, "hasWk1": true, "hasWk2": false, "hasFinale": false}
+          {"rank": 1, "name": "Mia Schneider",    "team": "OG Basel",         "pot": 119, "wk1": 2150, "wk2": null, "total": 2150, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 2, "name": "Anna Weber",       "team": "Schüür Luzern",    "pot": 103, "wk1": 1840, "wk2": null, "total": 1840, "hasWk1": true,  "hasWk2": false, "hasFinale": false}
         ],
-        "tm2": [],
-        "tf2": [],
-        "km1": [],
-        "kf1": [],
+        "tm2": [], "tf2": [], "km1": [], "kf1": [],
         "mast": [
-          {"rank": 1, "name": "Stefan Bär", "team": "OG Basel", "pot": 98, "wk1": 1540, "wk2": null, "total": 1540, "hasWk1": true, "hasWk2": false, "hasFinale": false},
-          {"rank": 2, "name": "Thomas Frei", "team": "Schüür Luzern", "pot": 87, "wk1": 1280, "wk2": null, "total": 1280, "hasWk1": true, "hasWk2": false, "hasFinale": false}
+          {"rank": 1, "name": "Stefan Bär",       "team": "OG Basel",         "pot": 98,  "wk1": 1540, "wk2": null, "total": 1540, "hasWk1": true,  "hasWk2": false, "hasFinale": false},
+          {"rank": 2, "name": "Thomas Frei",      "team": "Schüür Luzern",    "pot": 87,  "wk1": 1280, "wk2": null, "total": 1280, "hasWk1": true,  "hasWk2": false, "hasFinale": false}
         ],
         "bam": []
       }
