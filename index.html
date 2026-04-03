@@ -617,7 +617,7 @@ const DATA = {
     2026: {
       wks: [
         {id:'wk1-2026', num:'WK 1', name:'OG Ninja Open 2026', date:'14. März 2026', location:'Basel', venue:'Overground Basel', isFinale:false, cv:{am1:5120,af1:3840,tm1:2960,tf1:1980,am2:2340,mast:1540}, status:'done'},
-        {id:'wk2-2026', num:'WK 2', name:'Schüür Challenge 2026', date:'6. Juni 2026', location:'Luzern', venue:'Schüür Luzern', isFinale:false, cv:{am1:4680,af1:3210,tm1:2740,tf1:1820,am2:2080,mast:1320}, status:'upcoming'},
+        {id:'wk2-2026', num:'WK 2', name:'Test Wettkampf 234', date:'3. April 2026', location:'Basel', venue:'OG Ninja Comp App · EE92HC', isFinale:false, cv:{am1:2000}, status:'done', compCode:'EE92HC'},
         {id:'finale-2026', num:'Finale · WK 3', name:'OG Games 2026', date:'12. Dez. 2026', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
       ],
       divisions: [
@@ -632,12 +632,13 @@ const DATA = {
       ],
       ranking: {
         am1: [
-          {rank:1,name:'Chris Harmat',team:'Overground Basel',pot:142,wk1:2840,wk2:null,total:2840,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Luca Bernasconi',team:'Schüür Luzern',pot:128,wk1:2210,wk2:null,total:2210,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:1,name:'Chris Harmat',team:'Overground Basel',pot:142,wk1:2840,wk2:580,total:3420,hasWk1:true,hasWk2:true,hasFinale:false},
+          {rank:2,name:'Luca Bernasconi',team:'Schüür Luzern',pot:128,wk1:2210,wk2:950,total:3160,hasWk1:true,hasWk2:true,hasFinale:false},
           {rank:3,name:'Fabian Müller',team:'OG Basel',pot:115,wk1:1980,wk2:null,total:1980,hasWk1:true,hasWk2:false,hasFinale:false},
           {rank:4,name:'Adrian Steiner',team:'Schüür Luzern',pot:102,wk1:1640,wk2:null,total:1640,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:5,name:'Marco Zanetti',team:'Newbie · OG Basel',pot:70,wk1:null,wk2:null,total:0,hasWk1:false,hasWk2:false,hasFinale:false,isNewbie:true},
-          {rank:6,name:'Tobias Keller',team:'Schüür Luzern',pot:88,wk1:1210,wk2:null,total:1210,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:5,name:'Tobias Keller',team:'Schüür Luzern',pot:88,wk1:1210,wk2:null,total:1210,hasWk1:true,hasWk2:false,hasFinale:false},
+          {rank:6,name:'Anna Müller',team:'OG Basel',pot:95,wk1:null,wk2:1200,total:1200,hasWk1:false,hasWk2:true,hasFinale:false,isNewbie:true},
+          {rank:7,name:'Marco Zanetti',team:'OG Basel',pot:70,wk1:null,wk2:750,total:750,hasWk1:false,hasWk2:true,hasFinale:false,isNewbie:true},
         ],
         af1: [
           {rank:1,name:'Sophia Maurer',team:'OG Basel',pot:138,wk1:2680,wk2:null,total:2680,hasWk1:true,hasWk2:false,hasFinale:false},
