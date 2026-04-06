@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CH Ninja Ranking — Schweizer Meisterschaft</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
 <style>
 /* ── Variables ── */
 :root {
@@ -221,6 +222,38 @@ footer a:hover{color:var(--muted)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .fade-up{animation:fadeUp .25s ease forwards}
 
+/* ── Hamburger ── */
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:10px 0;flex-direction:column;justify-content:center;gap:5px;margin-left:auto;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:1px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.open span:nth-child(2){opacity:0;transform:translateX(-8px)}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+
+/* ── Back button ── */
+.back-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.38rem .9rem;background:transparent;border:1px solid var(--border2);border-radius:4px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.05em;cursor:pointer;transition:all .2s;font-family:inherit;text-transform:uppercase}
+.back-btn:hover{border-color:var(--red);color:var(--text)}
+
+/* ── Detail page ── */
+.detail-header-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.detail-wk-num{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:4px}
+.detail-wk-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:32px;letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+.detail-wk-meta{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* ── Stats Charts ── */
+.stats-tabs{display:flex;gap:.4rem;margin-bottom:1.25rem;flex-wrap:wrap}
+.stats-tab{padding:.35rem .9rem;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--border2);border-radius:3px;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;font-family:inherit}
+.stats-tab:hover{border-color:var(--dim);color:var(--text)}
+.stats-tab.active{background:var(--red);border-color:var(--red);color:#fff}
+.stats-chart-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:2rem}
+.stats-chart-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.stats-chart-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--red);border-radius:1px;flex-shrink:0}
+.stats-note{font-size:11px;color:var(--dim);margin-top:.75rem;text-align:center}
+.no-stats{padding:2.5rem;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── 5-column detail ranking (no wk2 col) ── */
+.ranking-5col .ranking-header,
+.ranking-5col .ranking-row{grid-template-columns:52px 1fr 85px 85px 95px}
+
 /* ── Responsive ── */
 @media(max-width:800px){
   .topbar{padding:0 1rem}
@@ -236,14 +269,26 @@ footer a:hover{color:var(--muted)}
   .reglement-nav{position:static}
   .wk-card{min-width:130px}
   .events-grid{grid-template-columns:1fr}
+  .ranking-5col .ranking-header,
+  .ranking-5col .ranking-row{grid-template-columns:44px 1fr 75px 85px}
+}
+@media(max-width:767px){
+  .hamburger{display:flex}
+  nav{flex-wrap:wrap;padding:0 1rem}
+  .nav-links{display:none;width:100%;flex-direction:column;padding:.3rem 0;border-top:1px solid var(--border)}
+  .nav-links.open{display:flex}
+  .nav-link{padding:.75rem .5rem;border-bottom:1px solid rgba(255,255,255,.04);justify-content:flex-start;font-size:13px;border-left:3px solid transparent;border-bottom-width:1px!important;width:100%}
+  .nav-link.active{border-left-color:var(--red);background:rgba(230,51,41,.04)}
+  .nav-link:hover{border-bottom-color:rgba(255,255,255,.04)}
 }
 @media(max-width:520px){
   .ranking-header,.ranking-row{grid-template-columns:40px 1fr 80px}
   .col-wk1{display:none}
   .hero-title{font-size:32px}
   .stat-val{font-size:32px}
-  .nav-link{padding:0 .7rem;font-size:11px}
   .athletes-grid{grid-template-columns:repeat(2,1fr)}
+  .ranking-5col .ranking-header,
+  .ranking-5col .ranking-row{grid-template-columns:40px 1fr 80px}
 }
 </style>
 </head>
@@ -274,12 +319,15 @@ footer a:hover{color:var(--muted)}
       <div class="brand-sub">Schweizer Meisterschaft</div>
     </div>
   </div>
-  <div class="nav-links">
+  <div class="nav-links" id="nav-links">
     <button class="nav-link active" onclick="showPage('ranking',this)">Ranking</button>
     <button class="nav-link" onclick="showPage('events',this)">Wettkämpfe</button>
     <button class="nav-link" onclick="showPage('athletes',this)">Athleten</button>
     <button class="nav-link" onclick="showPage('reglement',this)">Reglement</button>
   </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ══ HERO ══ -->
@@ -599,6 +647,41 @@ footer a:hover{color:var(--muted)}
 
 </div>
 
+
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: WK DETAIL            ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-detail">
+
+  <!-- Back row -->
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+    <button class="back-btn" onclick="closeDetail()">← Zurück</button>
+    <div id="detail-breadcrumb" style="font-size:11px;color:var(--muted);letter-spacing:.04em"></div>
+  </div>
+
+  <!-- WK Header Card -->
+  <div class="detail-header-card" id="detail-header"></div>
+
+  <!-- Division Tabs -->
+  <div class="div-tabs" id="detail-div-tabs"></div>
+
+  <!-- Results Table (5 columns) -->
+  <div class="ranking-wrap ranking-5col" id="detail-ranking-table"></div>
+
+  <!-- Stats Section -->
+  <div class="section-head" style="margin-top:2rem">
+    <div class="section-title">Statistiken</div>
+    <div class="section-sub" id="detail-stats-sub"></div>
+  </div>
+
+  <div class="stats-tabs" id="detail-stats-tabs"></div>
+
+  <div class="stats-chart-box" id="detail-stats-chart">
+    <div class="no-stats">Keine Statistiken verfügbar.</div>
+  </div>
+
+</div>
+
 </main>
 
 <!-- ══ FOOTER ══ -->
@@ -616,8 +699,34 @@ const DATA = {
   seasons: {
     2026: {
       wks: [
-        {id:'wk1-2026', num:'WK 1', name:'OG Ninja Open 2026', date:'14. März 2026', location:'Basel', venue:'Overground Basel', isFinale:false, cv:{am1:5120,af1:3840,tm1:2960,tf1:1980,am2:2340,mast:1540}, status:'done'},
-        {id:'wk2-2026', num:'WK 2', name:'Test Wettkampf 234', date:'3. April 2026', location:'Basel', venue:'OG Ninja Comp App · EE92HC', isFinale:false, cv:{am1:2000}, status:'done', compCode:'EE92HC'},
+        {id:'wk1-2026', num:'WK 1', name:'OG Ninja Open 2026', date:'14. März 2026', location:'Basel', venue:'Overground Basel', isFinale:false, cv:{am1:5120,af1:3840,tm1:2960,tf1:1980,am2:2340,mast:1540}, status:'done', stats:{
+          am1:{
+            survivalRate:[{label:'Obs 1 · Rollenleiter',pct:100},{label:'Obs 2 · Floating Steps',pct:80},{label:'Obs 3 · Wackelbrücke',pct:80},{label:'Obs 4 · Steilwand',pct:60},{label:'Obs 5 · Ringen',pct:60},{label:'Obs 6 · Spinning Log',pct:40},{label:'Obs 7 · Salmon Ladder',pct:40},{label:'Obs 8 · Spider Walk',pct:20}],
+            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:2},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
+          },
+          af1:{
+            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:75},{label:'Obs 4',pct:75},{label:'Obs 5',pct:50},{label:'Obs 6',pct:50},{label:'Obs 7',pct:25},{label:'Obs 8',pct:25}],
+            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
+          },
+          tm1:{
+            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:67},{label:'Obs 4',pct:67},{label:'Obs 5',pct:33},{label:'Obs 6',pct:33},{label:'Obs 7',pct:33},{label:'Obs 8',pct:0}],
+            pointsDist:[{label:'1500–1999',count:1},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
+          },
+          am2:{
+            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:67},{label:'Obs 4',pct:67},{label:'Obs 5',pct:33},{label:'Obs 6',pct:33}],
+            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1},{label:'1999–2499',count:1}]
+          },
+          mast:{
+            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:50},{label:'Obs 4',pct:50},{label:'Obs 5',pct:50},{label:'Obs 6',pct:0}],
+            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1}]
+          }
+        }},
+        {id:'wk2-2026', num:'WK 2', name:'Test Wettkampf 234', date:'3. April 2026', location:'Basel', venue:'OG Ninja Comp App · EE92HC', isFinale:false, cv:{am1:2000}, status:'done', compCode:'EE92HC', stats:{
+          am1:{
+            survivalRate:[{label:'Obs 1 · Rollenleiter',pct:100},{label:'Obs 2 · Wackelbrücke',pct:75},{label:'Obs 3 · Ringen',pct:75},{label:'Obs 4 · Steilwand',pct:50},{label:'Obs 5 · Salmon Ladder',pct:25},{label:'Obs 6 · Spider Walk',pct:25}],
+            pointsDist:[{label:'500–749',count:1},{label:'750–999',count:2},{label:'1000–1249',count:1}]
+          }
+        }},
         {id:'finale-2026', num:'Finale · WK 3', name:'OG Games 2026', date:'12. Dez. 2026', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
       ],
       divisions: [
@@ -685,6 +794,7 @@ let athleteSearch = '';
 // NAVIGATION
 // ════════════════════════════════════════════
 function showPage(pageId, btn) {
+  closeMobileNav();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + pageId).classList.add('active');
@@ -740,10 +850,14 @@ function renderWkCards() {
 }
 
 function selectWk(id, card) {
-  currentWk = id;
-  document.querySelectorAll('.wk-card').forEach(c => c.classList.remove('active'));
-  card.classList.add('active');
-  renderRankingTable();
+  if(id === 'all') {
+    currentWk = 'all';
+    document.querySelectorAll('.wk-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    renderRankingTable();
+  } else {
+    openWkDetail(id);
+  }
 }
 
 // ════════════════════════════════════════════
@@ -971,6 +1085,268 @@ function scrollReg(id, link) {
   document.querySelectorAll('.reglement-nav-item').forEach(a => a.classList.remove('active'));
   link.classList.add('active');
   document.getElementById(id)?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ════════════════════════════════════════════
+// MOBILE NAV
+// ════════════════════════════════════════════
+function toggleMobileNav() {
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+  hamburger.classList.toggle('open');
+  navLinks.classList.toggle('open');
+}
+function closeMobileNav() {
+  document.getElementById('hamburger')?.classList.remove('open');
+  document.getElementById('nav-links')?.classList.remove('open');
+}
+
+// ════════════════════════════════════════════
+// WK DETAIL PAGE
+// ════════════════════════════════════════════
+let currentDetailWk = null;
+let currentDetailDiv = 'am1';
+let currentStatsTab = 'survival';
+let detailSourcePage = 'ranking';
+
+function openWkDetail(wkId) {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === wkId);
+  if(!wk || wk.status === 'future') return;
+  detailSourcePage = currentPage;
+  currentDetailWk = wkId;
+  // Find first division that has actual results for this WK
+  const wkIdx = season.wks.findIndex(w => w.id === wkId);
+  const hasField = `hasWk${wkIdx + 1}`;
+  let firstDiv = season.divisions[0]?.id || 'am1';
+  for(const div of season.divisions) {
+    const rows = season.ranking[div.id] || [];
+    if(rows.some(r => r[hasField])) { firstDiv = div.id; break; }
+  }
+  currentDetailDiv = firstDiv;
+  currentStatsTab = 'survival';
+  renderDetailPage();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-detail').classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function closeDetail() {
+  const activeNavBtn = document.querySelector(`.nav-link[onclick*="'${detailSourcePage}'"]`);
+  showPage(detailSourcePage, activeNavBtn);
+}
+
+function renderDetailPage() {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  if(!wk) return;
+  // Breadcrumb
+  document.getElementById('detail-breadcrumb').textContent = `Ranking → ${wk.name}`;
+  // Header card
+  const cvVal = wk.cv[currentDetailDiv] ? formatNum(wk.cv[currentDetailDiv]) : '—';
+  document.getElementById('detail-header').innerHTML = `
+    <div>
+      <div class="detail-wk-num">${wk.num} · ${currentSeason}</div>
+      <div class="detail-wk-title">${wk.name}</div>
+      <div class="detail-wk-meta">${wk.date} · ${wk.location} · ${wk.venue}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      ${wk.isFinale ? '<span class="wk-badge finale-badge" style="display:inline-block;margin-bottom:6px">★ Finale</span><br>' : ''}
+      <div style="font-size:11px;color:var(--muted)" id="detail-cv-label">CV: ${cvVal}</div>
+      <div style="font-size:10px;color:var(--dim);margin-top:3px">${wk.status === 'done' ? 'Abgeschlossen' : 'Geplant'}</div>
+    </div>
+  `;
+  renderDetailDivTabs();
+  renderDetailResults();
+  renderDetailStatsTabs();
+  renderStatsChart();
+}
+
+function renderDetailDivTabs() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const wkIdx = season.wks.findIndex(w => w.id === currentDetailWk);
+  const hasField = `hasWk${wkIdx + 1}`;
+  const container = document.getElementById('detail-div-tabs');
+  let html = '';
+  season.divisions.forEach(div => {
+    const rows = season.ranking[div.id] || [];
+    if(!rows.some(r => r[hasField])) return;
+    html += `<button class="div-tab${currentDetailDiv === div.id ? ' active' : ''}" onclick="selectDetailDiv('${div.id}',this)">${div.label}</button>`;
+  });
+  if(!html) html = `<span style="color:var(--muted);font-size:12px">Keine Divisionen mit Resultaten.</span>`;
+  container.innerHTML = html;
+}
+
+function selectDetailDiv(divId, btn) {
+  currentDetailDiv = divId;
+  document.querySelectorAll('#detail-div-tabs .div-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Update CV label
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  if(wk) {
+    const cvEl = document.getElementById('detail-cv-label');
+    if(cvEl) cvEl.textContent = 'CV: ' + (wk.cv[divId] ? formatNum(wk.cv[divId]) : '—');
+  }
+  renderDetailResults();
+  renderStatsChart();
+}
+
+function renderDetailResults() {
+  const season = DATA.seasons[currentSeason];
+  if(!season) return;
+  const wkIdx = season.wks.findIndex(w => w.id === currentDetailWk);
+  if(wkIdx < 0) return;
+  const wkField = `wk${wkIdx + 1}`;
+  const hasField = `hasWk${wkIdx + 1}`;
+  const wk = season.wks[wkIdx];
+  const allRows = season.ranking[currentDetailDiv] || [];
+  const rows = allRows
+    .filter(r => r[hasField])
+    .sort((a, b) => (b[wkField] || 0) - (a[wkField] || 0));
+  const maxPts = rows[0]?.[wkField] || 1;
+
+  let html = `<div class="ranking-header">
+    <div>#</div>
+    <div>Athlet</div>
+    <div class="col-pot" style="text-align:right">Potential</div>
+    <div class="col-wk1" style="text-align:right">Punkte</div>
+    <div style="text-align:right">Jahresrang</div>
+  </div>`;
+
+  if(rows.length === 0) {
+    html += `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">Keine Resultate für diese Division.</div>`;
+  } else {
+    rows.forEach((r, i) => {
+      const rankClass = i===0?'g':i===1?'s':i===2?'b':'n';
+      const rowClass = i===0?'gold-row':i===1?'silver-row':i===2?'bronze-row':'';
+      const barClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      const ptsColor = i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text)';
+      const barPct = maxPts > 0 ? Math.round(((r[wkField]||0)/maxPts)*100) : 0;
+      html += `<div class="ranking-row ${rowClass}">
+        <div class="rank ${rankClass}">${i+1}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div class="ch-flag"></div>
+            <div class="athlete-name">${r.name}</div>
+            ${r.isNewbie?'<span style="font-size:9px;color:var(--gold);font-weight:700;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.25);padding:1px 5px;border-radius:2px">NEWBIE</span>':''}
+          </div>
+          <div class="athlete-sub">${r.team}</div>
+          <div class="progress-wrap"><div class="progress-bar ${barClass}" style="width:${barPct}%"></div></div>
+        </div>
+        <div class="col-pot">
+          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'★':''}</div>
+          <div class="pot-lbl">Potential</div>
+        </div>
+        <div class="col-wk1">
+          ${r[wkField]!=null ? `<div class="pts" style="color:${ptsColor}">${formatNum(r[wkField])}</div><div class="pts-sub">${wk.name}</div>` : `<div class="pts-dash">—</div>`}
+        </div>
+        <div>
+          <div class="pts" style="color:${ptsColor};font-size:15px">↗ ${r.rank}</div>
+          <div class="pts-sub">Jahresrang</div>
+        </div>
+      </div>`;
+    });
+  }
+  html += `<div class="ranking-footer">${rows.length} Athleten · ${wk.name} · ${wk.date}</div>`;
+  document.getElementById('detail-ranking-table').innerHTML = html;
+}
+
+function renderDetailStatsTabs() {
+  const tabs = [
+    {id:'survival', label:'Survival Rate'},
+    {id:'points',   label:'Punkte-Verteilung'},
+  ];
+  const container = document.getElementById('detail-stats-tabs');
+  container.innerHTML = tabs.map(t =>
+    `<button class="stats-tab${currentStatsTab===t.id?' active':''}" onclick="setStatsTab('${t.id}',this)">${t.label}</button>`
+  ).join('');
+}
+
+function setStatsTab(tabId, btn) {
+  currentStatsTab = tabId;
+  document.querySelectorAll('.stats-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderStatsChart();
+}
+
+function renderStatsChart() {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  const container = document.getElementById('detail-stats-chart');
+  const stats = wk?.stats?.[currentDetailDiv];
+  if(!stats) {
+    container.innerHTML = `<div class="no-stats">Keine Statistiken für diese Division verfügbar.</div>`;
+    return;
+  }
+  // Destroy existing chart instance
+  if(window._detailChart) { window._detailChart.destroy(); window._detailChart = null; }
+  const isSurvival = currentStatsTab === 'survival';
+  const chartData = isSurvival ? stats.survivalRate : stats.pointsDist;
+  const title = isSurvival
+    ? 'Survival Rate — Erfolgsquote pro Hindernis'
+    : 'Punkte-Verteilung — Athleten pro Punktebereich';
+  const note = isSurvival
+    ? 'Prozentsatz der Athleten, die das jeweilige Hindernis erfolgreich abgeschlossen haben.'
+    : 'Anzahl Athleten pro Punktebereich in dieser Division.';
+  container.innerHTML = `
+    <div class="stats-chart-title">${title}</div>
+    <div style="position:relative;height:200px">
+      <canvas id="stats-canvas"></canvas>
+    </div>
+    <div class="stats-note">${note}</div>
+  `;
+  const colors = isSurvival
+    ? chartData.map(d => d.pct >= 80 ? 'rgba(52,199,89,0.75)' : d.pct >= 50 ? 'rgba(255,149,0,0.75)' : 'rgba(230,51,41,0.75)')
+    : chartData.map(() => 'rgba(230,51,41,0.75)');
+  const ctx = document.getElementById('stats-canvas').getContext('2d');
+  window._detailChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.map(d => d.label),
+      datasets: [{
+        data: chartData.map(d => isSurvival ? d.pct : d.count),
+        backgroundColor: colors,
+        borderRadius: 4,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          backgroundColor: '#1C1C1C',
+          borderColor: '#2A2A2A',
+          borderWidth: 1,
+          titleColor: '#F0F0F0',
+          bodyColor: '#A0A0A0',
+          callbacks: {
+            label: ctx => isSurvival ? ctx.parsed.y + '%' : ctx.parsed.y + ' Athlete(n)'
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {color: 'rgba(255,255,255,0.04)'},
+          ticks: {color: '#666', font: {size: 10}, maxRotation: 30},
+        },
+        y: {
+          min: 0,
+          max: isSurvival ? 100 : undefined,
+          grid: {color: 'rgba(255,255,255,0.04)'},
+          ticks: {
+            color: '#666',
+            font: {size: 10},
+            callback: v => v + (isSurvival ? '%' : '')
+          },
+        }
+      }
+    }
+  });
+  document.getElementById('detail-stats-sub').textContent = currentDetailDiv.toUpperCase() + ' · ' + wk.name;
 }
 
 // ════════════════════════════════════════════
