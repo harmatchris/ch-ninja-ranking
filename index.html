@@ -1160,6 +1160,8 @@ function renderDetailPage() {
   renderDetailResults();
   renderDetailStatsTabs();
   renderStatsChart();
+  // Trigger real Firebase stats if this WK has a comp code
+  if(wk.compCode) loadFirebaseStatsForDetail();
 }
 
 function renderDetailDivTabs() {
@@ -1191,6 +1193,8 @@ function selectDetailDiv(divId, btn) {
   }
   renderDetailResults();
   renderStatsChart();
+  // Load Firebase stats for new division if needed
+  if(wk?.compCode) loadFirebaseStatsForDetail();
 }
 
 function renderDetailResults() {
@@ -1271,43 +1275,196 @@ function setStatsTab(tabId, btn) {
   renderStatsChart();
 }
 
+// ─── Firebase live stats ─────────────────────────
+const FB_BASE = 'https://ninja-hq-chris-default-rtdb.firebaseio.com';
+const fbStatsCache = {}; // key: `${compCode}_${divId}`
+
+async function fetchFirebaseStats(compCode, catId) {
+  try {
+    // 1. Find the Firebase competition ID by scanning comp codes
+    const r1 = await fetch(`${FB_BASE}/ogn.json?shallow=true`);
+    if(!r1.ok) return null;
+    const ids = await r1.json();
+    if(!ids) return null;
+
+    const checks = await Promise.all(
+      Object.keys(ids).map(async id => {
+        const r = await fetch(`${FB_BASE}/ogn/${id}/info/code.json`);
+        if(!r.ok) return null;
+        const code = await r.json();
+        return code === compCode ? id : null;
+      })
+    );
+    const matchId = checks.find(Boolean);
+    if(!matchId) return null;
+
+    // 2. Fetch runs and obstacles in parallel
+    const [runsRes, stg1ObstRes, globObstRes] = await Promise.all([
+      fetch(`${FB_BASE}/ogn/${matchId}/completedRuns.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/stages/1/obstacles.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/obstacles.json`),
+    ]);
+    const runsObj = runsRes.ok ? await runsRes.json() : null;
+    if(!runsObj) return null;
+
+    // Merge obstacles (stage overrides global)
+    let obstObj = {};
+    if(globObstRes.ok) { const o = await globObstRes.json(); if(o) obstObj = {...o}; }
+    if(stg1ObstRes.ok) { const o = await stg1ObstRes.json(); if(o) obstObj = {...obstObj, ...o}; }
+
+    // 3. Filter runs by category
+    const catRuns = Object.values(runsObj).filter(r =>
+      r.status !== 'dsq' && (!catId || r.catId === catId)
+    );
+    const total = catRuns.length;
+    if(total === 0) return null;
+
+    // 4. Build ordered obstacle list
+    let obstList = Object.entries(obstObj)
+      .map(([key, v]) => ({
+        key,
+        name: typeof v === 'object' ? (v.name || v.label || key) : key,
+        order: typeof v === 'object' ? (v.order ?? 99) : 99
+      }))
+      .sort((a, b) => a.order - b.order);
+
+    // Fallback: infer obstacle names from doneCP arrays
+    if(obstList.length === 0) {
+      const seen = new Map();
+      catRuns.forEach(r => (r.doneCP || []).forEach((cp, i) => { if(!seen.has(cp)) seen.set(cp, i); }));
+      obstList = [...seen.entries()].sort((a,b)=>a[1]-b[1]).map(([key,i])=>({key, name:key, order:i}));
+    }
+
+    // 5. Compute survival rate per obstacle
+    const survivalRate = obstList.map(obs => ({
+      label: obs.name,
+      pct: Math.round(catRuns.filter(r => (r.doneCP || []).includes(obs.key)).length / total * 100)
+    }));
+
+    return { survivalRate };
+  } catch(e) {
+    console.warn('Firebase stats fetch error:', e);
+    return null;
+  }
+}
+
+async function loadFirebaseStatsForDetail() {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  if(!wk?.compCode) return;
+
+  const cacheKey = `${wk.compCode}_${currentDetailDiv}`;
+  if(fbStatsCache[cacheKey] !== undefined) return; // already loaded (null = no data)
+
+  // Mark as loading
+  fbStatsCache[cacheKey] = null;
+  const container = document.getElementById('detail-stats-chart');
+  if(container && currentStatsTab === 'survival') {
+    container.innerHTML = `<div class="no-stats" style="color:var(--muted)">Lade Statistiken aus Firebase…</div>`;
+  }
+
+  const stats = await fetchFirebaseStats(wk.compCode, currentDetailDiv);
+  fbStatsCache[cacheKey] = stats; // null if not found
+
+  if(stats) {
+    if(!wk.stats) wk.stats = {};
+    wk.stats[currentDetailDiv] = { ...stats, pointsDist: wk.stats?.[currentDetailDiv]?.pointsDist || [] };
+  }
+
+  if(currentDetailWk === wk.id) renderStatsChart();
+}
+
+// ─── Points distribution (from ranking data) ────
+function computePointsDist(wkIdx) {
+  const season = DATA.seasons[currentSeason];
+  const wkField = `wk${wkIdx + 1}`;
+  const hasField = `hasWk${wkIdx + 1}`;
+  const pts = (season.ranking[currentDetailDiv] || [])
+    .filter(r => r[hasField] && r[wkField] != null)
+    .map(r => r[wkField])
+    .sort((a, b) => a - b);
+  if(pts.length === 0) return [];
+  const step = 500;
+  const minB = Math.floor(pts[0] / step) * step;
+  const maxB = Math.ceil((pts[pts.length - 1] + 1) / step) * step;
+  const buckets = [];
+  for(let b = minB; b < maxB; b += step) {
+    const count = pts.filter(p => p >= b && p < b + step).length;
+    buckets.push({ label: `${b}–${b + step - 1}`, count });
+  }
+  return buckets.filter(b => b.count > 0);
+}
+
+// ─── Unified chart renderer ──────────────────────
 function renderStatsChart() {
   const season = DATA.seasons[currentSeason];
   const wk = season?.wks.find(w => w.id === currentDetailWk);
   const container = document.getElementById('detail-stats-chart');
-  const stats = wk?.stats?.[currentDetailDiv];
-  if(!stats) {
-    container.innerHTML = `<div class="no-stats">Keine Statistiken für diese Division verfügbar.</div>`;
+  if(!container || !wk) return;
+  if(window._detailChart) { window._detailChart.destroy(); window._detailChart = null; }
+  document.getElementById('detail-stats-sub').textContent =
+    currentDetailDiv.toUpperCase() + ' · ' + wk.name;
+
+  if(currentStatsTab === 'points') {
+    const wkIdx = season.wks.findIndex(w => w.id === currentDetailWk);
+    const buckets = computePointsDist(wkIdx);
+    if(buckets.length === 0) {
+      container.innerHTML = `<div class="no-stats">Keine Punkte-Daten für diese Division.</div>`;
+      return;
+    }
+    _drawBarChart(container,
+      buckets.map(b => b.label), buckets.map(b => b.count),
+      'Punkte-Verteilung — Athleten pro Punktebereich',
+      'Anzahl Athleten pro Punktebereich in dieser Division.',
+      v => v + ' Athleten',
+      () => 'rgba(230,51,41,0.75)'
+    );
     return;
   }
-  // Destroy existing chart instance
-  if(window._detailChart) { window._detailChart.destroy(); window._detailChart = null; }
-  const isSurvival = currentStatsTab === 'survival';
-  const chartData = isSurvival ? stats.survivalRate : stats.pointsDist;
-  const title = isSurvival
-    ? 'Survival Rate — Erfolgsquote pro Hindernis'
-    : 'Punkte-Verteilung — Athleten pro Punktebereich';
-  const note = isSurvival
-    ? 'Prozentsatz der Athleten, die das jeweilige Hindernis erfolgreich abgeschlossen haben.'
-    : 'Anzahl Athleten pro Punktebereich in dieser Division.';
+
+  // Survival rate tab
+  const stats = wk?.stats?.[currentDetailDiv];
+  const hasSurvival = stats?.survivalRate?.length > 0;
+
+  if(!hasSurvival) {
+    if(wk.compCode) {
+      // Trigger Firebase fetch (will re-render when done)
+      const cacheKey = `${wk.compCode}_${currentDetailDiv}`;
+      if(fbStatsCache[cacheKey] === undefined) {
+        loadFirebaseStatsForDetail();
+      } else {
+        container.innerHTML = `<div class="no-stats">Keine Survival-Rate-Daten für diese Division verfügbar.</div>`;
+      }
+    } else {
+      container.innerHTML = `<div class="no-stats">Keine Statistiken für diese Division verfügbar.</div>`;
+    }
+    return;
+  }
+
+  const data = stats.survivalRate;
+  _drawBarChart(container,
+    data.map(d => d.label), data.map(d => d.pct),
+    'Survival Rate — Erfolgsquote pro Hindernis',
+    `${data.length} Hindernisse · ${Object.values(season.ranking[currentDetailDiv]||[]).filter(r=>r[`hasWk${season.wks.findIndex(w=>w.id===currentDetailWk)+1}`]).length} Athleten`,
+    v => v + '%',
+    (v) => v >= 80 ? 'rgba(52,199,89,0.75)' : v >= 50 ? 'rgba(255,149,0,0.75)' : 'rgba(230,51,41,0.75)'
+  );
+}
+
+function _drawBarChart(container, labels, values, title, note, tooltipFn, colorFn) {
   container.innerHTML = `
     <div class="stats-chart-title">${title}</div>
-    <div style="position:relative;height:200px">
-      <canvas id="stats-canvas"></canvas>
-    </div>
+    <div style="position:relative;height:200px"><canvas id="stats-canvas"></canvas></div>
     <div class="stats-note">${note}</div>
   `;
-  const colors = isSurvival
-    ? chartData.map(d => d.pct >= 80 ? 'rgba(52,199,89,0.75)' : d.pct >= 50 ? 'rgba(255,149,0,0.75)' : 'rgba(230,51,41,0.75)')
-    : chartData.map(() => 'rgba(230,51,41,0.75)');
   const ctx = document.getElementById('stats-canvas').getContext('2d');
   window._detailChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: chartData.map(d => d.label),
+      labels,
       datasets: [{
-        data: chartData.map(d => isSurvival ? d.pct : d.count),
-        backgroundColor: colors,
+        data: values,
+        backgroundColor: values.map(v => colorFn(v)),
         borderRadius: 4,
         borderWidth: 0,
       }]
@@ -1318,35 +1475,17 @@ function renderStatsChart() {
       plugins: {
         legend: {display: false},
         tooltip: {
-          backgroundColor: '#1C1C1C',
-          borderColor: '#2A2A2A',
-          borderWidth: 1,
-          titleColor: '#F0F0F0',
-          bodyColor: '#A0A0A0',
-          callbacks: {
-            label: ctx => isSurvival ? ctx.parsed.y + '%' : ctx.parsed.y + ' Athlete(n)'
-          }
+          backgroundColor: '#1C1C1C', borderColor: '#2A2A2A', borderWidth: 1,
+          titleColor: '#F0F0F0', bodyColor: '#A0A0A0',
+          callbacks: { label: ctx => tooltipFn(ctx.parsed.y) }
         }
       },
       scales: {
-        x: {
-          grid: {color: 'rgba(255,255,255,0.04)'},
-          ticks: {color: '#666', font: {size: 10}, maxRotation: 30},
-        },
-        y: {
-          min: 0,
-          max: isSurvival ? 100 : undefined,
-          grid: {color: 'rgba(255,255,255,0.04)'},
-          ticks: {
-            color: '#666',
-            font: {size: 10},
-            callback: v => v + (isSurvival ? '%' : '')
-          },
-        }
+        x: { grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#666',font:{size:10},maxRotation:35} },
+        y: { min:0, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#666',font:{size:10}} }
       }
     }
   });
-  document.getElementById('detail-stats-sub').textContent = currentDetailDiv.toUpperCase() + ' · ' + wk.name;
 }
 
 // ════════════════════════════════════════════
