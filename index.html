@@ -154,6 +154,33 @@ main{max-width:1100px;margin:0 auto;padding:2rem}
 .pot-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;text-align:right}
 .pot-lbl{font-size:10px;color:var(--muted);text-align:right}
 
+/* ── SVG Icons ── */
+.svg-icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.svg-icon svg{display:block}
+.athlete-avatar-svg{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0}
+.athlete-avatar-svg svg{width:20px;height:20px}
+.rank-change{display:inline-flex;align-items:center;gap:2px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px}
+.rank-change.up{color:var(--green);background:rgba(52,199,89,.12)}
+.rank-change.down{color:var(--red);background:rgba(230,51,41,.1)}
+.rank-change.same{color:var(--muted);background:rgba(255,255,255,.05)}
+.rank-change.new-entry{color:var(--gold);background:rgba(200,168,75,.12)}
+.rank-change svg{width:12px;height:12px}
+
+/* ── Regelwerk Page ── */
+.rw-chapter{background:var(--bg2);border:1px solid var(--border);border-radius:6px;margin-bottom:.75rem;overflow:hidden}
+.rw-chapter-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;user-select:none}
+.rw-chapter-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:.04em;display:flex;align-items:center;gap:.75rem}
+.rw-chapter-nr{font-size:11px;font-weight:700;padding:3px 9px;border-radius:3px;letter-spacing:.06em}
+.rw-chapter-body{padding:0 1.25rem;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.rw-chapter-body.open{max-height:3000px;padding:0 1.25rem 1.25rem}
+.rw-chapter-body p{font-size:13px;line-height:1.7;color:#c0c0c0;margin-bottom:.75rem}
+.rw-chapter-body p:last-child{margin-bottom:0}
+.rw-chapter-body strong{color:var(--text)}
+.rw-chapter-body mark{background:rgba(230,51,41,.25);color:var(--text);border-radius:2px;padding:0 2px}
+.rw-chevron{width:18px;height:18px;color:var(--muted);flex-shrink:0;transition:transform .25s}
+.rw-chevron.open{transform:rotate(180deg)}
+.rw-match-badge{font-size:9px;font-weight:700;background:rgba(230,51,41,.2);color:var(--red);padding:2px 7px;border-radius:2px;margin-left:.5rem}
+
 /* ── Events Page ── */
 .events-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin-bottom:2rem}
 .event-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
@@ -324,6 +351,7 @@ footer a:hover{color:var(--muted)}
     <button class="nav-link" onclick="showPage('events',this)">Wettkämpfe</button>
     <button class="nav-link" onclick="showPage('athletes',this)">Athleten</button>
     <button class="nav-link" onclick="showPage('reglement',this)">Reglement</button>
+    <button class="nav-link" id="nav-regelwerk" onclick="showPage('regelwerk',this)">Regelwerk</button>
   </div>
   <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menü">
     <span></span><span></span><span></span>
@@ -647,6 +675,28 @@ footer a:hover{color:var(--muted)}
 
 </div>
 
+<!-- ╔══════════════════════════════╗ -->
+<!-- ║   PAGE: IGN REGELWERK        ║ -->
+<!-- ╚══════════════════════════════╝ -->
+<div class="page" id="page-regelwerk">
+  <div style="max-width:760px;margin:0 auto;padding:2rem 0">
+    <div class="section-head" style="margin-bottom:1.5rem">
+      <div>
+        <div class="section-title">IGN Regelwerk 2026</div>
+        <div class="section-sub">Interessengemeinschaft Ninja-Sport · Version 2026</div>
+      </div>
+    </div>
+    <!-- Search -->
+    <div style="position:relative;margin-bottom:1.5rem">
+      <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);pointer-events:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+      <input type="text" id="rw-search" placeholder="Regelwerk durchsuchen…" oninput="renderRegelwerk()" style="width:100%;padding:10px 16px 10px 36px;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:13px;font-family:inherit">
+      <button id="rw-clear" onclick="clearRwSearch()" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);padding:4px;cursor:pointer;width:20px;height:20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div id="rw-match-count" style="font-size:11px;color:var(--muted);margin-bottom:1rem;min-height:1em"></div>
+    <!-- Chapters -->
+    <div id="rw-chapters"></div>
+  </div>
+</div>
 
 <!-- ╔══════════════════════════════╗ -->
 <!-- ║   PAGE: WK DETAIL            ║ -->
@@ -667,6 +717,15 @@ footer a:hover{color:var(--muted)}
 
   <!-- Results Table (5 columns) -->
   <div class="ranking-wrap ranking-5col" id="detail-ranking-table"></div>
+
+  <!-- Firebase Results Section -->
+  <div id="detail-fb-section" style="margin-top:2rem;display:none">
+    <div class="section-head" style="margin-bottom:1rem">
+      <div class="section-title">Resultate</div>
+      <div class="section-sub">Live-Daten aus Firebase</div>
+    </div>
+    <div id="detail-fb-results" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden"></div>
+  </div>
 
   <!-- Stats Section -->
   <div class="section-head" style="margin-top:2rem">
@@ -781,6 +840,23 @@ const DATA = {
 };
 
 // ════════════════════════════════════════════
+// SVG ICONS
+// ════════════════════════════════════════════
+const SVG = {
+  person: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+  star: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+  arrowUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 15l7-7 7 7"/></svg>`,
+  arrowDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 9l-7 7-7-7"/></svg>`,
+  minus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/></svg>`,
+  trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 9H4a2 2 0 000 4h2"/><path d="M18 9h2a2 2 0 010 4h-2"/><path d="M6 4h12v10a6 6 0 01-12 0V4z"/><path d="M9 21h6M12 17v4"/></svg>`,
+  new: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9v6M7 12h4M11 9v6M17 9l-3 6M14 9l3 6"/></svg>`,
+  search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>`,
+  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+  chevronDown: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`,
+  chevronUp: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>`,
+};
+
+// ════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════
 let currentSeason = 2026;
@@ -789,6 +865,7 @@ let currentDiv = 'am1';
 let currentWk = 'all'; // 'all' = Jahresranking
 let athleteDivFilter = 'all';
 let athleteSearch = '';
+let detailSourcePage = 'ranking';
 
 // ════════════════════════════════════════════
 // NAVIGATION
@@ -854,7 +931,13 @@ function selectWk(id, card) {
     currentWk = 'all';
     document.querySelectorAll('.wk-card').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
+    // Navigate to ranking page if not already there
+    const rankingNavBtn = document.querySelector('.nav-link[onclick*="ranking"]');
+    showPage('ranking', rankingNavBtn);
     renderRankingTable();
+    // Scroll to ranking section
+    const rt = document.getElementById('ranking-table');
+    if(rt) rt.scrollIntoView({behavior:'smooth', block:'start'});
   } else {
     openWkDetail(id);
   }
@@ -891,16 +974,21 @@ function updateDivSection() {
   document.getElementById('div-section-title').textContent = div.label;
   // Find current WK name
   let wkName = 'Jahresranking';
+  let subtext = '';
   if(currentWk !== 'all') {
     const wk = season.wks.find(w => w.id === currentWk);
     if(wk) wkName = wk.name + (wk.isFinale ? ' · Finale' : '');
+  } else {
+    // Add subtitle for Jahresranking
+    const doneWks = season.wks.filter(w=>w.status==='done').length;
+    subtext = `Saison ${currentSeason} · ${doneWks} Wettkämpf${doneWks===1?'':'e'} · Kumulierte Punkte`;
   }
-  document.getElementById('div-section-sub').textContent = wkName;
+  document.getElementById('div-section-sub').textContent = wkName + (subtext ? ' · ' + subtext : subtext);
   // Finale banner
   const banner = document.getElementById('finale-banner-wrap');
   const wk = season?.wks.find(w => w.id === currentWk);
   if(wk?.isFinale) {
-    banner.innerHTML = `<div class="finale-banner"><div><div class="finale-label">★ Finale-Wettkampf</div><div class="finale-txt">${wk.name} · Titelübergabe am ${wk.date} · Competition Value: ${formatNum(wk.cv[currentDiv]||0)}</div></div></div>`;
+    banner.innerHTML = `<div class="finale-banner"><div><div class="finale-label"><span class="svg-icon" style="width:14px;height:14px;color:var(--gold)">${SVG.star}</span> Finale-Wettkampf</div><div class="finale-txt">${wk.name} · Titelübergabe am ${wk.date} · Competition Value: ${formatNum(wk.cv[currentDiv]||0)}</div></div></div>`;
   } else {
     banner.innerHTML = '';
   }
@@ -951,7 +1039,7 @@ function renderRankingTable() {
           <div class="progress-wrap"><div class="progress-bar ${barClass}" style="width:${barPct}%"></div></div>
         </div>
         <div class="col-pot">
-          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'★':''}</div>
+          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'<span class="svg-icon" style="width:10px;height:10px;color:var(--gold)">' + SVG.star + '</span>':''}</div>
           <div class="pot-lbl">Potential</div>
         </div>
         <div class="col-wk1">
@@ -970,7 +1058,7 @@ function renderRankingTable() {
 
   const champ = rows[0];
   html += `<div class="ranking-footer">
-    ${rows.length>0&&champ?.total>0 ? `★ Newbie-Potential (70 Punkte) · ⦿ Aktuell führt: <strong style="color:var(--gold)">${champ.name}</strong>` : 'Noch keine abgeschlossenen Wettkämpfe'}
+    ${rows.length>0&&champ?.total>0 ? `<span class="svg-icon" style="width:12px;height:12px;color:var(--gold)">${SVG.star}</span> Newbie-Potential (70 Punkte) · ⦿ Aktuell führt: <strong style="color:var(--gold)">${champ.name}</strong>` : 'Noch keine abgeschlossenen Wettkämpfe'}
   </div>`;
 
   document.getElementById('ranking-table').innerHTML = html;
@@ -1005,13 +1093,13 @@ function renderEvents() {
           <div class="event-title">${wk.name}</div>
           <div class="event-date">${wk.date} · ${wk.location}</div>
         </div>
-        ${wk.isFinale?'<span class="wk-badge finale-badge">★ Finale</span>':wk.status==='upcoming'?'<span class="wk-badge upcoming-badge">Coming</span>':''}
+        ${wk.isFinale?'<span class="wk-badge finale-badge"><span class="svg-icon" style="width:12px;height:12px;color:var(--gold)">' + SVG.star + '</span> Finale</span>':wk.status==='upcoming'?'<span class="wk-badge upcoming-badge">Coming</span>':''}
       </div>
       <div class="event-body">
         <div class="event-row"><span class="event-key">Venue</span><span class="event-val">${wk.venue}</span></div>
         <div class="event-row"><span class="event-key">Divisionen</span><span class="event-val">${Object.keys(wk.cv).length>0?Object.keys(wk.cv).length:'—'}</span></div>
         <div class="event-row"><span class="event-key">Regelwerk</span><span class="event-val">IGN 2026</span></div>
-        ${wk.isFinale?'<div class="event-row"><span class="event-key">Titelübergabe</span><span class="event-val" style="color:var(--gold)">★ CH Meister 2026</span></div>':''}
+        ${wk.isFinale?'<div class="event-row"><span class="event-key">Titelübergabe</span><span class="event-val" style="color:var(--gold)"><span class="svg-icon" style="width:12px;height:12px;color:var(--gold)">' + SVG.star + '</span> CH Meister 2026</span></div>':''}
       </div>
       <div class="event-footer">${statusHtml}</div>
     </div>`;
@@ -1022,7 +1110,6 @@ function renderEvents() {
 // ════════════════════════════════════════════
 // RENDER — ATHLETES PAGE
 // ════════════════════════════════════════════
-const EMOJIS = ['🥷','💪','🔥','⚡','🌟','🏅','🤸','🧗','🦸','🐉','🦅','🏆','🥇','🎯','🦁'];
 function renderAthletes() {
   const season = DATA.seasons[currentSeason];
   if(!season) return;
@@ -1048,10 +1135,9 @@ function renderAthletes() {
 
   let html = '';
   filtered.forEach((a, i) => {
-    const emoji = EMOJIS[i % EMOJIS.length];
     const rankColor = a.rank===1?'var(--gold)':a.rank===2?'var(--silver)':a.rank===3?'var(--bronze)':'var(--text)';
     html += `<div class="athlete-card">
-      <div class="athlete-avatar">${emoji}</div>
+      <div class="athlete-avatar-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
       <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
         <div class="ch-flag" style="width:13px;height:10px"></div>
         <div class="athlete-card-name">${a.name}</div>
@@ -1160,6 +1246,16 @@ function renderDetailPage() {
   renderDetailResults();
   renderDetailStatsTabs();
   renderStatsChart();
+  // Add Firebase results section if compCode exists
+  const fbSection = document.getElementById('detail-fb-section');
+  if(fbSection) {
+    if(wk.compCode) {
+      fbSection.style.display = '';
+      loadAndRenderFirebaseResults();
+    } else {
+      fbSection.style.display = 'none';
+    }
+  }
   // Trigger real Firebase stats if this WK has a comp code
   if(wk.compCode) loadFirebaseStatsForDetail();
 }
@@ -1193,6 +1289,7 @@ function selectDetailDiv(divId, btn) {
   }
   renderDetailResults();
   renderStatsChart();
+  loadAndRenderFirebaseResults();
   // Load Firebase stats for new division if needed
   if(wk?.compCode) loadFirebaseStatsForDetail();
 }
@@ -1211,6 +1308,15 @@ function renderDetailResults() {
     .sort((a, b) => (b[wkField] || 0) - (a[wkField] || 0));
   const maxPts = rows[0]?.[wkField] || 1;
 
+  // Compute "rank before this WK" by sorting athletes by points excluding this WK
+  const rankBeforeMap = {};
+  const withPrev = allRows.map(a => {
+    const prevTotal = (a.total||0) - (a[wkField]||0);
+    return {name: a.name, prevTotal};
+  });
+  const hadPrev = withPrev.filter(a => a.prevTotal > 0).sort((a,b) => b.prevTotal - a.prevTotal);
+  hadPrev.forEach((a,i) => { rankBeforeMap[a.name] = i+1; });
+
   let html = `<div class="ranking-header">
     <div>#</div>
     <div>Athlet</div>
@@ -1228,6 +1334,27 @@ function renderDetailResults() {
       const barClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
       const ptsColor = i===0?'var(--gold)':i===1?'var(--silver)':i===2?'var(--bronze)':'var(--text)';
       const barPct = maxPts > 0 ? Math.round(((r[wkField]||0)/maxPts)*100) : 0;
+
+      // Compute rank change
+      const isFirst = wkIdx === 0;
+      const rankAfter = r.rank;
+      const rankBefore = rankBeforeMap[r.name];
+      const isNew = !rankBefore;
+
+      let changeHtml;
+      if(isNew || isFirst) {
+        changeHtml = `<span class="rank-change new-entry"><span class="svg-icon" style="width:10px;height:10px">${SVG.new}</span> NEU</span>`;
+      } else {
+        const delta = rankBefore - rankAfter;
+        if(delta > 0) {
+          changeHtml = `<span class="rank-change up"><span class="svg-icon" style="width:12px;height:12px">${SVG.arrowUp}</span>+${delta}</span>`;
+        } else if(delta < 0) {
+          changeHtml = `<span class="rank-change down"><span class="svg-icon" style="width:12px;height:12px">${SVG.arrowDown}</span>${delta}</span>`;
+        } else {
+          changeHtml = `<span class="rank-change same"><span class="svg-icon" style="width:10px;height:10px">${SVG.minus}</span></span>`;
+        }
+      }
+
       html += `<div class="ranking-row ${rowClass}">
         <div class="rank ${rankClass}">${i+1}</div>
         <div>
@@ -1240,15 +1367,15 @@ function renderDetailResults() {
           <div class="progress-wrap"><div class="progress-bar ${barClass}" style="width:${barPct}%"></div></div>
         </div>
         <div class="col-pot">
-          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'★':''}</div>
+          <div class="pot-val" style="text-align:right">${r.pot}${r.isNewbie?'<span class="svg-icon" style="width:10px;height:10px;color:var(--gold)">' + SVG.star + '</span>':''}</div>
           <div class="pot-lbl">Potential</div>
         </div>
         <div class="col-wk1">
           ${r[wkField]!=null ? `<div class="pts" style="color:${ptsColor}">${formatNum(r[wkField])}</div><div class="pts-sub">${wk.name}</div>` : `<div class="pts-dash">—</div>`}
         </div>
         <div>
-          <div class="pts" style="color:${ptsColor};font-size:15px">↗ ${r.rank}</div>
-          <div class="pts-sub">Jahresrang</div>
+          ${changeHtml}
+          <div class="pts-sub">Rang #${rankAfter}</div>
         </div>
       </div>`;
     });
@@ -1346,6 +1473,158 @@ async function fetchFirebaseStats(compCode, catId) {
     console.warn('Firebase stats fetch error:', e);
     return null;
   }
+}
+
+// ─── Firebase run results cache & fetch ─────────
+const fbRunsCache = {};
+
+async function fetchFirebaseRuns(compCode, catId) {
+  const cacheKey = `runs_${compCode}_${catId}`;
+  if(fbRunsCache[cacheKey] !== undefined) return fbRunsCache[cacheKey];
+  fbRunsCache[cacheKey] = null; // mark as loading
+
+  try {
+    // Find comp ID
+    const r1 = await fetch(`${FB_BASE}/ogn.json?shallow=true`);
+    if(!r1.ok) return null;
+    const ids = await r1.json();
+    if(!ids) return null;
+
+    const checks = await Promise.all(
+      Object.keys(ids).map(async id => {
+        const r = await fetch(`${FB_BASE}/ogn/${id}/info/code.json`);
+        if(!r.ok) return null;
+        const code = await r.json();
+        return code === compCode ? id : null;
+      })
+    );
+    const matchId = checks.find(Boolean);
+    if(!matchId) return null;
+
+    // Fetch runs + obstacles
+    const [runsRes, stg1ObstRes, globObstRes, athRes] = await Promise.all([
+      fetch(`${FB_BASE}/ogn/${matchId}/completedRuns.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/stages/1/obstacles.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/obstacles.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/athletes.json`),
+    ]);
+
+    const runsObj = runsRes.ok ? await runsRes.json() : null;
+    if(!runsObj) return null;
+
+    // Build obstacle name map
+    let obstObj = {};
+    if(globObstRes.ok) { const o = await globObstRes.json(); if(o) obstObj = {...o}; }
+    if(stg1ObstRes.ok) { const o = await stg1ObstRes.json(); if(o) obstObj = {...obstObj, ...o}; }
+    const obstNames = {};
+    Object.entries(obstObj).forEach(([k,v]) => {
+      obstNames[k] = typeof v === 'object' ? (v.name || v.label || k) : k;
+    });
+
+    // Build athlete name map
+    const athObj = athRes.ok ? await athRes.json() : {};
+    const athNames = {};
+    if(athObj) Object.entries(athObj).forEach(([k,v]) => { athNames[k] = v.name || k; });
+
+    // Filter and format runs
+    const runs = Object.values(runsObj)
+      .filter(r => r.status !== 'dsq' && (!catId || r.catId === catId))
+      .map(r => {
+        const cpCount = (r.doneCP || []).length;
+        const fallObst = r.fallObstacle ? (obstNames[r.fallObstacle] || r.fallObstacle) : null;
+        const timeMs = r.officialTime || r.endTime || 0;
+        const timeStr = timeMs > 0 ? formatTime(timeMs) : '—';
+        return {
+          name: athNames[r.athId] || r.name || r.athId || '?',
+          startNr: r.startNr || r.nr || '—',
+          time: timeStr,
+          timeMs,
+          cps: cpCount,
+          totalCps: Object.keys(obstObj).length || 8,
+          fallObst,
+          status: r.status || 'dnf',
+        };
+      })
+      .sort((a, b) => {
+        if(b.cps !== a.cps) return b.cps - a.cps;
+        return a.timeMs - b.timeMs;
+      });
+
+    fbRunsCache[cacheKey] = runs;
+    return runs;
+  } catch(e) {
+    console.warn('Firebase runs fetch error:', e);
+    fbRunsCache[cacheKey] = null;
+    return null;
+  }
+}
+
+function formatTime(ms) {
+  if(!ms || ms <= 0) return '—';
+  const totalMs = Math.round(ms);
+  const minutes = Math.floor(totalMs / 60000);
+  const seconds = Math.floor((totalMs % 60000) / 1000);
+  const msRem = totalMs % 1000;
+  if(minutes > 0) return `${minutes}:${String(seconds).padStart(2,'0')}.${String(msRem).padStart(3,'0')}`;
+  return `${seconds}.${String(msRem).padStart(3,'0')}`;
+}
+
+async function loadAndRenderFirebaseResults() {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  if(!wk?.compCode) return;
+
+  const container = document.getElementById('detail-fb-results');
+  if(!container) return;
+
+  container.innerHTML = `<div style="padding:1rem;color:var(--muted);font-size:12px">Lade Resultate aus Firebase…</div>`;
+
+  const runs = await fetchFirebaseRuns(wk.compCode, currentDetailDiv);
+
+  if(!runs || runs.length === 0) {
+    container.innerHTML = `<div class="no-stats" style="margin-top:0">Keine Resultate für diese Division in Firebase verfügbar.</div>`;
+    return;
+  }
+
+  let html = `<div class="ranking-header">
+    <div>#</div>
+    <div>Athlet</div>
+    <div style="text-align:right">Zeit</div>
+    <div style="text-align:right">CPs</div>
+    <div style="text-align:right">Gefallen bei</div>
+  </div>`;
+
+  runs.forEach((r, i) => {
+    const rankClass = i===0?'g':i===1?'s':i===2?'b':'n';
+    const rowClass = i===0?'gold-row':i===1?'silver-row':i===2?'bronze-row':'';
+    const completed = r.fallObst === null && r.status === 'done';
+    html += `<div class="ranking-row ${rowClass}" style="font-size:13px">
+      <div class="rank ${rankClass}">${i+1}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="ch-flag"></div>
+          <div class="athlete-name">${r.name}</div>
+          <span style="font-size:10px;color:var(--muted)">#${r.startNr}</span>
+        </div>
+        <div class="athlete-sub">${completed ? '<span style="color:var(--green)">Finisher</span>' : r.status === 'dsq' ? '<span style="color:var(--red)">DSQ</span>' : 'DNF'}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pts" style="font-size:14px">${r.time}</div>
+        <div class="pts-sub">Zeit</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pts" style="font-size:14px">${r.cps}/${r.totalCps}</div>
+        <div class="pts-sub">Checkpoints</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:${r.fallObst?'var(--red)':'var(--green)'}">${r.fallObst || (completed ? '✓ Finish' : '—')}</div>
+        <div class="pts-sub">Hindernis</div>
+      </div>
+    </div>`;
+  });
+
+  html += `<div class="ranking-footer">${runs.length} Athleten · Live-Daten aus Firebase</div>`;
+  container.innerHTML = html;
 }
 
 async function loadFirebaseStatsForDetail() {
@@ -1502,6 +1781,106 @@ function renderAll() {
   renderDivTabs();
   renderWkCards();
   renderRankingTable();
+}
+
+// ════════════════════════════════════════════
+// IGN REGELWERK 2026
+// ════════════════════════════════════════════
+const REGELWERK = [
+  {nr:'P',title:'Präambel',color:'#FF9F0A',content:`<p><strong>Zweck</strong> – Die IGN (Interessengemeinschaft Ninja-Sport) fördert den Ninja-Sport im deutschsprachigen Raum durch einheitliche Wettkampfregeln, die Fairness, Sicherheit und sportlichen Geist gewährleisten.</p><p><strong>Gültigkeit</strong> – Dieses Regelwerk Version 2026 gilt für alle IGN-Wettkämpfe ab der Saison 2026. Es ersetzt alle früheren Versionen.</p><p><strong>Grundsätze</strong> – Ninja-Sport verbindet Kraft, Geschicklichkeit, Ausdauer und mentale Stärke. Die IGN bekennt sich zu inklusivem Sport für alle Altersgruppen und Leistungsniveaus.</p><p><strong>Änderungen</strong> – Regeländerungen werden durch den IGN-Vorstand beschlossen und mindestens 30 Tage vor Saisonbeginn schriftlich kommuniziert. Dringende Sicherheitsänderungen können sofort in Kraft treten.</p><p><strong>Sprachregelung</strong> – Bei Widersprüchen zwischen Übersetzungen gilt die deutsche Fassung als massgeblich.</p>`},
+  {nr:'1',title:'Wettkampf-Durchführung',color:'#FF5E3A',content:`<p><strong>1.1 Veranstalter</strong> – Jeder Verein oder Organisation kann mit IGN-Zulassung einen Wettkampf ausrichten. Der Veranstalter ist verantwortlich für die sichere Durchführung, die Hindernisse und die Einhaltung des Regelwerks. Die Zulassung muss mindestens 4 Wochen vor dem Wettkampf beantragt werden.</p><p><strong>1.2 Jury</strong> – Jede aktive Station benötigt mindestens eine ausgebildete Jury-Person für Zeitnahme und Checkpoint-Beurteilung. Bei LK1-Wettkämpfen werden zwei Jury-Personen pro Station empfohlen. Jury-Personen müssen neutral sein (kein Verwandtschaftsverhältnis zum startenden Athleten).</p><p><strong>1.3 Wettkampfrichter (WR)</strong> – Mindestens ein ausgebildeter WR pro Wettkampf. Der WR hat abschliessende Entscheidungskompetenz bei Regelunklarheiten und Protesten. WR-Entscheidungen nach Ablauf der Protestfrist sind endgültig und bindend.</p><p><strong>1.4 Protest / Reklamation</strong> – Athleten oder ihre Betreuer können Reklamation einlegen. Frist: 15 Minuten nach Bekanntgabe des betreffenden Ergebnisses. Schriftliche Einreichung wird empfohlen, ist jedoch nicht zwingend erforderlich. Eine Schutzgebühr von CHF/EUR 20 ist zu entrichten; bei berechtigtem Protest wird diese zurückerstattet. Die Jury entscheidet innerhalb von 30 Minuten. Gegen WR-Entscheid ist kein weiterer Einspruch möglich.</p><p><strong>1.5 Ergebnisverwaltung</strong> – Die Wettkampfleitung muss alle Ergebnisse digital oder schriftlich festhalten. Ergebnisse werden nach Wettkampfende öffentlich bekannt gegeben, mindestens für 30 Minuten ausgehängt bzw. digital zugänglich gemacht.</p><p><strong>1.6 Ausrüstung</strong> – Geschlossene Sportschuhe sind Pflicht. Chalk (Magnesia) ist erlaubt. Handschuhe sind erlaubt, sofern keine Haftmittel verwendet werden. Schutzausrüstung (Knieschoner, Handgelenkschoner) ist auf eigenes Risiko erlaubt, sofern kein Vorteil entsteht.</p><p><strong>1.7 Wiegen / Altersnachweis</strong> – Der Veranstalter kann Alterskontrollen verlangen. Bei Kategorienstreitigkeiten gilt der Jahresgeburtstag.</p>`},
+  {nr:'2',title:'Sicherheit',color:'#FF6B6B',content:`<p><strong>2.1 Grundsätze</strong> – Sicherheit hat oberste Priorität. Bei unmittelbarer Gefahr kann jede Jury-Person oder der WR den Wettkampf sofort unterbrechen. Der Veranstalter haftet für die Sicherheit der Anlage.</p><p><strong>2.2 Matten und Landezonen</strong> – Unter und hinter allen Hindernissen mit Sturzrisiko müssen ausreichend dimensionierte Crashmatten (min. 20 cm dick) ausgelegt sein. Die Landezone muss frei von Hindernissen sein. Matten müssen fest liegen und dürfen sich nicht verschieben.</p><p><strong>2.3 Hindernissicherheit</strong> – Alle Hindernisse müssen vor dem Wettkampf auf Stabilität und Sicherheit geprüft werden (Belastungstest). Beschädigte Hindernisse sind sofort zu sperren. Hindernisse dürfen keine scharfen Kanten oder abstehenden Teile aufweisen.</p><p><strong>2.4 Athleten-Pflichten</strong> – Athleten müssen sich vor dem Start über die Hindernisse informieren (Walk-Through erlaubt). Athleten dürfen nicht starten, wenn sie verletzt sind. Athleten sind für ihre eigene Aufwärmung verantwortlich.</p><p><strong>2.5 Jury-Pflichten</strong> – Jury-Personen müssen den Lauf jederzeit unterbrechen können (Notfall-Signal vereinbaren). Jury darf einen Lauf bei akuter Verletzungsgefahr stoppen – die Zeit wird bis zum Stoppzeitpunkt gewertet. Bei Sturz mit Verletzung: Erste Hilfe hat Vorrang, Ergebnis wird gesondert gewertet.</p><p><strong>2.6 Spotter</strong> – Für riskante Hindernisse (grosse Höhe, Rotation) können Spotter eingesetzt werden. Spotter dürfen Athleten nicht aktiv unterstützen (kein physischer Kontakt), nur absichern.</p><p><strong>2.7 Bambinis (5–7 Jahre)</strong> – Bei der Bambini-Kategorie ist ein Elternteil oder Betreuer als Spotter Pflicht. Die Hindernisse müssen altersgerecht und sicher sein.</p>`},
+  {nr:'3',title:'Wettkampfablauf',color:'#30D158',content:`<p><strong>3.1 Startreihenfolge</strong> – Die Startreihenfolge wird vom Veranstalter festgelegt. Empfohlen wird eine Auslosung oder Anmeldungsreihenfolge. In der Finalrunde wird in umgekehrter Qualifikationsreihenfolge gestartet (Letzter zuerst).</p><p><strong>3.2 Aufwärmzeit</strong> – Den Athleten ist ausreichend Zeit für das Aufwärmen zu gewähren. Ein Walk-Through der Hindernisse (ohne Starten) muss vor dem Wettkampf ermöglicht werden. Mindestens 15 Minuten Aufwärmzeit vor dem ersten Start.</p><p><strong>3.3 Startaufruf</strong> – Athleten werden mindestens zweimal ausgerufen. Bei Nichterscheinen innerhalb von 2 Minuten nach drittem Aufruf: Lauf verfallen (DNS). Auf Antrag kann der WR Ausnahmen gewähren (Force Majeure).</p><p><strong>3.4 Versuch / Wiederholungsversuch</strong> – Jeder Athlet hat pro Wettkampfrunde einen Versuch, sofern vom Veranstalter nicht anders festgelegt. Ein Wiederholungsversuch kann gewährt werden bei: technischem Defekt eines Hindernisses, Einwirkung Dritter oder nachgewiesenem Jury-Fehler.</p><p><strong>3.5 Frühstart</strong> – Ein Athlet darf das erste Hindernis erst berühren, nachdem das Startsignal vollständig (GO-Ton) ertönt ist. Frühstart: Lauf ungültig, Neustart möglich. Zweiter Frühstart: Lauf ungültig, kein Neustart. Versuche die mit Frühstart beginnen werden nicht gewertet.</p><p><strong>3.6 Zuschauerpflichten</strong> – Zuschauer dürfen Athleten nicht anfeuern auf eine Weise, die andere Athleten oder die Jury beeinträchtigt. Das Betreten der Aktionsfläche durch Unbefugte ist verboten.</p>`},
+  {nr:'4',title:'Ausschreibung',color:'#64D2FF',content:`<p><strong>4.1 Pflichtangaben</strong> – Jede Wettkampfausschreibung muss enthalten: Datum und Ort, Kategorien, Wettkampfmodus, Hindernisliste, Zeitlimits, Anmeldefrist, Startgebühren, Preisgelder/Sachpreise (falls vorhanden), Kontaktdaten des Veranstalters.</p><p><strong>4.2 Anmeldefrist</strong> – Die Anmeldefrist muss mindestens 7 Tage vor dem Wettkampf enden. Nach Fristende können keine Anmeldungen mehr garantiert werden. Der Veranstalter kann eine Nachmeldeoption mit Aufpreis anbieten.</p><p><strong>4.3 Kategorienänderung</strong> – Athleten können bis 48 Stunden vor Wettkampfbeginn die Kategorie wechseln (einmalig, falls Kapazität vorhanden). Startgeld-Differenzen werden verrechnet.</p><p><strong>4.4 Absage</strong> – Muss der Veranstalter absagen, sind alle Startgebühren innerhalb von 14 Tagen zurückzuerstatten. Bei Absage durch Athleten gelten die Stornobedingungen des Veranstalters (max. 80 % Einbehalt).</p><p><strong>4.5 Datenschutz</strong> – Der Veranstalter ist verpflichtet, Athletendaten DSGVO-konform zu verarbeiten. Ergebnislisten mit Name und Kategorie dürfen öffentlich veröffentlicht werden.</p>`},
+  {nr:'5',title:'Divisionen & Kategorien',color:'#FF9F0A',content:`<p><strong>5.1 Übersicht</strong> – Die IGN kennt 15 Wettkampfkategorien, gegliedert nach Altersgruppe, Geschlecht und Leistungsklasse (LK1/LK2).</p><p><strong>5.2 Bambinis</strong> – Alter: 5–7 Jahre, gemischt (M+W). Keine LK-Einteilung. Angepasste Hindernisse zwingend. Kein Zeitlimit. Betreuer als Spotter Pflicht.</p><p><strong>5.3 Kids</strong> – Alter: 8–11 Jahre. Aufgeteilt in: Kids M LK1, Kids M LK2, Kids W LK1, Kids W LK2. Angepasste Hindernishöhen empfohlen.</p><p><strong>5.4 Teens</strong> – Alter: 12–15 Jahre. Aufgeteilt in: Teens M LK1, Teens M LK2, Teens W LK1, Teens W LK2.</p><p><strong>5.5 Adults</strong> – Alter: 16–39 Jahre. Aufgeteilt in: Adults M LK1, Adults M LK2, Adults W LK1, Adults W LK2. Höchste Wettkampfklasse.</p><p><strong>5.6 Masters</strong> – Alter: 40+ Jahre. Aufgeteilt in: Masters M (40+), Masters W (40+). Hindernisse können angepasst werden.</p><p><strong>5.7 Leistungsklassen</strong> – <strong>LK1</strong>: Erfahrene Athleten, digitale Zeitmessung auf Millisekunden (MM:SS.mmm) verpflichtend, anspruchsvollere Hindernisse. <strong>LK2</strong>: Einsteiger und Fortgeschrittene, Stoppuhr auf Zehntelsekunden ausreichend, zugänglichere Hindernisse.</p><p><strong>5.8 Aufstieg LK2 → LK1</strong> – Nach 3 Podiumsplätzen (Plätze 1–3) in LK2 innerhalb einer Saison ist der Aufstieg in LK1 für die Folgesaison verpflichtend. Freiwilliger Aufstieg ist jederzeit möglich.</p><p><strong>5.9 Altersberechnung</strong> – Massgeblich ist das Alter am Wettkampftag. Athleten an einem Geburtstag starten in der neuen Kategorie. Bei Altersüberschreitung mit Saisonbeginn können Athleten die aktuelle Saison in der bisherigen Kategorie beenden.</p>`},
+  {nr:'6',title:'Wettkampfmodi',color:'#BF5AF2',content:`<p><strong>6.1 Classic</strong> – Athlet durchläuft alle Hindernisse in vorgegebener Reihenfolge. Wertung: primär Anzahl absolvierter Checkpoints (absteigend), sekundär Zeit (aufsteigend). Ein Versuch pro Runde. Bei Fall endet der Lauf am letzten gehaltenen Checkpoint.</p><p><strong>6.2 Segment Race</strong> – Die Strecke ist in Segmente unterteilt (je nach Anlage 2–5 Segmente). Jedes Segment endet an einer Landeplattform. Pro Segment wird die Zeit einzeln gestoppt. Wertung: primär abgeschlossene Segmente, sekundär Gesamtzeit. Fällt ein Athlet innerhalb eines Segments, scheidet er aus diesem Segment aus; absolvierte Segmente bleiben gewertet.</p><p><strong>6.3 Classic + Leben (Lives)</strong> – Wie Classic, aber mit einer festgelegten Anzahl Leben (Standard: 3, vom Veranstalter wählbar: 1–5). Jeder Fall kostet ein Leben; der Lauf beginnt neu am letzten Segment-Start. Sind alle Leben aufgebraucht, endet der Lauf. Gewertet wird der beste erreichte Stand (weitester Checkpoint, kürzeste Zeit).</p><p><strong>6.4 Segment + Leben</strong> – Kombination: Segment Race mit Leben-System. Bei Fall innerhalb eines Segments wird ein Leben abgezogen und das Segment neu gestartet. Alle Leben weg = Segment endet, nächstes Segment entfällt.</p><p><strong>6.5 Finale-Optionen</strong> – Der Veranstalter kann ein separates Finale mit Top-N-Athleten ausschreiben. Im Finale kann ein anderer Modus als in der Qualifikation verwendet werden. Finale-Ergebnisse überschreiben Qualifikations-Ergebnisse für die Endrangliste.</p>`},
+  {nr:'7',title:'Start- & Landeplattform',color:'#5AC8FA',content:`<p><strong>7.1 Startplattform</strong> – Mindestmasse: 80 cm × 80 cm, rutschfeste Oberfläche. Mindesthöhe über Boden: 30 cm (empfohlen: 50–80 cm). Der Athlet muss vollständig auf der Startplattform stehen, bevor das Startsignal ertönt. Kein Momentum vor dem Startsignal erlaubt (kein Anlaufen, kein Vorlehnen).</p><p><strong>7.2 Landeplattform</strong> – Muss das Ende eines Segments klar markieren. Mindestmasse: 100 cm × 100 cm. Stabiles Stehen auf der Plattform beendet das Segment (mind. 1 Sekunde, keine Vorwärtsbewegung). Beim Segment-Start muss der Athlet vollständig auf der Plattform stehen.</p><p><strong>7.3 Bodenkontakt</strong> – Berührt der Athlet zwischen Hindernissen den Boden (ausserhalb definierter Laufbereiche), gilt dies als Fall. Ausnahmen: klar markierte Bodenbereiche zwischen Hindernissen (z.B. Sprungangang). Diese müssen in der Ausschreibung explizit genannt sein.</p><p><strong>7.4 Zieleinlauf</strong> – Das Ziel wird durch eine klar markierte Ziellinie oder -plattform definiert. Die Zeitmessung endet, wenn der Athlet die Ziellinie überquert (Körperschwerpunkt). Bei Segment Race endet das letzte Segment mit stabiler Position auf der Ziel-Landeplattform.</p>`},
+  {nr:'8',title:'Hindernisse & Checkpoints',color:'#34C759',content:`<p><strong>8.1 Hindernisreihenfolge</strong> – Alle Hindernisse müssen in der vorgegebenen Reihenfolge absolviert werden. Ein Hindernis gilt als absolviert, wenn der Athlet es vollständig durchlaufen/überwunden hat ohne Bodenkontakt (ausser erlaubte Bodenbereiche).</p><p><strong>8.2 Überspringen</strong> – Überspringt oder umgeht ein Athlet ein Hindernis, sind alle nachfolgenden Resultate ab diesem Hindernis annulliert. Der weiteste korrekt absolvierte Checkpoint bleibt gewertet.</p><p><strong>8.3 Wiederholung</strong> – Hindernisse dürfen nicht wiederholt werden (kein Zurückgehen). Ausnahme: Der WR kann bei technischem Defekt eines Hindernisses einen Neuversuch anordnen.</p><p><strong>8.4 Festhalten / Zusatz-Kontakt</strong> – Der Athlet darf nur an den vorgesehenen Griffen und Flächen festhalten. Festhalten an Konstruktionen, Seilen oder unvorgesehenen Teilen gilt als Disqualifikation des aktuellen Versuchs ab diesem Punkt.</p><p><strong>8.5 Externe Hilfe</strong> – Jede physische Unterstützung durch Dritte (Anfassen, Schieben, Stabilisieren) führt zur Disqualifikation des gesamten Laufs. Ausnahme: Sicherheits-Spotter in vorher festgelegtem Notfall-Szenario.</p><p><strong>8.6 Hindernisbeschädigung</strong> – Beschädigt ein Athlet absichtlich ein Hindernis oder verändert dessen Position, wird der Lauf disqualifiziert. Bei unbeabsichtigter Beschädigung entscheidet der WR.</p><p><strong>8.7 Wartezeit</strong> – Bleibt ein Athlet länger als 10 Sekunden an einem Hindernis stehen (kein Fortschritt), kann die Jury einen gelben Ton/Signal geben. Bei nochmaligem Stillstand: rotes Signal = Lauf wird beendet (Zeit zum letzten CP gewertet).</p><p><strong>8.8 Chalk / Magnesia</strong> – Die Benutzung von Chalk ist erlaubt. Übermässiger Chalk-Einsatz, der andere Athleten beeinträchtigt, kann gerügt werden. Liquid Chalk und Block Chalk sind beide erlaubt.</p><p><strong>8.9 Checkpointsystem</strong> – Ein Checkpoint (CP) ist eine definierte stabile Halteposition an einem Hindernis. <strong>Definition Stabiles Halten:</strong> Der Athlet hält mind. 1 Sekunde vollständig an der dafür vorgesehenen Position inne, ohne Vor- oder Rückwärtsbewegung. Die Jury bestätigt den CP durch Signal (Ton, Handzeichen oder App-Eingabe). Der zuletzt bestätigte CP gilt als Ausgangspunkt für die Zeitwertung bei Fall.</p>`},
+  {nr:'9',title:'Zeitmessung',color:'#0A84FF',content:`<p><strong>9.1 Allgemein</strong> – Die offizielle Zeit wird von der Jury gemessen. Bei Diskrepanz zwischen digitalem System und Stoppuhr gilt das digitale System (LK1) bzw. die Stoppuhr (LK2) als massgeblich. Die Zeit wird dem Athleten unmittelbar nach dem Lauf mitgeteilt.</p><p><strong>9.2 Startsignal</strong> – Das offizielle Startsignal besteht aus drei kurzen Vorbereitungstönen (Beep–Beep–Beep) in 1-Sekunden-Abständen, gefolgt von einem langen GO-Horn. <strong>Die Zeitmessung beginnt exakt mit dem GO-Horn.</strong> Der Athlet darf das erste Hindernis erst berühren, nachdem der GO-Horn ertönt hat. Ein akustisches System ist bei LK1 Pflicht; bei LK2 genügt auch ein manuelles Signal.</p><p><strong>9.3 LK1 Anforderungen</strong> – Digitale Zeitmessung auf Millisekunden (MM:SS.mmm) ist verpflichtend. Empfohlen: automatisches Timing-System (Lichtschranke oder App-gestützt). Manuelle Zeitmessung mit Millisekunden-Stoppuhr ist als Backup erlaubt.</p><p><strong>9.4 LK2 Anforderungen</strong> – Stoppuhr auf Zehntelsekunden (MM:SS.s) genügt. Digitale Zeitmessung empfohlen. Die Zeit wird auf die nächste Zehntelsekunde gerundet.</p><p><strong>9.5 Checkpoint-Zeitnahme</strong> – Bei LK1 wird die Zeit jedes bestätigten Checkpoints festgehalten (Zwischenzeit). Diese dient als Wertungsgrundlage bei Fall. Die Zwischenzeit läuft ab dem GO-Horn kontinuierlich; Checkpoints addieren sich nicht, sondern bilden Momentaufnahmen der laufenden Zeit.</p><p><strong>9.6 Zeitlimit</strong> – Der Veranstalter kann ein Zeitlimit festlegen. Bei Erreichen des Zeitlimits wird der Lauf automatisch beendet; der zuletzt bestätigte Checkpoint und die Zeit bis zum Limit gelten als offizielles Ergebnis. Das Zeitlimit muss in der Ausschreibung klar kommuniziert werden.</p><p><strong>9.7 Zeitmessung bei Unterbrechung</strong> – Bei einer Unterbrechung durch die Jury (z.B. Sicherheitsvorfall) wird die Zeit angehalten. Bei Wiederaufnahme läuft die Zeit weiter. Kann der Lauf nicht fortgesetzt werden, gilt die Zeit bis zur Unterbrechung am letzten CP als offizielles Ergebnis.</p>`},
+  {nr:'10',title:'Ergebnisse & Rangliste',color:'#FF9F0A',content:`<p><strong>10.1 Wertungsprinzip</strong> – Die Rangliste wird nach folgendem Prinzip erstellt: <strong>Primärkriterium:</strong> Anzahl absolvierter Checkpoints (absteigend – mehr CPs = besser). <strong>Sekundärkriterium:</strong> Offizielle Zeit (aufsteigend – weniger Zeit = besser). Das Checkpointsystem ist für LK1 verpflichtend; für LK2 empfohlen.</p><p><strong>10.2 Gleichstand</strong> – Bei identischer CP-Anzahl und identischer Zeit entscheidet die Anzahl der Versuche (weniger Versuche = besser). Besteht weiterhin Gleichstand, teilen die Athleten den Rang; der nächste Rang entfällt.</p><p><strong>10.3 DNF (Did Not Finish)</strong> – Ein Athlet erhält DNF, wenn er kein einziges Hindernis absolviert hat oder die Ziellinie nicht erreicht hat. DNF-Athleten werden nach abgeschlossenen CPs gewertet und hinter alle Athleten mit Zeitwertung gesetzt.</p><p><strong>10.4 DSQ (Disqualifikation)</strong> – Disqualifizierte Athleten erscheinen nicht in der offiziellen Rangliste. Gründe für DSQ: externe Hilfe, absichtliche Regelverstösse, Ausrüstungsverstoss, Dopingverstoss.</p><p><strong>10.5 DNS (Did Not Start)</strong> – Angemeldete Athleten, die nicht am Start erscheinen, erhalten DNS. DNS zählt für die Kategorienwertung nicht.</p><p><strong>10.6 Veröffentlichung</strong> – Vorläufige Ergebnisse müssen spätestens 30 Minuten nach dem letzten Lauf der Kategorie bekannt gegeben werden. Endgültige Ergebnisse nach Ablauf der Protestfrist. Ergebnisse sind mindestens 7 Tage öffentlich zugänglich zu machen.</p><p><strong>10.7 Serienrangliste</strong> – Richtet ein Verband eine Wettkampfserie aus, werden Punkte nach einem festgelegten Schema vergeben (z.B. 25-18-15-12-10-8-6-4-2-1 für die Plätze 1–10). Streichresultate sind möglich.</p>`},
+  {nr:'11',title:'Anti-Doping',color:'#FF3B30',content:`<p><strong>11.1 Grundsatz</strong> – Die IGN bekennt sich zu einem fairen und dopingfreien Sport. Es gelten die Anti-Doping-Regeln der WADA (World Anti-Doping Agency) in der jeweils gültigen Fassung.</p><p><strong>11.2 Kontrollen</strong> – Der Veranstalter kann Dopingkontrollen durchführen oder durch eine autorisierte Stelle durchführen lassen. Zielkontrollen sind möglich. Verweigerung einer Kontrolle gilt als positiver Befund.</p><p><strong>11.3 Verbotene Substanzen</strong> – Es gilt die aktuelle WADA-Verbotsliste. Betahydroxybutyrat (BHB), Stimulanzien, Wachstumshormone und Blutdoping sind explizit verboten. Therapeutische Ausnahmegenehmigungen (TUE) müssen vor dem Wettkampf beantragt und genehmigt sein.</p><p><strong>11.4 Sanktionen</strong> – Bei positivem Befund: Disqualifikation des Wettkampfergebnisses, Rückforderung von Preisen/Preisgeld. Wiederholungsverstösse führen zu Sperren gemäss WADA-Richtlinien.</p>`},
+  {nr:'12',title:'Sanktionen',color:'#FF2D78',content:`<p><strong>12.1 Verwarnung (Gelbe Karte)</strong> – Für leichte Regelverstösse, unsportliches Verhalten oder wiederholte Frühstarts. Zwei Gelbe Karten im selben Wettkampf = Rote Karte.</p><p><strong>12.2 Disqualifikation (Rote Karte)</strong> – Sofortige DSQ für: absichtliche Behinderung anderer Athleten, grobe Unsportlichkeit, Beleidigung von Jury/WR, externe Hilfe, Ausrüstungsbetrug, wiederholte grobe Regelverstösse.</p><p><strong>12.3 Wettkampfsperre</strong> – Kann vom WR oder IGN-Vorstand ausgesprochen werden. Kurze Sperre (1–3 Wettkämpfe): für DSQ-würdige Verhaltensweisen. Lange Sperre (1–2 Saisons): für schwere Verstösse, Gewalt, Doping. Lebenslange Sperre: für schwerste Verstösse.</p><p><strong>12.4 Berufung</strong> – Gegen Sperren kann innerhalb von 14 Tagen schriftlich Berufung beim IGN-Vorstand eingelegt werden. Der Berufungsausschuss entscheidet innerhalb von 30 Tagen. Entscheid ist endgültig.</p><p><strong>12.5 Registrierung</strong> – Alle Sanktionen werden vom IGN-Vorstand registriert. Gesperrte Athleten dürfen an keinem IGN-Wettkampf teilnehmen – auch nicht als Zuschauer in der Aktionsfläche.</p>`},
+  {nr:'13',title:'Begriffsdefinitionen',color:'#8E8E93',content:`<p><strong>Checkpoint (CP)</strong> – Klar definierte, von der Jury bestätigte Halteposition an einem Hindernis. Bildet Grundlage der Zeitwertung bei Fall.</p><p><strong>DNF</strong> – Did Not Finish. Athlet hat keinen Checkpoint erreicht oder die Ziellinie nicht überquert.</p><p><strong>DNS</strong> – Did Not Start. Angemeldeter Athlet ist nicht am Start erschienen.</p><p><strong>DSQ</strong> – Disqualifikation. Lauf oder Wettkampf wird aus der Wertung genommen.</p><p><strong>Fall</strong> – Unkontrollierter Kontakt mit dem Boden oder einer nicht vorgesehenen Stützfläche. Beendet den Lauf am letzten gehaltenen Checkpoint (ausser im Lives-Modus).</p><p><strong>Frühstart</strong> – Berühren des ersten Hindernisses vor dem GO-Horn. Führt zur Ungültigkeit des Versuchs.</p><p><strong>GO-Horn</strong> – Der lange Abschluss-Ton des Startsignals. Exakter Startpunkt der Zeitmessung.</p><p><strong>IGN</strong> – Interessengemeinschaft Ninja-Sport. Dachverband für Ninja-Sport im deutschsprachigen Raum.</p><p><strong>Jury</strong> – Offizielle Person(en) an einer Station, zuständig für Zeitnahme und Checkpoint-Beurteilung.</p><p><strong>Leben (Life)</strong> – Im Lives-Modus: Ressource, die bei einem Fall verbraucht wird. Ermöglicht Weiterstarten am Segment-Anfang.</p><p><strong>LK1 / LK2</strong> – Leistungsklassen. LK1: erfahrene/fortgeschrittene Athleten, LK2: Einsteiger/Fortgeschrittene.</p><p><strong>Reklamation / Protest</strong> – Formeller Einspruch eines Athleten gegen ein Ergebnis oder eine Entscheidung. Frist: 15 Minuten ab Bekanntgabe.</p><p><strong>Segment</strong> – Im Segment Race: Streckenabschnitt zwischen zwei Landeplattformen. Wird einzeln gewertet.</p><p><strong>Spotter</strong> – Sicherheitsperson an einem Hindernis. Darf nur im Notfall physischen Kontakt aufnehmen.</p><p><strong>Stage</strong> – Eine Jury-Station innerhalb eines Wettkampfs. Mehrere Stages laufen parallel.</p><p><strong>Wettkampfrichter (WR)</strong> – Ausgebildete Aufsichtsperson mit abschliessender Entscheidungskompetenz bei Regelunklarheiten.</p><p><strong>Zeitlimit</strong> – Maximale Laufzeit pro Versuch. Wird vom Veranstalter festgelegt und in der Ausschreibung kommuniziert.</p>`},
+];
+
+let rwOpenChapters = new Set(['P']);
+
+function clearRwSearch() {
+  document.getElementById('rw-search').value = '';
+  document.getElementById('rw-clear').style.display = 'none';
+  document.getElementById('rw-match-count').textContent = '';
+  renderRegelwerk();
+}
+
+function renderRegelwerk() {
+  const q = (document.getElementById('rw-search')?.value || '').trim().toLowerCase();
+  const clearBtn = document.getElementById('rw-clear');
+  if(clearBtn) clearBtn.style.display = q ? 'block' : 'none';
+
+  const container = document.getElementById('rw-chapters');
+  if(!container) return;
+
+  function matches(ch) {
+    if(!q) return true;
+    return ch.title.toLowerCase().includes(q) || ch.content.toLowerCase().includes(q) || ch.nr.toLowerCase().includes(q);
+  }
+
+  function hl(text) {
+    if(!q) return text;
+    return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+  }
+
+  function matchCount(ch) {
+    if(!q) return 0;
+    const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi');
+    return ((ch.title + ch.content).match(re) || []).length;
+  }
+
+  const filtered = q ? REGELWERK.filter(matches) : REGELWERK;
+
+  if(q) {
+    const totalMatches = filtered.reduce((s,ch) => s + matchCount(ch), 0);
+    const mc = document.getElementById('rw-match-count');
+    if(mc) mc.textContent = filtered.length > 0 ? `${totalMatches} Treffer in ${filtered.length} Kapitel${filtered.length===1?'':'n'}` : 'Keine Ergebnisse';
+    filtered.forEach(ch => rwOpenChapters.add(ch.nr));
+  } else {
+    const mc = document.getElementById('rw-match-count');
+    if(mc) mc.textContent = '';
+  }
+
+  let html = '';
+  (filtered.length > 0 ? filtered : (q ? [] : REGELWERK)).forEach(ch => {
+    const isOpen = q ? true : rwOpenChapters.has(ch.nr);
+    const mc = matchCount(ch);
+    const mcBadge = mc > 0 ? `<span class="rw-match-badge">${mc}</span>` : '';
+    html += `<div class="rw-chapter">
+      <div class="rw-chapter-head" onclick="toggleRwChapter('${ch.nr}')">
+        <div class="rw-chapter-title">
+          <span class="rw-chapter-nr" style="background:${ch.color}22;color:${ch.color};border:1px solid ${ch.color}44">${ch.nr==='P'?'P':ch.nr}</span>
+          ${hl(ch.title)}${mcBadge}
+        </div>
+        <svg class="rw-chevron${isOpen?' open':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="rw-chapter-body${isOpen?' open':''}">
+        ${hl(ch.content)}
+      </div>
+    </div>`;
+  });
+
+  if(q && filtered.length === 0) {
+    html = `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">Keine Kapitel gefunden für "${q}".</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function toggleRwChapter(nr) {
+  if(rwOpenChapters.has(nr)) {
+    rwOpenChapters.delete(nr);
+  } else {
+    rwOpenChapters.add(nr);
+  }
+  renderRegelwerk();
 }
 
 // Load real data from JSON if available
