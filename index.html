@@ -318,6 +318,11 @@ footer a:hover{color:var(--muted)}
   .ranking-5col .ranking-row{grid-template-columns:40px 1fr 80px}
 }
 </style>
+<!-- Firebase SDK for live ranking sync -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
 </head>
 <body>
 
@@ -758,35 +763,9 @@ const DATA = {
   seasons: {
     2026: {
       wks: [
-        {id:'wk1-2026', num:'WK 1', name:'OG Ninja Open 2026', date:'14. März 2026', location:'Basel', venue:'Overground Basel', isFinale:false, cv:{am1:5120,af1:3840,tm1:2960,tf1:1980,am2:2340,mast:1540}, status:'done', stats:{
-          am1:{
-            survivalRate:[{label:'Obs 1 · Rollenleiter',pct:100},{label:'Obs 2 · Floating Steps',pct:80},{label:'Obs 3 · Wackelbrücke',pct:80},{label:'Obs 4 · Steilwand',pct:60},{label:'Obs 5 · Ringen',pct:60},{label:'Obs 6 · Spinning Log',pct:40},{label:'Obs 7 · Salmon Ladder',pct:40},{label:'Obs 8 · Spider Walk',pct:20}],
-            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:2},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
-          },
-          af1:{
-            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:75},{label:'Obs 4',pct:75},{label:'Obs 5',pct:50},{label:'Obs 6',pct:50},{label:'Obs 7',pct:25},{label:'Obs 8',pct:25}],
-            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
-          },
-          tm1:{
-            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:67},{label:'Obs 4',pct:67},{label:'Obs 5',pct:33},{label:'Obs 6',pct:33},{label:'Obs 7',pct:33},{label:'Obs 8',pct:0}],
-            pointsDist:[{label:'1500–1999',count:1},{label:'2000–2499',count:1},{label:'2500–2999',count:1}]
-          },
-          am2:{
-            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:67},{label:'Obs 4',pct:67},{label:'Obs 5',pct:33},{label:'Obs 6',pct:33}],
-            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1},{label:'1999–2499',count:1}]
-          },
-          mast:{
-            survivalRate:[{label:'Obs 1',pct:100},{label:'Obs 2',pct:100},{label:'Obs 3',pct:50},{label:'Obs 4',pct:50},{label:'Obs 5',pct:50},{label:'Obs 6',pct:0}],
-            pointsDist:[{label:'1000–1499',count:1},{label:'1500–1999',count:1}]
-          }
-        }},
-        {id:'wk2-2026', num:'WK 2', name:'Test Wettkampf 234', date:'3. April 2026', location:'Basel', venue:'OG Ninja Comp App · EE92HC', isFinale:false, cv:{am1:2000}, status:'done', compCode:'EE92HC', stats:{
-          am1:{
-            survivalRate:[{label:'Obs 1 · Rollenleiter',pct:100},{label:'Obs 2 · Wackelbrücke',pct:75},{label:'Obs 3 · Ringen',pct:75},{label:'Obs 4 · Steilwand',pct:50},{label:'Obs 5 · Salmon Ladder',pct:25},{label:'Obs 6 · Spider Walk',pct:25}],
-            pointsDist:[{label:'500–749',count:1},{label:'750–999',count:2},{label:'1000–1249',count:1}]
-          }
-        }},
-        {id:'finale-2026', num:'Finale · WK 3', name:'OG Games 2026', date:'12. Dez. 2026', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
+        {id:'wk1-2026', num:'WK 1', name:'OG Games 6.2 (Fun Edition)', date:'18. April 2026', location:'Basel', venue:'Overground · Fun Edition', isFinale:false, cv:{}, status:'upcoming', compCode:'9ALPL5', liveSync:true},
+        {id:'wk2-2026', num:'WK 2', name:'TBD', date:'TBD', location:'TBD', venue:'TBD', isFinale:false, cv:{}, status:'future'},
+        {id:'finale-2026', num:'Finale · WK 3', name:'OG Finale 2026', date:'TBD', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
       ],
       divisions: [
         {id:'am1', label:'Adults LK1 ♂'},
@@ -799,40 +778,13 @@ const DATA = {
         {id:'bam', label:'Bambini'},
       ],
       ranking: {
-        am1: [
-          {rank:1,name:'Chris Harmat',team:'Overground Basel',pot:142,wk1:2840,wk2:580,total:3420,hasWk1:true,hasWk2:true,hasFinale:false},
-          {rank:2,name:'Luca Bernasconi',team:'Schüür Luzern',pot:128,wk1:2210,wk2:950,total:3160,hasWk1:true,hasWk2:true,hasFinale:false},
-          {rank:3,name:'Fabian Müller',team:'OG Basel',pot:115,wk1:1980,wk2:null,total:1980,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:4,name:'Adrian Steiner',team:'Schüür Luzern',pot:102,wk1:1640,wk2:null,total:1640,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:5,name:'Tobias Keller',team:'Schüür Luzern',pot:88,wk1:1210,wk2:null,total:1210,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:6,name:'Anna Müller',team:'OG Basel',pot:95,wk1:null,wk2:1200,total:1200,hasWk1:false,hasWk2:true,hasFinale:false,isNewbie:true},
-          {rank:7,name:'Marco Zanetti',team:'OG Basel',pot:70,wk1:null,wk2:750,total:750,hasWk1:false,hasWk2:true,hasFinale:false,isNewbie:true},
-        ],
-        af1: [
-          {rank:1,name:'Sophia Maurer',team:'OG Basel',pot:138,wk1:2680,wk2:null,total:2680,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Elena Vogt',team:'Schüür Luzern',pot:122,wk1:2040,wk2:null,total:2040,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:3,name:'Nina Bauer',team:'OG Basel',pot:109,wk1:1760,wk2:null,total:1760,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:4,name:'Laura Fischer',team:'Schüür Luzern',pot:95,wk1:1430,wk2:null,total:1430,hasWk1:true,hasWk2:false,hasFinale:false},
-        ],
-        am2: [
-          {rank:1,name:'Simon Gerber',team:'OG Basel',pot:105,wk1:1920,wk2:null,total:1920,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Nico Huber',team:'Schüür Luzern',pot:98,wk1:1650,wk2:null,total:1650,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:3,name:'David Wyss',team:'OG Basel',pot:82,wk1:1380,wk2:null,total:1380,hasWk1:true,hasWk2:false,hasFinale:false},
-        ],
-        tm1: [
-          {rank:1,name:'Jonas Meier',team:'OG Basel',pot:125,wk1:2340,wk2:null,total:2340,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Lukas Zimmermann',team:'Schüür Luzern',pot:118,wk1:2090,wk2:null,total:2090,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:3,name:'Felix Brunner',team:'OG Basel',pot:104,wk1:1780,wk2:null,total:1780,hasWk1:true,hasWk2:false,hasFinale:false},
-        ],
-        tf1: [
-          {rank:1,name:'Mia Schneider',team:'OG Basel',pot:119,wk1:2150,wk2:null,total:2150,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Anna Weber',team:'Schüür Luzern',pot:103,wk1:1840,wk2:null,total:1840,hasWk1:true,hasWk2:false,hasFinale:false},
-        ],
-        mast: [
-          {rank:1,name:'Stefan Bär',team:'OG Basel',pot:98,wk1:1540,wk2:null,total:1540,hasWk1:true,hasWk2:false,hasFinale:false},
-          {rank:2,name:'Thomas Frei',team:'Schüür Luzern',pot:87,wk1:1280,wk2:null,total:1280,hasWk1:true,hasWk2:false,hasFinale:false},
-        ],
+        am1: [],
+        af1: [],
+        am2: [],
         af2: [],
+        tm1: [],
+        tf1: [],
+        mast: [],
         bam: [],
       }
     }
@@ -1896,6 +1848,156 @@ async function tryLoadData() {
 }
 
 tryLoadData();
+
+// ═══════════════════════════════════════════════════════════════
+// LIVE SYNC — Firebase Realtime Database
+// Reads ogn/{compCode}/completedRuns, computes rankings, re-renders
+// ═══════════════════════════════════════════════════════════════
+(async function initLiveSync() {
+  if (typeof firebase === 'undefined') { console.warn('[LiveSync] firebase SDK not loaded'); return; }
+  try {
+    const cfg = {
+      apiKey: "AIzaSyBQPi4f2qWg3xA65hLL7IpxOiq3kzVk5ls",
+      authDomain: "ninja-hq-chris.firebaseapp.com",
+      databaseURL: "https://ninja-hq-chris-default-rtdb.firebaseio.com",
+      projectId: "ninja-hq-chris"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    try { await firebase.auth().signInAnonymously(); } catch(e) { console.warn('[LiveSync] anon auth warn', e); }
+
+    // Category map: comp-app catId -> ranking division id
+    const CAT_MAP = { am1:'am1', am2:'am2', aw1:'af1', aw2:'af2', msm:'mast', msw:'mast' };
+    const MONTHS_DE = ['Jan.','Feb.','März','April','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'];
+
+    function fmtDateDE(isoDate) {
+      if (!isoDate) return null;
+      const d = new Date(isoDate + 'T00:00:00');
+      if (isNaN(d)) return null;
+      return d.getDate() + '. ' + MONTHS_DE[d.getMonth()] + ' ' + d.getFullYear();
+    }
+
+    function computePoints(rank, n) {
+      if (n <= 0) return 0;
+      const factor = Math.max(0, 1 - (rank - 1) / Math.max(n, 4));
+      return Math.max(50, Math.round(1000 * Math.pow(factor, 1.3) / 50) * 50);
+    }
+
+    function ensureLiveBanner() {
+      if (document.getElementById('liveSyncBanner')) return;
+      const b = document.createElement('div');
+      b.id = 'liveSyncBanner';
+      b.style.cssText = 'position:fixed;top:8px;right:8px;z-index:9999;background:rgba(220,38,38,0.95);color:#fff;padding:6px 10px;border-radius:6px;font:600 11px/1.2 system-ui;box-shadow:0 2px 8px rgba(0,0,0,.3);display:none;';
+      b.innerHTML = '<span style="display:inline-block;width:8px;height:8px;background:#fff;border-radius:50%;margin-right:6px;animation:livePulse 1.4s infinite"></span>LIVE · <span id="liveSyncLabel">—</span>';
+      const style = document.createElement('style');
+      style.textContent = '@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}';
+      document.head.appendChild(style);
+      document.body.appendChild(b);
+    }
+
+    function setLiveBanner(text, show) {
+      ensureLiveBanner();
+      const b = document.getElementById('liveSyncBanner');
+      const lbl = document.getElementById('liveSyncLabel');
+      if (lbl) lbl.textContent = text;
+      if (b) b.style.display = show ? 'block' : 'none';
+    }
+
+    function syncOne(wk, seasonYear) {
+      if (!wk.compCode) return;
+      const ref = firebase.database().ref('ogn/' + wk.compCode);
+      console.log('[LiveSync] Attaching listener:', wk.compCode, wk.name);
+      ref.on('value', snap => {
+        const v = snap.val();
+        if (!v) return;
+
+        // Pull meta
+        if (v.info) {
+          if (v.info.name) wk.name = v.info.name;
+          if (v.info.location && v.info.location.trim()) wk.location = v.info.location.trim();
+          const d = fmtDateDE(v.info.date); if (d) wk.date = d;
+        }
+        const athleteTotal = v.athletes ? Object.keys(v.athletes).length : 0;
+
+        // Best run per athlete
+        const best = {};
+        const runs = v.completedRuns || {};
+        Object.values(runs).forEach(r => {
+          if (!r || !r.athleteId) return;
+          const cps = (r.doneCP && r.doneCP.length) || r.totalCPs || 0;
+          const time = typeof r.finalTime === 'number' ? r.finalTime : Number.MAX_SAFE_INTEGER;
+          const cur = best[r.athleteId];
+          if (!cur || cps > cur.cps || (cps === cur.cps && time < cur.time)) {
+            best[r.athleteId] = { id:r.athleteId, name:r.athleteName, catId:r.catId, cps, time };
+          }
+        });
+        // Attach team
+        Object.values(best).forEach(a => {
+          const ath = (v.athletes || {})[a.id];
+          if (ath) { a.team = ath.team || ''; a.country = ath.country || 'CH'; }
+        });
+
+        // Group by division
+        const byDiv = {};
+        Object.values(best).forEach(a => {
+          const div = CAT_MAP[a.catId];
+          if (!div) return;
+          (byDiv[div] = byDiv[div] || []).push(a);
+        });
+
+        // Sort & points
+        Object.keys(byDiv).forEach(div => {
+          const arr = byDiv[div];
+          arr.sort((a,b) => b.cps - a.cps || a.time - b.time);
+          arr.forEach((a,i) => { a.rank = i+1; a.points = computePoints(i+1, arr.length); });
+        });
+
+        // Write into DATA.ranking for WK1
+        const season = DATA.seasons[seasonYear];
+        if (!season) return;
+        const wkField = 'wk1'; // OG Games 6.2 is WK1 in the test season
+        const hasField = 'hasWk1';
+        season.divisions.forEach(div => {
+          const arr = byDiv[div.id] || [];
+          season.ranking[div.id] = arr.map(a => {
+            const row = { rank:a.rank, name:a.name, team:a.team||'—', pot:0, wk1:null, wk2:null, total:a.points, hasWk1:false, hasWk2:false, hasFinale:false, cps:a.cps, time:a.time };
+            row[wkField] = a.points;
+            row[hasField] = true;
+            return row;
+          });
+        });
+
+        // CV per division (sum of points, as proxy)
+        const cv = {};
+        Object.keys(byDiv).forEach(div => {
+          cv[div] = byDiv[div].reduce((s,a) => s + a.points, 0);
+        });
+        wk.cv = cv;
+
+        // Status: live if there are runs, else upcoming
+        const runCount = Object.keys(runs).length;
+        wk.status = runCount > 0 ? 'upcoming' : 'upcoming'; // keep upcoming (don't flip to 'done')
+        wk._liveRuns = runCount;
+        wk._liveAthletes = athleteTotal;
+
+        // Banner
+        setLiveBanner(wk.name + ' · ' + runCount + ' Läufe / ' + athleteTotal + ' Athleten', true);
+
+        // Re-render
+        if (typeof renderAll === 'function') renderAll();
+      });
+    }
+
+    // Start listeners for all WKs with compCode in the 2026 season
+    const season = DATA.seasons[2026];
+    if (season && season.wks) {
+      season.wks.filter(w => w.compCode).forEach(w => syncOne(w, 2026));
+    }
+
+    console.log('[LiveSync] Initialized');
+  } catch (e) {
+    console.error('[LiveSync] Failed:', e);
+  }
+})();
 </script>
 </body>
 </html>
