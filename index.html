@@ -1975,7 +1975,7 @@ tryLoadData();
 
         // Status: live if there are runs, else upcoming
         const runCount = Object.keys(runs).length;
-        wk.status = runCount > 0 ? 'upcoming' : 'upcoming'; // keep upcoming (don't flip to 'done')
+        wk.status = runCount > 0 ? 'done' : 'upcoming'; // keep upcoming (don't flip to 'done')
         wk._liveRuns = runCount;
         wk._liveAthletes = athleteTotal;
 
