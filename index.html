@@ -980,7 +980,7 @@ function renderRankingTable() {
       const dotF = r.hasFinale ? `<div class="dot finale-dot"></div>` : `<div class="dot miss"></div>`;
 
       html += `<div class="ranking-row ${rowClass}">
-        <div class="rank ${rankClass}">${r.rank}</div>
+        <div class="rank ${rankClass}">${r.rank??'—'}</div>
         <div>
           <div style="display:flex;align-items:center;gap:6px">
             <div class="ch-flag"></div>
@@ -1882,6 +1882,24 @@ tryLoadData();
       return Math.max(50, Math.round(1000 * Math.pow(factor, 1.3) / 50) * 50);
     }
 
+    // ─── Fuzzy name matching for multi-WK deduplication ───────────────────
+    function normalizeName(s) {
+      return (s||'').toLowerCase()
+        .replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+        .replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();
+    }
+    function levenshtein(a,b) {
+      const m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+      let prev=Array.from({length:n+1},(_,i)=>i),cur=[];
+      for(let i=1;i<=m;i++){cur[0]=i;for(let j=1;j<=n;j++)cur[j]=a[i-1]===b[j-1]?prev[j-1]:1+Math.min(prev[j],cur[j-1],prev[j-1]);prev=[...cur];}
+      return prev[n];
+    }
+    function fuzzyMatch(n1,n2){
+      const a=normalizeName(n1),b=normalizeName(n2);
+      if(a===b)return true;
+      return levenshtein(a,b)<=Math.max(1,Math.floor(Math.max(a.length,b.length)/7));
+    }
+
     function ensureLiveBanner() {
       if (document.getElementById('liveSyncBanner')) return;
       const b = document.createElement('div');
@@ -1916,9 +1934,10 @@ tryLoadData();
           if (v.info.location && v.info.location.trim()) wk.location = v.info.location.trim();
           const d = fmtDateDE(v.info.date); if (d) wk.date = d;
         }
-        const athleteTotal = v.athletes ? Object.keys(v.athletes).length : 0;
+        const athleteMap = v.athletes || {};
+        const athleteTotal = Object.keys(athleteMap).length;
 
-        // Best run per athlete
+        // Best completed run per athlete (by ID)
         const best = {};
         const runs = v.completedRuns || {};
         Object.values(runs).forEach(r => {
@@ -1930,63 +1949,79 @@ tryLoadData();
             best[r.athleteId] = { id:r.athleteId, name:r.athleteName, catId:r.catId, cps, time };
           }
         });
-        // Attach team
         Object.values(best).forEach(a => {
-          const ath = (v.athletes || {})[a.id];
+          const ath = athleteMap[a.id];
           if (ath) { a.team = ath.team || ''; a.country = ath.country || 'CH'; }
         });
 
-        // Group by division
+        // Group runners by division, sort, assign rank + points
         const byDiv = {};
         Object.values(best).forEach(a => {
           const div = CAT_MAP[a.catId];
           if (!div) return;
           (byDiv[div] = byDiv[div] || []).push(a);
         });
-
-        // Sort & points
         Object.keys(byDiv).forEach(div => {
           const arr = byDiv[div];
           arr.sort((a,b) => b.cps - a.cps || a.time - b.time);
           arr.forEach((a,i) => { a.rank = i+1; a.points = computePoints(i+1, arr.length); });
         });
 
-        // Write into DATA.ranking for WK1
+        // CH candidates: registered athletes without a run yet
+        const byCand = {};
+        Object.entries(athleteMap).forEach(([id, ath]) => {
+          if (!ath) return;
+          const country = (ath.country||'').toUpperCase();
+          if (country !== 'CH') return; // only Swiss athletes
+          if (best[id]) return; // already has a completed run
+          const div = CAT_MAP[ath.cat || ath.catId];
+          if (!div) return;
+          const cands = byCand[div] = byCand[div] || [];
+          // Fuzzy dedup: same person entered with slight name variation
+          if (!cands.some(c => fuzzyMatch(c.name, ath.name||''))) {
+            cands.push({ id, name: ath.name||'?', team: ath.team||'—', country });
+          }
+        });
+
+        // Write into DATA.ranking
         const season = DATA.seasons[seasonYear];
         if (!season) return;
-        const wkField = 'wk1'; // OG Games 6.2 is WK1 in the test season
-        const hasField = 'hasWk1';
+        // Detect which WK this is (wk1, wk2, …)
+        const wkIdx = season.wks.findIndex(w => w.compCode === wk.compCode);
+        const wkNum = wkIdx >= 0 ? wkIdx + 1 : 1;
+        const wkField = 'wk' + wkNum;
+        const hasField = 'hasWk' + wkNum;
+
         season.divisions.forEach(div => {
-          const arr = byDiv[div.id] || [];
-          season.ranking[div.id] = arr.map(a => {
-            const row = { rank:a.rank, name:a.name, team:a.team||'—', pot:0, wk1:null, wk2:null, total:a.points, hasWk1:false, hasWk2:false, hasFinale:false, cps:a.cps, time:a.time };
-            row[wkField] = a.points;
-            row[hasField] = true;
+          const runners = (byDiv[div.id] || []).map(a => {
+            const row = { rank:a.rank, name:a.name, team:a.team||'—', pot:0,
+              wk1:null, wk2:null, total:a.points,
+              hasWk1:false, hasWk2:false, hasFinale:false,
+              cps:a.cps, time:a.time };
+            row[wkField] = a.points; row[hasField] = true;
             return row;
           });
+          const candidates = (byCand[div.id] || []).map(a => ({
+            rank:null, name:a.name, team:a.team, pot:0,
+            wk1:null, wk2:null, total:null,
+            hasWk1:false, hasWk2:false, hasFinale:false,
+            isCandidate:true
+          }));
+          season.ranking[div.id] = [...runners, ...candidates];
         });
 
-        // CV per division (sum of points, as proxy)
         const cv = {};
-        Object.keys(byDiv).forEach(div => {
-          cv[div] = byDiv[div].reduce((s,a) => s + a.points, 0);
-        });
+        Object.keys(byDiv).forEach(div => { cv[div] = byDiv[div].reduce((s,a) => s+a.points,0); });
         wk.cv = cv;
-
-        // Status: live if there are runs, else upcoming
         const runCount = Object.keys(runs).length;
-        wk.status = runCount > 0 ? 'done' : 'upcoming'; // keep upcoming (don't flip to 'done')
+        wk.status = runCount > 0 ? 'done' : 'upcoming';
         wk._liveRuns = runCount;
         wk._liveAthletes = athleteTotal;
-
-        // Banner
-        setLiveBanner(wk.name + ' · ' + runCount + ' Läufe / ' + athleteTotal + ' Athleten', true);
-
-        // Re-render
+        const chCount = Object.values(athleteMap).filter(a => a && (a.country||'').toUpperCase()==='CH').length;
+        setLiveBanner(wk.name + ' · ' + runCount + ' Läufe / ' + chCount + ' CH-Athleten', true);
         if (typeof renderAll === 'function') renderAll();
       });
     }
-
     // Start listeners for all WKs with compCode in the 2026 season
     const season = DATA.seasons[2026];
     if (season && season.wks) {
