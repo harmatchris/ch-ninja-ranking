@@ -1971,8 +1971,8 @@ tryLoadData();
         const byCand = {};
         Object.entries(athleteMap).forEach(([id, ath]) => {
           if (!ath) return;
-          const country = (ath.country||'').toUpperCase();
-          if (country !== 'CH') return; // only Swiss athletes
+          const country = (ath.country||'').toLowerCase();
+          if (country !== 'ch' && country !== 'schweiz' && country !== 'switzerland') return; // only Swiss athletes
           if (best[id]) return; // already has a completed run
           const div = CAT_MAP[ath.cat || ath.catId];
           if (!div) return;
@@ -1993,8 +1993,15 @@ tryLoadData();
         const hasField = 'hasWk' + wkNum;
 
         season.divisions.forEach(div => {
-          const runners = (byDiv[div.id] || []).map(a => {
-            const row = { rank:a.rank, name:a.name, team:a.team||'—', pot:0,
+          // Filter to CH-only for display — points already reflect overall placement
+          const allRunners = byDiv[div.id] || [];
+          const chRunners = allRunners.filter(a => {
+            const c = (a.country||'').toLowerCase();
+            return c === 'ch' || c === 'schweiz' || c === 'switzerland';
+          });
+          chRunners.forEach((a, i) => { a.chRank = i + 1; });
+          const runners = chRunners.map(a => {
+            const row = { rank:a.chRank, name:a.name, team:a.team||'—', pot:0,
               wk1:null, wk2:null, total:a.points,
               hasWk1:false, hasWk2:false, hasFinale:false,
               cps:a.cps, time:a.time };
