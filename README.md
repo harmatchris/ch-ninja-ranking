@@ -58,9 +58,59 @@ Passwort: `CH2026` (nur für akkreditierte Veranstalter)
 ## Tech Stack
 
 - Statische Single-Page HTML/CSS/JS (keine Frameworks)
-- GitHub Pages Hosting
-- JSON-basierte Datenhaltung
+- Firebase RTDB für Live-Sync der Wettkampfdaten
+- Vercel Hosting (öffentliches Ranking + Admin-API)
+- JSON-basierte Daten als Fallback
 - Google Fonts: Barlow Condensed + Barlow
+
+---
+
+## Admin-Backend
+
+Admin-Oberfläche unter `/admin.html` mit 5 Bereichen:
+
+- **Athleten** — CRUD (hinzufügen, umbenennen, Land ändern, Division zuweisen, sperren)
+- **Rankings** — Manueller Rang- und Punkte-Override pro Wettkampf & Division
+- **Wettkämpfe** — Name / Datum / Ort / Venue / Status pro WK anpassen
+- **Scoring** — Mindestpunkte, Exponent und CV-Multiplikator pro WK
+- **Benutzer** — weitere Admins/Editoren anlegen (nur Admins)
+
+Alle Änderungen werden als Overrides in Firebase RTDB unter `ogn/admin/{Jahr}/` gespeichert und live in das öffentliche Ranking eingeblendet — ohne Redeploy.
+
+### Rollen
+
+- `admin` — alle Rechte, inklusive Benutzerverwaltung
+- `editor` — alle Datenbearbeitung, keine Benutzerverwaltung
+
+### Setup & Deploy (Vercel via GitHub)
+
+1. **Repo pushen** — `git push origin main` auf `harmatchris/ch-ninja-ranking`
+2. **Vercel verbinden** — Dashboard → "Add new project" → Import vom GitHub-Repo (Framework: Other)
+3. **Env-Variablen in Vercel** setzen:
+   - `FIREBASE_SERVICE_ACCOUNT` — Service-Account-JSON aus Firebase Console (Project Settings → Service Accounts → Generate new private key) als einzeiligen JSON-String
+   - `FIREBASE_DB_URL` — `https://ninja-hq-chris-default-rtdb.firebaseio.com`
+4. **Firebase Rules** publizieren — Inhalt von `firebase-rules.json` in Firebase Console → Realtime Database → Rules einfügen → Publish
+5. **Ersten Admin anlegen** (einmalig, lokal):
+   ```bash
+   npm install
+   FIREBASE_SERVICE_ACCOUNT="$(cat service-account.json)" \
+   BOOTSTRAP_EMAIL=harmatchris@gmail.com \
+   BOOTSTRAP_PASSWORD='<dein Passwort>' \
+   node scripts/bootstrap-admin.js
+   ```
+   `service-account.json` ist gitignored. Passwort wird direkt in Firebase Auth gespeichert.
+6. `/admin.html` aufrufen, einloggen. Weitere Nutzer im Benutzer-Tab anlegen.
+
+Jeder `git push main` deployt automatisch.
+
+### Passwort vergessen?
+
+```bash
+FIREBASE_SERVICE_ACCOUNT="$(cat service-account.json)" \
+BOOTSTRAP_EMAIL=harmatchris@gmail.com \
+BOOTSTRAP_PASSWORD='<neues Passwort>' \
+node scripts/bootstrap-admin.js --update-password
+```
 
 ---
 

@@ -1850,8 +1850,9 @@ async function tryLoadData() {
 tryLoadData();
 
 // ═══════════════════════════════════════════════════════════════
-// LIVE SYNC — Firebase Realtime Database
-// Reads ogn/{compCode}/completedRuns, computes rankings, re-renders
+// LIVE SYNC — Firebase Realtime Database + Admin Overrides
+// Reads ogn/{compCode} per WK + ogn/admin/{season} overrides
+// Applies edits/exclusions/rank-overrides/scoring and re-renders
 // ═══════════════════════════════════════════════════════════════
 (async function initLiveSync() {
   if (typeof firebase === 'undefined') { console.warn('[LiveSync] firebase SDK not loaded'); return; }
@@ -1868,6 +1869,14 @@ tryLoadData();
     // Category map: comp-app catId -> ranking division id
     const CAT_MAP = { am1:'am1', am2:'am2', aw1:'af1', aw2:'af2', msm:'mast', msw:'mast' };
     const MONTHS_DE = ['Jan.','Feb.','März','April','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'];
+    const DEFAULT_SCORING = { minPoints: 50, exponent: 1.3, cv: { wk1: 1.0, wk2: 1.0, finale: 1.5 } };
+    const SEASON_YEAR = 2026;
+    const ADMIN_PATH = 'ogn/admin/' + SEASON_YEAR;
+
+    function wkKey(wkId) {
+      if (/finale/i.test(wkId)) return 'finale';
+      const m = /wk(\d+)/i.exec(wkId); return m ? 'wk' + m[1] : wkId;
+    }
 
     function fmtDateDE(isoDate) {
       if (!isoDate) return null;
@@ -1876,10 +1885,13 @@ tryLoadData();
       return d.getDate() + '. ' + MONTHS_DE[d.getMonth()] + ' ' + d.getFullYear();
     }
 
-    function computePoints(rank, n) {
+    function computePoints(rank, n, cfg) {
+      cfg = cfg || DEFAULT_SCORING;
       if (n <= 0) return 0;
       const factor = Math.max(0, 1 - (rank - 1) / Math.max(n, 4));
-      return Math.max(50, Math.round(1000 * Math.pow(factor, 1.3) / 50) * 50);
+      const minPts = cfg.minPoints ?? 50;
+      const exp = cfg.exponent ?? 1.3;
+      return Math.max(minPts, Math.round(1000 * Math.pow(factor, exp) / 50) * 50);
     }
 
     // ─── Fuzzy name matching for multi-WK deduplication ───────────────────
@@ -1920,28 +1932,56 @@ tryLoadData();
       if (b) b.style.display = show ? 'block' : 'none';
     }
 
-    function syncOne(wk, seasonYear) {
-      if (!wk.compCode) return;
-      const ref = firebase.database().ref('ogn/' + wk.compCode);
-      console.log('[LiveSync] Attaching listener:', wk.compCode, wk.name);
-      ref.on('value', snap => {
-        const v = snap.val();
-        if (!v) return;
+    // Cached raw snapshots per WK (refreshed via Firebase listener)
+    const wkSnapshots = {}; // wk.id -> { info, athletes, completedRuns }
+    // Admin overlay (refreshed via Firebase listener on ogn/admin/{year})
+    let ADMIN = { addedAthletes:{}, athleteEdits:{}, excluded:{}, rankOverrides:{}, scoring: JSON.parse(JSON.stringify(DEFAULT_SCORING)), wks:{} };
 
-        // Pull meta
-        if (v.info) {
-          if (v.info.name) wk.name = v.info.name;
-          if (v.info.location && v.info.location.trim()) wk.location = v.info.location.trim();
-          const d = fmtDateDE(v.info.date); if (d) wk.date = d;
+    function isChCountry(c) {
+      const v = (c || '').toLowerCase();
+      return v === 'ch' || v === 'schweiz' || v === 'switzerland';
+    }
+
+    function rebuildAll() {
+      const season = DATA.seasons[SEASON_YEAR];
+      if (!season) return;
+
+      // 1) WK metadata — live info + admin overrides
+      season.wks.forEach(wk => {
+        const snap = wkSnapshots[wk.id];
+        if (snap && snap.info) {
+          if (snap.info.name) wk.name = snap.info.name;
+          if (snap.info.location && snap.info.location.trim()) wk.location = snap.info.location.trim();
+          const d = fmtDateDE(snap.info.date); if (d) wk.date = d;
         }
-        const athleteMap = v.athletes || {};
-        const athleteTotal = Object.keys(athleteMap).length;
+        const ov = ADMIN.wks[wk.id] || {};
+        if (ov.name) wk.name = ov.name;
+        if (ov.date) wk.date = ov.date;
+        if (ov.location) wk.location = ov.location;
+        if (ov.venue) wk.venue = ov.venue;
+        if (ov.status) wk.status = ov.status;
+      });
 
-        // Best completed run per athlete (by ID)
+      // 2) For each WK: best run per athlete, sort, compute points (with admin scoring + CV + overrides)
+      const byId = {}; // athleteId -> accumulator row
+      const candidatesByDiv = {}; // divId -> [{id, name, team, country}]
+      let totalAthletes = 0, totalRuns = 0;
+
+      season.wks.forEach(wk => {
+        const snap = wkSnapshots[wk.id] || {};
+        const athleteMap = snap.athletes || {};
+        const runs = snap.completedRuns || {};
+        const wkK = wkKey(wk.id);
+        const cvMul = (ADMIN.scoring.cv || {})[wkK] ?? 1.0;
+
+        totalAthletes += Object.keys(athleteMap).length;
+        totalRuns += Object.keys(runs).length;
+
+        // Best run per athlete
         const best = {};
-        const runs = v.completedRuns || {};
         Object.values(runs).forEach(r => {
           if (!r || !r.athleteId) return;
+          if (ADMIN.excluded[r.athleteId]) return;
           const cps = (r.doneCP && r.doneCP.length) || r.totalCPs || 0;
           const time = typeof r.finalTime === 'number' ? r.finalTime : Number.MAX_SAFE_INTEGER;
           const cur = best[r.athleteId];
@@ -1949,91 +1989,216 @@ tryLoadData();
             best[r.athleteId] = { id:r.athleteId, name:r.athleteName, catId:r.catId, cps, time };
           }
         });
+
+        // Enrich with athlete registry (team/country/division) and apply admin edits
         Object.values(best).forEach(a => {
-          const ath = athleteMap[a.id];
-          if (ath) { a.team = ath.team || ''; a.country = ath.country || 'CH'; }
+          const ath = athleteMap[a.id] || {};
+          const ed = ADMIN.athleteEdits[a.id] || {};
+          a.name = ed.name ?? ath.name ?? a.name;
+          a.team = ed.team ?? ath.team ?? '';
+          a.country = ed.country ?? ath.country ?? 'CH';
+          a.division = ed.division ?? CAT_MAP[ath.cat || ath.catId || a.catId] ?? null;
         });
 
-        // Group runners by division, sort, assign rank + points
+        // Group runners by division, sort, assign live rank + points
         const byDiv = {};
         Object.values(best).forEach(a => {
-          const div = CAT_MAP[a.catId];
-          if (!div) return;
-          (byDiv[div] = byDiv[div] || []).push(a);
+          if (!a.division) return;
+          (byDiv[a.division] = byDiv[a.division] || []).push(a);
         });
-        Object.keys(byDiv).forEach(div => {
-          const arr = byDiv[div];
+        Object.keys(byDiv).forEach(divId => {
+          const arr = byDiv[divId];
           arr.sort((a,b) => b.cps - a.cps || a.time - b.time);
-          arr.forEach((a,i) => { a.rank = i+1; a.points = computePoints(i+1, arr.length); });
+          arr.forEach((a,i) => {
+            a.rank = i + 1;
+            a.points = Math.round(computePoints(i+1, arr.length, ADMIN.scoring) * cvMul);
+            // Apply per-WK rank override
+            const ov = (ADMIN.rankOverrides[wkK] || {})[a.id] || {};
+            if (typeof ov.rank === 'number') a.rank = ov.rank;
+            if (typeof ov.points === 'number') a.points = ov.points;
+          });
         });
 
-        // CH candidates: registered athletes without a run yet
-        const byCand = {};
+        // Accumulate into global byId
+        Object.values(best).forEach(a => {
+          if (!a.division) return;
+          const row = byId[a.id] = byId[a.id] || {
+            id:a.id, name:a.name, team:a.team, country:a.country, division:a.division,
+            perWk:{}, cps:0, time:Number.MAX_SAFE_INTEGER, perRank:{}
+          };
+          // Keep freshest metadata
+          row.name = a.name; row.team = a.team; row.country = a.country; row.division = a.division;
+          row.perWk[wkK] = a.points;
+          row.perRank[wkK] = a.rank;
+          row.cps += a.cps; row.time = Math.min(row.time, a.time);
+        });
+
+        // Registered athletes without a run in this WK
         Object.entries(athleteMap).forEach(([id, ath]) => {
           if (!ath) return;
-          const country = (ath.country||'').toLowerCase();
-          if (country !== 'ch' && country !== 'schweiz' && country !== 'switzerland') return; // only Swiss athletes
-          if (best[id]) return; // already has a completed run
-          const div = CAT_MAP[ath.cat || ath.catId];
-          if (!div) return;
-          const cands = byCand[div] = byCand[div] || [];
-          // Fuzzy dedup: same person entered with slight name variation
-          if (!cands.some(c => fuzzyMatch(c.name, ath.name||''))) {
-            cands.push({ id, name: ath.name||'?', team: ath.team||'—', country });
+          if (ADMIN.excluded[id]) return;
+          if (best[id]) return;
+          const ed = ADMIN.athleteEdits[id] || {};
+          const name = ed.name ?? ath.name ?? '?';
+          const team = ed.team ?? ath.team ?? '—';
+          const country = ed.country ?? ath.country ?? '';
+          const division = ed.division ?? CAT_MAP[ath.cat || ath.catId] ?? null;
+          if (!division) return;
+
+          // Admin override giving this athlete points for this WK even without a run
+          const ov = (ADMIN.rankOverrides[wkK] || {})[id];
+          if (ov && (typeof ov.rank === 'number' || typeof ov.points === 'number')) {
+            const row = byId[id] = byId[id] || {
+              id, name, team, country, division, perWk:{}, perRank:{}, cps:0, time:Number.MAX_SAFE_INTEGER
+            };
+            row.name = name; row.team = team; row.country = country; row.division = division;
+            row.perWk[wkK] = ov.points ?? 0;
+            if (typeof ov.rank === 'number') row.perRank[wkK] = ov.rank;
+            return;
+          }
+
+          // CH-only candidate (no run, no override) — shown greyed out in public UI
+          if (!isChCountry(country)) return;
+          const cands = candidatesByDiv[division] = candidatesByDiv[division] || [];
+          if (!cands.some(c => fuzzyMatch(c.name, name))) {
+            cands.push({ id, name, team, country });
           }
         });
+      });
 
-        // Write into DATA.ranking
-        const season = DATA.seasons[seasonYear];
-        if (!season) return;
-        // Detect which WK this is (wk1, wk2, …)
-        const wkIdx = season.wks.findIndex(w => w.compCode === wk.compCode);
-        const wkNum = wkIdx >= 0 ? wkIdx + 1 : 1;
-        const wkField = 'wk' + wkNum;
-        const hasField = 'hasWk' + wkNum;
+      // 3) Inject admin-added athletes (no compCode required)
+      Object.entries(ADMIN.addedAthletes || {}).forEach(([id, a]) => {
+        if (!a || ADMIN.excluded[id]) return;
+        if (!a.division) return;
+        const row = byId[id] = byId[id] || {
+          id, name:a.name||'?', team:a.team||'—', country:a.country||'CH',
+          division:a.division, perWk:{}, perRank:{}, cps:0, time:Number.MAX_SAFE_INTEGER
+        };
+        row.name = a.name || row.name;
+        row.team = a.team || row.team;
+        row.country = a.country || row.country;
+        row.division = a.division;
+        // Pick up any per-WK overrides pointing at this athlete
+        season.wks.forEach(wk => {
+          const wkK = wkKey(wk.id);
+          const ov = (ADMIN.rankOverrides[wkK] || {})[id];
+          if (ov && typeof ov.points === 'number') row.perWk[wkK] = ov.points;
+          if (ov && typeof ov.rank === 'number') row.perRank[wkK] = ov.rank;
+        });
+      });
 
-        season.divisions.forEach(div => {
-          // Filter to CH-only for display — points already reflect overall placement
-          const allRunners = byDiv[div.id] || [];
-          const chRunners = allRunners.filter(a => {
-            const c = (a.country||'').toLowerCase();
-            return c === 'ch' || c === 'schweiz' || c === 'switzerland';
+      // 4) Build per-division ranking (CH-only rows + candidates)
+      season.divisions.forEach(div => {
+        const rowsAll = Object.values(byId).filter(r => r.division === div.id);
+        const chRows = rowsAll.filter(r => isChCountry(r.country));
+        chRows.forEach(r => { r.total = Object.values(r.perWk).reduce((s,v) => s + (v||0), 0); });
+        chRows.sort((a,b) => b.total - a.total || a.time - b.time);
+        chRows.forEach((r,i) => { r.chRank = i + 1; });
+
+        const runners = chRows.map(r => {
+          const row = {
+            rank: r.chRank, name: r.name, team: r.team || '—', pot: 0,
+            wk1: null, wk2: null,
+            total: r.total,
+            hasWk1: false, hasWk2: false, hasFinale: false,
+            cps: r.cps, time: r.time
+          };
+          // Map semantic perWk (wk1/wk2/finale) to index-based UI fields (wk1/wk2/wk3 + hasFinale for finale)
+          season.wks.forEach((wk, idx) => {
+            const wkK = wkKey(wk.id);
+            const idxField = 'wk' + (idx + 1);
+            const idxHas = 'hasWk' + (idx + 1);
+            const pts = r.perWk[wkK];
+            if (pts != null) {
+              row[idxField] = pts;
+              row[idxHas] = true;
+              if (wk.isFinale) row.hasFinale = true;
+            }
           });
-          chRunners.forEach((a, i) => { a.chRank = i + 1; });
-          const runners = chRunners.map(a => {
-            const row = { rank:a.chRank, name:a.name, team:a.team||'—', pot:0,
-              wk1:null, wk2:null, total:a.points,
-              hasWk1:false, hasWk2:false, hasFinale:false,
-              cps:a.cps, time:a.time };
-            row[wkField] = a.points; row[hasField] = true;
-            return row;
-          });
-          const candidates = (byCand[div.id] || []).map(a => ({
-            rank:null, name:a.name, team:a.team, pot:0,
-            wk1:null, wk2:null, total:null,
-            hasWk1:false, hasWk2:false, hasFinale:false,
-            isCandidate:true
-          }));
-          season.ranking[div.id] = [...runners, ...candidates];
+          return row;
         });
 
+        const candidates = (candidatesByDiv[div.id] || [])
+          .filter(c => !byId[c.id])               // hide candidates already promoted to runners
+          .filter(c => !runners.some(r => fuzzyMatch(r.name, c.name)))
+          .map(c => ({
+            rank: null, name: c.name, team: c.team || '—', pot: 0,
+            wk1: null, wk2: null, total: null,
+            hasWk1: false, hasWk2: false, hasFinale: false,
+            isCandidate: true
+          }));
+
+        season.ranking[div.id] = [...runners, ...candidates];
+      });
+
+      // 5) Per-WK CV sum (for display) and status auto-detect
+      season.wks.forEach(wk => {
+        const wkK = wkKey(wk.id);
         const cv = {};
-        Object.keys(byDiv).forEach(div => { cv[div] = byDiv[div].reduce((s,a) => s+a.points,0); });
+        season.divisions.forEach(div => {
+          cv[div.id] = Object.values(byId)
+            .filter(r => r.division === div.id && r.perWk[wkK] != null)
+            .reduce((s,r) => s + (r.perWk[wkK] || 0), 0);
+        });
         wk.cv = cv;
-        const runCount = Object.keys(runs).length;
-        wk.status = runCount > 0 ? 'done' : 'upcoming';
+        const snap = wkSnapshots[wk.id] || {};
+        const runCount = Object.keys(snap.completedRuns || {}).length;
+        const adminOv = ADMIN.wks[wk.id] || {};
+        if (!adminOv.status && wk.compCode) {
+          wk.status = runCount > 0 ? 'done' : 'upcoming';
+        }
         wk._liveRuns = runCount;
-        wk._liveAthletes = athleteTotal;
-        const chCount = Object.values(athleteMap).filter(a => a && (a.country||'').toUpperCase()==='CH').length;
-        setLiveBanner(wk.name + ' · ' + runCount + ' Läufe / ' + chCount + ' CH-Athleten', true);
-        if (typeof renderAll === 'function') renderAll();
+        wk._liveAthletes = Object.keys(snap.athletes || {}).length;
+      });
+
+      // Live banner — show when any WK has a compCode
+      const active = season.wks.filter(w => w.compCode);
+      if (active.length) {
+        const runs = active.reduce((s,w) => s + (w._liveRuns || 0), 0);
+        const chCount = Object.values(byId).filter(r => isChCountry(r.country)).length;
+        const label = active.length === 1
+          ? (active[0].num || active[0].name) + ' · ' + runs + ' Läufe / ' + chCount + ' CH-Athleten'
+          : active.length + ' WK · ' + runs + ' Läufe / ' + chCount + ' CH-Athleten';
+        setLiveBanner(label, true);
+      }
+
+      if (typeof renderAll === 'function') renderAll();
+    }
+
+    function syncWk(wk) {
+      if (!wk.compCode) return;
+      const ref = firebase.database().ref('ogn/' + wk.compCode);
+      console.log('[LiveSync] Attaching listener:', wk.compCode, wk.name);
+      ref.on('value', snap => {
+        const v = snap.val();
+        if (!v) return;
+        wkSnapshots[wk.id] = { info: v.info || null, athletes: v.athletes || {}, completedRuns: v.completedRuns || {} };
+        rebuildAll();
       });
     }
-    // Start listeners for all WKs with compCode in the 2026 season
-    const season = DATA.seasons[2026];
-    if (season && season.wks) {
-      season.wks.filter(w => w.compCode).forEach(w => syncOne(w, 2026));
+
+    function subscribeAdmin() {
+      firebase.database().ref(ADMIN_PATH).on('value', snap => {
+        const v = snap.val() || {};
+        ADMIN = {
+          addedAthletes: v.addedAthletes || {},
+          athleteEdits: v.athleteEdits || {},
+          excluded: v.excluded || {},
+          rankOverrides: v.rankOverrides || {},
+          scoring: Object.assign({}, DEFAULT_SCORING, v.scoring || {}, { cv: Object.assign({}, DEFAULT_SCORING.cv, (v.scoring && v.scoring.cv) || {}) }),
+          wks: v.wks || {}
+        };
+        rebuildAll();
+      }, err => {
+        console.warn('[LiveSync] admin overlay unavailable (rules?)', err && err.message);
+      });
     }
+
+    const season = DATA.seasons[SEASON_YEAR];
+    if (season && season.wks) {
+      season.wks.filter(w => w.compCode).forEach(syncWk);
+    }
+    subscribeAdmin();
 
     console.log('[LiveSync] Initialized');
   } catch (e) {

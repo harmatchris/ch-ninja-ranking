@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "ogn": {
+      ".read": true,
+      "$compCode": {
+        ".write": "auth != null && $compCode != 'admin'"
+      },
+      "admin": {
+        ".read": true,
+        ".write": false
+      }
+    }
+  }
+}

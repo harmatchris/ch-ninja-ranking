@@ -1,0 +1,16 @@
+{
+  "name": "ch-ninja-ranking",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CH Ninja Ranking — public site + admin backend",
+  "scripts": {
+    "bootstrap-admin": "node scripts/bootstrap-admin.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

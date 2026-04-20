@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>CH Ninja Ranking — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E63329;
+  --red-dim: #8C1F1B;
+  --bg: #0C0C0C;
+  --bg2: #141414;
+  --bg3: #1C1C1C;
+  --bg4: #242424;
+  --border: #2A2A2A;
+  --border2: #333;
+  --text: #F0F0F0;
+  --muted: #777;
+  --dim: #444;
+  --gold: #C8A84B;
+  --green: #34C759;
+  --amber: #FFB020;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 15px; }
+body { min-height: 100vh; }
+button { font-family: inherit; cursor: pointer; border: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+/* ── Topbar ── */
+.topbar { background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; height: 48px; position: sticky; top: 0; z-index: 100; }
+.topbar-brand { display: flex; align-items: center; gap: .6rem; }
+.brand-mark { width: 28px; height: 28px; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 12px; color: #fff; position: relative; }
+.brand-mark::before, .brand-mark::after { content: ''; position: absolute; background: #fff; }
+.brand-mark::before { width: 4px; height: 16px; left: 50%; transform: translateX(-50%); }
+.brand-mark::after { width: 14px; height: 4px; top: 50%; transform: translateY(-50%); }
+.brand-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: .05em; text-transform: uppercase; }
+.brand-tag { background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 2px; letter-spacing: .07em; text-transform: uppercase; }
+.topbar-right { display: flex; align-items: center; gap: 1rem; font-size: 12px; color: var(--muted); }
+.topbar-right .user-email { color: var(--text); }
+.topbar-right button { background: transparent; color: var(--muted); font-size: 11px; padding: 4px 10px; border: 1px solid var(--border2); border-radius: 3px; text-transform: uppercase; letter-spacing: .05em; }
+.topbar-right button:hover { color: var(--text); border-color: var(--red); }
+
+/* ── Layout ── */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 48px); }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 1.25rem 0; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sidebar-section { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; padding: .5rem 1.25rem; margin-top: 1rem; }
+.sidebar button { display: flex; align-items: center; gap: .65rem; width: 100%; text-align: left; background: transparent; color: var(--text); font-size: 14px; padding: .7rem 1.25rem; border-left: 2px solid transparent; transition: all .15s; }
+.sidebar button:hover { background: var(--bg3); }
+.sidebar button.active { background: var(--bg3); border-left-color: var(--red); color: #fff; }
+.sidebar .ico { width: 16px; text-align: center; font-size: 14px; color: var(--muted); }
+.sidebar button.active .ico { color: var(--red); }
+.main { padding: 1.75rem 2rem; overflow-x: auto; }
+.main h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 24px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+.main .sub { color: var(--muted); font-size: 13px; margin-bottom: 1.5rem; }
+
+/* ── Login screen ── */
+.login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 48px); padding: 2rem; }
+.login-card { background: var(--bg2); border: 1px solid var(--border); padding: 2rem; border-radius: 4px; width: 100%; max-width: 360px; }
+.login-card h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1.5rem; }
+.login-card label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin: 1rem 0 .35rem; }
+.login-card input { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: .6rem .75rem; border-radius: 3px; }
+.login-card input:focus { outline: none; border-color: var(--red); }
+.login-card button { width: 100%; background: var(--red); color: #fff; font-weight: 700; padding: .75rem; border-radius: 3px; margin-top: 1.25rem; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.login-card button:hover { background: #d12920; }
+.login-card .err { color: #ff6a5c; font-size: 12px; margin-top: .75rem; min-height: 1em; }
+
+/* ── Common ── */
+.toast { position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: .7rem 1rem; border-radius: 4px; font-size: 13px; z-index: 300; box-shadow: 0 4px 16px rgba(0,0,0,.5); max-width: 360px; }
+.toast.err { border-color: var(--red); color: #ffb1a8; }
+.toast.ok { border-color: var(--green); }
+
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 1.25rem; margin-bottom: 1.25rem; }
+.card h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .85rem; color: #fff; }
+
+.btn { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); padding: .45rem .85rem; border-radius: 3px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.btn:hover { border-color: var(--red); color: #fff; }
+.btn-primary { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-primary:hover { background: #d12920; }
+.btn-danger { background: transparent; color: #ff6a5c; border-color: #663; }
+.btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-sm { padding: .3rem .6rem; font-size: 11px; }
+.btn-link { background: transparent; border: none; color: var(--muted); padding: 0 .35rem; }
+.btn-link:hover { color: var(--text); }
+
+table.data { width: 100%; border-collapse: collapse; }
+table.data th, table.data td { padding: .55rem .6rem; border-bottom: 1px solid var(--border); font-size: 13px; text-align: left; vertical-align: middle; }
+table.data th { background: var(--bg3); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+table.data tr:hover { background: rgba(230,51,41,.04); }
+table.data input, table.data select { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: .3rem .45rem; border-radius: 2px; font-size: 12px; }
+table.data input:focus, table.data select:focus { outline: none; border-color: var(--red); }
+table.data td.num { text-align: right; font-variant-numeric: tabular-nums; width: 80px; }
+table.data td.actions { text-align: right; white-space: nowrap; }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; letter-spacing: .05em; }
+.badge-ch { background: var(--red); color: #fff; }
+.badge-int { background: var(--bg4); color: var(--muted); border: 1px solid var(--border2); }
+.badge-added { background: var(--gold); color: #111; }
+.badge-kicked { background: #5a1e1e; color: #ffb1a8; text-decoration: line-through; }
+.badge-override { background: var(--amber); color: #111; }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem 1rem; }
+.form-grid label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .25rem; }
+.form-grid input, .form-grid select { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: .5rem .65rem; border-radius: 3px; }
+.form-grid input:focus, .form-grid select:focus { outline: none; border-color: var(--red); }
+
+.row-flex { display: flex; gap: .65rem; align-items: center; flex-wrap: wrap; }
+.flex-grow { flex: 1 1 auto; }
+.hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
+.divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+.filter-bar { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+.filter-bar input, .filter-bar select { background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: .45rem .7rem; border-radius: 3px; font-size: 13px; }
+.filter-bar input:focus, .filter-bar select:focus { outline: none; border-color: var(--red); }
+
+.dirty-dot { display: inline-block; width: 6px; height: 6px; background: var(--amber); border-radius: 50%; margin-left: 6px; vertical-align: middle; }
+.hidden { display: none !important; }
+.mono { font-family: 'Courier New', monospace; font-size: 12px; color: var(--muted); }
+
+.scoring-preview { background: var(--bg3); padding: 1rem; border-radius: 3px; margin-top: 1rem; }
+.scoring-preview table { width: 100%; font-size: 13px; }
+.scoring-preview td { padding: .25rem .5rem; }
+.scoring-preview td.rank { color: var(--muted); width: 60px; }
+.scoring-preview td.pts { text-align: right; font-weight: 700; color: var(--red); font-variant-numeric: tabular-nums; }
+
+.kpi-row { display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.kpi { background: var(--bg2); border: 1px solid var(--border); padding: .85rem 1.1rem; border-radius: 4px; min-width: 140px; }
+.kpi .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.kpi .val { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: #fff; margin-top: 2px; }
+
+@media (max-width: 800px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; display: flex; overflow-x: auto; padding: .5rem 0; }
+  .sidebar button { white-space: nowrap; padding: .6rem .9rem; border-left: none; border-bottom: 2px solid transparent; }
+  .sidebar button.active { border-left-color: transparent; border-bottom-color: var(--red); }
+  .sidebar-section { display: none; }
+  .main { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     LOGIN SCREEN
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="loginView" class="login-wrap hidden">
+  <form id="loginForm" class="login-card" autocomplete="on">
+    <h1>CH Ninja · Admin</h1>
+    <label for="loginEmail">E-Mail</label>
+    <input type="email" id="loginEmail" required autocomplete="username">
+    <label for="loginPassword">Passwort</label>
+    <input type="password" id="loginPassword" required autocomplete="current-password">
+    <button type="submit" id="loginBtn">Anmelden</button>
+    <div class="err" id="loginErr"></div>
+  </form>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     APP SHELL
+     ═══════════════════════════════════════════════════════════════ -->
+<div id="appView" class="hidden">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="brand-mark">CH</div>
+      <div class="brand-name">Ninja Ranking</div>
+      <div class="brand-tag">Admin</div>
+    </div>
+    <div class="topbar-right">
+      <span class="user-email" id="userEmail">—</span>
+      <span id="userRole" class="badge badge-int">—</span>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sidebar-section">Management</div>
+      <button data-tab="athletes" class="active"><span class="ico">▸</span>Athleten</button>
+      <button data-tab="rankings"><span class="ico">▸</span>Rankings</button>
+      <button data-tab="wks"><span class="ico">▸</span>Wettkämpfe</button>
+      <div class="sidebar-section">System</div>
+      <button data-tab="scoring"><span class="ico">▸</span>Scoring</button>
+      <button data-tab="users" id="usersTabBtn"><span class="ico">▸</span>Benutzer</button>
+    </aside>
+
+    <main class="main">
+      <div id="tab-athletes" class="tab-panel"></div>
+      <div id="tab-rankings" class="tab-panel hidden"></div>
+      <div id="tab-wks" class="tab-panel hidden"></div>
+      <div id="tab-scoring" class="tab-panel hidden"></div>
+      <div id="tab-users" class="tab-panel hidden"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Firebase SDK
+     ═══════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const FIREBASE_CFG = {
+  apiKey: "AIzaSyBQPi4f2qWg3xA65hLL7IpxOiq3kzVk5ls",
+  authDomain: "ninja-hq-chris.firebaseapp.com",
+  databaseURL: "https://ninja-hq-chris-default-rtdb.firebaseio.com",
+  projectId: "ninja-hq-chris"
+};
+const SEASON = 2026;
+const ADMIN_BASE = 'ogn/admin/' + SEASON;
+
+const DIVISIONS = [
+  { id:'am1',  label:'Adults LK1 ♂' },
+  { id:'af1',  label:'Adults LK1 ♀' },
+  { id:'am2',  label:'Adults LK2 ♂' },
+  { id:'af2',  label:'Adults LK2 ♀' },
+  { id:'tm1',  label:'Teens LK1 ♂' },
+  { id:'tf1',  label:'Teens LK1 ♀' },
+  { id:'mast', label:'Masters' },
+  { id:'bam',  label:'Bambini' }
+];
+const CAT_MAP = { am1:'am1', am2:'am2', aw1:'af1', aw2:'af2', msm:'mast', msw:'mast' };
+const COUNTRIES = ['CH','DE','AT','FR','IT','LI','US','GB','OTHER'];
+const WK_STATUSES = ['future','upcoming','live','done','cancelled'];
+
+const DEFAULT_SCORING = { minPoints: 50, exponent: 1.3, cv: { wk1: 1.0, wk2: 1.0, finale: 1.5 } };
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  user: null,
+  idToken: null,
+  isAdmin: false,
+  isEditor: false,
+  liveWks: [],           // [{ id:'wk1-2026', compCode, name, info, athletes:{id:{...}}, completedRuns:{...} }]
+  admin: {               // mirrors ogn/admin/2026/*
+    addedAthletes: {},
+    athleteEdits: {},
+    excluded: {},
+    rankOverrides: {},   // { wk1: { athId: {rank,points} } }
+    scoring: { ...DEFAULT_SCORING, cv: { ...DEFAULT_SCORING.cv } },
+    wks: {}
+  },
+  wksStatic: [
+    { id:'wk1-2026',    num:'WK 1',          name:'OG Games 6.2 (Fun Edition)', date:'18. April 2026', location:'Basel', venue:'Overground · Fun Edition', isFinale:false, status:'upcoming', compCode:'9ALPL5' },
+    { id:'wk2-2026',    num:'WK 2',          name:'TBD',                        date:'TBD',            location:'TBD',   venue:'TBD',                       isFinale:false, status:'future' },
+    { id:'finale-2026', num:'Finale · WK 3', name:'OG Finale 2026',             date:'TBD',            location:'Basel', venue:'Overground Basel',          isFinale:true,  status:'future' }
+  ],
+  activeTab: 'athletes',
+  usersList: []
+};
+
+// ═══════════════════════════════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════════════════════════════
+function $(sel, root) { return (root || document).querySelector(sel); }
+function $$(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function toast(msg, kind) {
+  const prev = $('#toast'); if (prev) prev.remove();
+  const t = document.createElement('div');
+  t.id = 'toast'; t.className = 'toast ' + (kind || '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), kind === 'err' ? 5000 : 2500);
+}
+function wkKey(wkId) {
+  if (wkId === 'finale-2026') return 'finale';
+  const m = /wk(\d+)/.exec(wkId); return m ? ('wk' + m[1]) : wkId;
+}
+function normCountry(c) {
+  const v = (c||'').trim().toLowerCase();
+  if (v === 'ch' || v === 'schweiz' || v === 'switzerland') return 'CH';
+  if (!v) return '';
+  return (c || '').toUpperCase().slice(0, 3);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API helpers (authenticated fetch to /api/admin/*)
+// ═══════════════════════════════════════════════════════════════
+async function api(path, method, body) {
+  if (!state.idToken) throw new Error('not authenticated');
+  const res = await fetch(path, {
+    method: method || 'GET',
+    headers: {
+      'Authorization': 'Bearer ' + state.idToken,
+      ...(body ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const text = await res.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch {}
+  if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+  return data;
+}
+
+async function saveUpdates(updates) {
+  return api('/api/admin/save', 'POST', { season: SEASON, updates });
+}
+async function deletePaths(paths) {
+  return api('/api/admin/delete', 'POST', { season: SEASON, paths });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH FLOW
+// ═══════════════════════════════════════════════════════════════
+firebase.initializeApp(FIREBASE_CFG);
+const auth = firebase.auth();
+const db = firebase.database();
+
+auth.onAuthStateChanged(async user => {
+  if (!user) {
+    state.user = null; state.idToken = null; state.isAdmin = false; state.isEditor = false;
+    $('#appView').classList.add('hidden');
+    $('#loginView').classList.remove('hidden');
+    return;
+  }
+  try {
+    const result = await user.getIdTokenResult(true);
+    state.user = user;
+    state.idToken = result.token;
+    state.isAdmin = result.claims.admin === true;
+    state.isEditor = state.isAdmin || result.claims.editor === true;
+
+    if (!state.isEditor) {
+      $('#loginErr').textContent = 'Dieser Account hat keine Admin-/Editor-Rechte.';
+      await auth.signOut();
+      return;
+    }
+
+    $('#loginView').classList.add('hidden');
+    $('#appView').classList.remove('hidden');
+    $('#userEmail').textContent = user.email;
+    $('#userRole').textContent = state.isAdmin ? 'Admin' : 'Editor';
+    $('#userRole').className = 'badge ' + (state.isAdmin ? 'badge-ch' : 'badge-added');
+    $('#usersTabBtn').classList.toggle('hidden', !state.isAdmin);
+
+    // Refresh token every 50 minutes
+    setInterval(async () => {
+      try { state.idToken = await user.getIdToken(true); } catch {}
+    }, 50 * 60 * 1000);
+
+    await initDataSubscriptions();
+  } catch (e) {
+    console.error(e);
+    toast('Auth-Fehler: ' + e.message, 'err');
+  }
+});
+
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('#loginBtn');
+  const email = $('#loginEmail').value.trim();
+  const password = $('#loginPassword').value;
+  $('#loginErr').textContent = '';
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    $('#loginErr').textContent = err.message.replace(/^Firebase: /, '');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Anmelden';
+  }
+});
+
+$('#logoutBtn').addEventListener('click', () => auth.signOut());
+
+// ═══════════════════════════════════════════════════════════════
+// DATA SUBSCRIPTIONS
+// ═══════════════════════════════════════════════════════════════
+async function initDataSubscriptions() {
+  const wksWithCode = state.wksStatic.filter(w => w.compCode);
+  state.liveWks = state.wksStatic.map(w => ({ ...w, athletes: {}, completedRuns: {} }));
+
+  wksWithCode.forEach(wk => {
+    db.ref('ogn/' + wk.compCode).on('value', snap => {
+      const v = snap.val() || {};
+      const row = state.liveWks.find(x => x.id === wk.id);
+      if (!row) return;
+      row.info = v.info || {};
+      row.athletes = v.athletes || {};
+      row.completedRuns = v.completedRuns || {};
+      renderActiveTab();
+    });
+  });
+
+  db.ref(ADMIN_BASE).on('value', snap => {
+    const v = snap.val() || {};
+    state.admin.addedAthletes = v.addedAthletes || {};
+    state.admin.athleteEdits = v.athleteEdits || {};
+    state.admin.excluded = v.excluded || {};
+    state.admin.rankOverrides = v.rankOverrides || {};
+    state.admin.scoring = Object.assign({}, DEFAULT_SCORING, v.scoring || {}, { cv: Object.assign({}, DEFAULT_SCORING.cv, (v.scoring && v.scoring.cv) || {}) });
+    state.admin.wks = v.wks || {};
+    renderActiveTab();
+  });
+
+  // Sidebar nav
+  $$('.sidebar button[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+  });
+
+  renderActiveTab();
+}
+
+function setActiveTab(tab) {
+  if (tab === 'users' && !state.isAdmin) return;
+  state.activeTab = tab;
+  $$('.sidebar button[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $$('.tab-panel').forEach(p => p.classList.add('hidden'));
+  $('#tab-' + tab).classList.remove('hidden');
+  renderActiveTab();
+}
+function renderActiveTab() {
+  const fn = {
+    athletes: renderAthletes,
+    rankings: renderRankings,
+    wks: renderWks,
+    scoring: renderScoring,
+    users: renderUsers
+  }[state.activeTab];
+  if (fn) fn();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Derived model: every athlete from live + added, with overrides
+// ═══════════════════════════════════════════════════════════════
+function effectiveAthlete(rawId, base, src) {
+  const edit = state.admin.athleteEdits[rawId] || {};
+  return {
+    id: rawId,
+    source: src,
+    name: edit.name ?? base.name ?? '',
+    team: edit.team ?? base.team ?? '',
+    country: edit.country ?? base.country ?? '',
+    division: edit.division ?? base.division ?? null,
+    kicked: !!state.admin.excluded[rawId],
+    hasEdit: !!state.admin.athleteEdits[rawId],
+    rawBase: base
+  };
+}
+function allAthletes() {
+  const out = [];
+  const seenIds = new Set();
+
+  // live athletes from each WK
+  state.liveWks.forEach(wk => {
+    Object.entries(wk.athletes || {}).forEach(([id, ath]) => {
+      if (seenIds.has(id)) return;
+      seenIds.add(id);
+      const div = CAT_MAP[ath.cat || ath.catId] || null;
+      out.push(effectiveAthlete(id, {
+        name: ath.name || '',
+        team: ath.team || '',
+        country: ath.country || 'CH',
+        division: div
+      }, 'live:' + wk.id));
+    });
+  });
+  // added athletes
+  Object.entries(state.admin.addedAthletes || {}).forEach(([id, a]) => {
+    if (seenIds.has(id)) return;
+    seenIds.add(id);
+    out.push(effectiveAthlete(id, {
+      name: a.name || '', team: a.team || '', country: a.country || 'CH', division: a.division || null
+    }, 'added'));
+  });
+  return out;
+}
+
+function bestRunFor(wk, athleteId) {
+  let best = null;
+  Object.values(wk.completedRuns || {}).forEach(r => {
+    if (!r || r.athleteId !== athleteId) return;
+    const cps = (r.doneCP && r.doneCP.length) || r.totalCPs || 0;
+    const time = typeof r.finalTime === 'number' ? r.finalTime : Number.MAX_SAFE_INTEGER;
+    if (!best || cps > best.cps || (cps === best.cps && time < best.time)) best = { cps, time };
+  });
+  return best;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: ATHLETES
+// ═══════════════════════════════════════════════════════════════
+let athleteFilter = { q: '', div: '', country: '', showKicked: true };
+function renderAthletes() {
+  const root = $('#tab-athletes');
+  const athletes = allAthletes().sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+  const kpiActive = athletes.filter(a => !a.kicked).length;
+  const kpiKicked = athletes.filter(a => a.kicked).length;
+  const kpiAdded = athletes.filter(a => a.source === 'added').length;
+  const kpiEdits = Object.keys(state.admin.athleteEdits).length;
+
+  root.innerHTML = `
+    <h2>Athleten</h2>
+    <p class="sub">Registrierte Athleten aus allen Wettkämpfen, plus manuelle Zusätze.</p>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="lbl">Aktiv</div><div class="val">${kpiActive}</div></div>
+      <div class="kpi"><div class="lbl">Gesperrt</div><div class="val">${kpiKicked}</div></div>
+      <div class="kpi"><div class="lbl">Manuell hinzugefügt</div><div class="val">${kpiAdded}</div></div>
+      <div class="kpi"><div class="lbl">Mit Korrektur</div><div class="val">${kpiEdits}</div></div>
+    </div>
+
+    <div class="card">
+      <h3>Neuen Athleten hinzufügen</h3>
+      <div class="form-grid">
+        <div><label>Name</label><input id="addName" placeholder="Vorname Nachname"></div>
+        <div><label>Team</label><input id="addTeam" placeholder="Overground, —, …"></div>
+        <div><label>Land</label>
+          <select id="addCountry">${COUNTRIES.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+        </div>
+        <div><label>Division</label>
+          <select id="addDiv">
+            <option value="">— wählen —</option>
+            ${DIVISIONS.map(d => `<option value="${d.id}">${d.label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:.85rem"><button class="btn btn-primary" id="addBtn">Athlet hinzufügen</button></div>
+    </div>
+
+    <div class="filter-bar">
+      <input id="fltQ" placeholder="Suche (Name, Team)…" value="${esc(athleteFilter.q)}">
+      <select id="fltDiv">
+        <option value="">Alle Divisionen</option>
+        ${DIVISIONS.map(d => `<option value="${d.id}" ${athleteFilter.div===d.id?'selected':''}>${d.label}</option>`).join('')}
+      </select>
+      <select id="fltCtry">
+        <option value="">Alle Länder</option>
+        <option value="CH" ${athleteFilter.country==='CH'?'selected':''}>CH only</option>
+        <option value="INT" ${athleteFilter.country==='INT'?'selected':''}>Nicht-CH</option>
+      </select>
+      <label class="row-flex" style="gap:.4rem; font-size: 12px; color: var(--muted);">
+        <input type="checkbox" id="fltKicked" ${athleteFilter.showKicked?'checked':''}> Gesperrte zeigen
+      </label>
+    </div>
+
+    <div class="card" style="padding:0">
+      <table class="data">
+        <thead>
+          <tr><th>Name</th><th>Team</th><th>Land</th><th>Division</th><th>Quelle</th><th>Status</th><th class="actions">Aktionen</th></tr>
+        </thead>
+        <tbody id="athBody"></tbody>
+      </table>
+    </div>
+  `;
+
+  const body = $('#athBody');
+  const filtered = athletes.filter(a => {
+    if (!athleteFilter.showKicked && a.kicked) return false;
+    if (athleteFilter.div && a.division !== athleteFilter.div) return false;
+    if (athleteFilter.country === 'CH' && normCountry(a.country) !== 'CH') return false;
+    if (athleteFilter.country === 'INT' && normCountry(a.country) === 'CH') return false;
+    if (athleteFilter.q) {
+      const q = athleteFilter.q.toLowerCase();
+      if (!(a.name||'').toLowerCase().includes(q) && !(a.team||'').toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  body.innerHTML = filtered.map(a => {
+    const divOpts = ['<option value="">—</option>', ...DIVISIONS.map(d => `<option value="${d.id}" ${a.division===d.id?'selected':''}>${d.label}</option>`)].join('');
+    const ctryOpts = COUNTRIES.map(c => `<option value="${c}" ${normCountry(a.country)===c?'selected':''}>${c}</option>`).join('');
+    const srcBadge = a.source === 'added' ? '<span class="badge badge-added">Manuell</span>' : '<span class="badge badge-int">Live</span>';
+    const statusBadges = [];
+    if (a.kicked) statusBadges.push('<span class="badge badge-kicked">Gesperrt</span>');
+    if (a.hasEdit) statusBadges.push('<span class="badge badge-override">Korrigiert</span>');
+    if (normCountry(a.country) === 'CH') statusBadges.push('<span class="badge badge-ch">CH</span>');
+    return `
+      <tr data-id="${esc(a.id)}" data-src="${a.source}">
+        <td><input class="ed" data-f="name" value="${esc(a.name)}"></td>
+        <td><input class="ed" data-f="team" value="${esc(a.team)}"></td>
+        <td><select class="ed" data-f="country">${ctryOpts}</select></td>
+        <td><select class="ed" data-f="division">${divOpts}</select></td>
+        <td>${srcBadge}</td>
+        <td>${statusBadges.join(' ') || '<span class="badge badge-int">OK</span>'}</td>
+        <td class="actions">
+          <button class="btn btn-sm" data-act="save">Speichern</button>
+          ${a.kicked
+            ? '<button class="btn btn-sm" data-act="unkick">Entsperren</button>'
+            : '<button class="btn btn-sm btn-danger" data-act="kick">Sperren</button>'}
+          ${a.source === 'added' ? '<button class="btn btn-sm btn-danger" data-act="del">Löschen</button>' : ''}
+          ${a.hasEdit ? '<button class="btn btn-sm" data-act="reset">Reset</button>' : ''}
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:1.5rem">Keine Athleten.</td></tr>';
+
+  // Filter events
+  $('#fltQ').addEventListener('input', e => { athleteFilter.q = e.target.value; renderAthletes(); });
+  $('#fltDiv').addEventListener('change', e => { athleteFilter.div = e.target.value; renderAthletes(); });
+  $('#fltCtry').addEventListener('change', e => { athleteFilter.country = e.target.value; renderAthletes(); });
+  $('#fltKicked').addEventListener('change', e => { athleteFilter.showKicked = e.target.checked; renderAthletes(); });
+
+  // Add button
+  $('#addBtn').addEventListener('click', async () => {
+    const name = $('#addName').value.trim();
+    const team = $('#addTeam').value.trim();
+    const country = $('#addCountry').value;
+    const division = $('#addDiv').value;
+    if (!name || !division) return toast('Name und Division sind Pflicht', 'err');
+    const id = 'manual_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    try {
+      await saveUpdates({ [`addedAthletes/${id}`]: { name, team, country: country || 'CH', division, createdAt: Date.now() } });
+      toast('Athlet hinzugefügt', 'ok');
+      $('#addName').value = ''; $('#addTeam').value = '';
+    } catch (e) { toast('Fehler: ' + e.message, 'err'); }
+  });
+
+  // Row actions
+  body.addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const tr = btn.closest('tr'); const id = tr.dataset.id; const src = tr.dataset.src;
+    const act = btn.dataset.act;
+    try {
+      if (act === 'save') {
+        const fields = {};
+        $$('.ed', tr).forEach(inp => { fields[inp.dataset.f] = inp.value.trim(); });
+        fields.country = normCountry(fields.country);
+        if (src === 'added') {
+          await saveUpdates({ [`addedAthletes/${id}`]: { ...(state.admin.addedAthletes[id] || {}), ...fields, updatedAt: Date.now() } });
+        } else {
+          await saveUpdates({ [`athleteEdits/${id}`]: fields });
+        }
+        toast('Gespeichert', 'ok');
+      } else if (act === 'kick') {
+        await saveUpdates({ [`excluded/${id}`]: true });
+        toast('Gesperrt', 'ok');
+      } else if (act === 'unkick') {
+        await deletePaths([`excluded/${id}`]);
+        toast('Entsperrt', 'ok');
+      } else if (act === 'del') {
+        if (!confirm('Manuellen Athleten dauerhaft löschen?')) return;
+        await deletePaths([`addedAthletes/${id}`]);
+        toast('Gelöscht', 'ok');
+      } else if (act === 'reset') {
+        if (!confirm('Korrekturen für diesen Athleten zurücksetzen?')) return;
+        await deletePaths([`athleteEdits/${id}`]);
+        toast('Zurückgesetzt', 'ok');
+      }
+    } catch (err) { toast('Fehler: ' + err.message, 'err'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: RANKINGS — per WK, per division, with rank/points override
+// ═══════════════════════════════════════════════════════════════
+let rankState = { wk: 'wk1-2026', div: 'am1' };
+function computePoints(rank, n, cfg) {
+  cfg = cfg || state.admin.scoring;
+  if (n <= 0) return 0;
+  const factor = Math.max(0, 1 - (rank - 1) / Math.max(n, 4));
+  return Math.max(cfg.minPoints || 50, Math.round(1000 * Math.pow(factor, cfg.exponent || 1.3) / 50) * 50);
+}
+function renderRankings() {
+  const root = $('#tab-rankings');
+  const wk = state.liveWks.find(w => w.id === rankState.wk) || state.liveWks[0];
+  if (!wk) { root.innerHTML = '<h2>Rankings</h2><p class="sub">Keine Wettkämpfe.</p>'; return; }
+  rankState.wk = wk.id;
+  const wkK = wkKey(wk.id);
+  const cvMul = (state.admin.scoring.cv || {})[wkK] ?? 1.0;
+
+  // Build ranking for all athletes in this WK / selected division
+  const athletes = allAthletes().filter(a => !a.kicked && a.division === rankState.div);
+  const overrides = state.admin.rankOverrides[wkK] || {};
+  const withRuns = [];
+  const noRuns = [];
+  athletes.forEach(a => {
+    const run = bestRunFor(wk, a.id);
+    if (run) withRuns.push({ ...a, cps: run.cps, time: run.time, hasRun: true });
+    else noRuns.push({ ...a, cps: null, time: null, hasRun: false });
+  });
+  withRuns.sort((a, b) => b.cps - a.cps || a.time - b.time);
+  const nAll = withRuns.length || 4;
+  withRuns.forEach((a, i) => {
+    a.liveRank = i + 1;
+    a.livePoints = Math.round(computePoints(i + 1, nAll) * cvMul);
+    const ov = overrides[a.id] || {};
+    a.rank = ov.rank ?? a.liveRank;
+    a.points = ov.points ?? a.livePoints;
+    a.hasOverride = !!(ov.rank != null || ov.points != null);
+  });
+  noRuns.forEach(a => {
+    const ov = overrides[a.id] || {};
+    a.liveRank = null;
+    a.livePoints = 0;
+    a.rank = ov.rank ?? '';
+    a.points = ov.points ?? '';
+    a.hasOverride = !!(ov.rank != null || ov.points != null);
+  });
+  const allRows = [...withRuns, ...noRuns];
+
+  root.innerHTML = `
+    <h2>Rankings</h2>
+    <p class="sub">Manuelle Korrektur von Rang oder Punkten pro Wettkampf & Division. Leer lassen = Live-Berechnung.</p>
+
+    <div class="filter-bar">
+      <select id="rkWk">${state.liveWks.map(w => `<option value="${w.id}" ${w.id===rankState.wk?'selected':''}>${esc(w.num || w.name || w.id)}</option>`).join('')}</select>
+      <select id="rkDiv">${DIVISIONS.map(d => `<option value="${d.id}" ${d.id===rankState.div?'selected':''}>${esc(d.label)}</option>`).join('')}</select>
+      <span class="hint">CV-Multiplikator für ${wkK}: <strong>${cvMul.toFixed(2)}×</strong> (in Scoring änderbar)</span>
+    </div>
+
+    <div class="card" style="padding:0">
+      <table class="data">
+        <thead>
+          <tr><th style="width:70px">Rang</th><th>Name</th><th>Team</th><th>Land</th><th class="num">CPs / Zeit</th><th class="num" style="width:100px">Punkte</th><th>Status</th><th class="actions">Aktionen</th></tr>
+        </thead>
+        <tbody id="rkBody"></tbody>
+      </table>
+    </div>
+    <p class="hint" style="margin-top:.5rem">Athleten ohne Run werden unten gelistet. Rang- und Punkte-Felder leer lassen = Live-Berechnung oder keine Wertung.</p>
+  `;
+
+  const body = $('#rkBody');
+  if (!allRows.length) {
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:1.5rem">Keine Athleten in dieser Division.</td></tr>';
+  } else {
+    body.innerHTML = allRows.map(a => {
+      const timeStr = a.hasRun && a.time && a.time < Number.MAX_SAFE_INTEGER ? (a.time/1000).toFixed(2) + 's' : '—';
+      const cpStr = a.hasRun ? (a.cps + ' / ' + timeStr) : '— / —';
+      const liveInfo = a.hasRun ? `Live: #${a.liveRank} · ${a.livePoints} Pt` : 'kein Run';
+      const statusBadge = a.hasOverride ? '<span class="badge badge-override">Override</span>'
+        : (a.hasRun ? '<span class="badge badge-int">Live</span>' : '<span class="badge badge-int" style="opacity:.5">—</span>');
+      const rowBg = a.hasRun ? '' : ' style="opacity:.75"';
+      return `
+      <tr data-id="${esc(a.id)}"${rowBg}>
+        <td><input class="ed" data-f="rank" type="number" min="1" value="${a.rank}" placeholder="—"></td>
+        <td>${esc(a.name)}${a.source==='added'?' <span class="badge badge-added" style="font-size:9px">M</span>':''}</td>
+        <td>${esc(a.team)}</td>
+        <td>${normCountry(a.country)==='CH' ? '<span class="badge badge-ch">CH</span>' : '<span class="badge badge-int">'+esc(normCountry(a.country)||'–')+'</span>'}</td>
+        <td class="num">${cpStr}</td>
+        <td class="num"><input class="ed" data-f="points" type="number" min="0" step="50" value="${a.points}" placeholder="—"></td>
+        <td>${statusBadge}<br><span class="mono">${liveInfo}</span></td>
+        <td class="actions">
+          <button class="btn btn-sm" data-act="save">Speichern</button>
+          ${a.hasOverride ? '<button class="btn btn-sm" data-act="reset">Reset</button>' : ''}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  $('#rkWk').addEventListener('change', e => { rankState.wk = e.target.value; renderRankings(); });
+  $('#rkDiv').addEventListener('change', e => { rankState.div = e.target.value; renderRankings(); });
+
+  body.addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const tr = btn.closest('tr'); const id = tr.dataset.id;
+    try {
+      if (btn.dataset.act === 'save') {
+        const rankVal = $('input[data-f="rank"]', tr).value.trim();
+        const ptsVal = $('input[data-f="points"]', tr).value.trim();
+        const rank = rankVal === '' ? null : parseInt(rankVal, 10);
+        const points = ptsVal === '' ? null : parseInt(ptsVal, 10);
+        if (rank === null && points === null) {
+          await deletePaths([`rankOverrides/${wkK}/${id}`]);
+          toast('Override entfernt', 'ok');
+          return;
+        }
+        const update = {};
+        if (rank !== null && !isNaN(rank)) update.rank = rank;
+        if (points !== null && !isNaN(points)) update.points = points;
+        await saveUpdates({ [`rankOverrides/${wkK}/${id}`]: update });
+        toast('Override gespeichert', 'ok');
+      } else if (btn.dataset.act === 'reset') {
+        if (!confirm('Override für diesen Athleten zurücksetzen?')) return;
+        await deletePaths([`rankOverrides/${wkK}/${id}`]);
+        toast('Zurückgesetzt', 'ok');
+      }
+    } catch (err) { toast('Fehler: ' + err.message, 'err'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: WKs — edit name/date/venue/status per WK
+// ═══════════════════════════════════════════════════════════════
+function renderWks() {
+  const root = $('#tab-wks');
+  root.innerHTML = `
+    <h2>Wettkämpfe</h2>
+    <p class="sub">Manuelle Überschreibungen für WK-Metadaten. Leere Felder = Fallback auf Live-Daten oder statische JSON.</p>
+    <div id="wkCards"></div>
+  `;
+  const cards = state.wksStatic.map(wk => {
+    const live = state.liveWks.find(x => x.id === wk.id) || {};
+    const liveInfo = live.info || {};
+    const override = state.admin.wks[wk.id] || {};
+    const statusOpts = WK_STATUSES.map(s => `<option value="${s}" ${override.status===s?'selected':''}>${s}</option>`).join('');
+    const runs = Object.keys(live.completedRuns || {}).length;
+    const ath  = Object.keys(live.athletes || {}).length;
+    const cc = wk.compCode ? `<span class="mono">compCode: ${wk.compCode}</span>` : '<span class="hint">kein compCode</span>';
+    return `
+    <div class="card" data-wk="${wk.id}">
+      <h3>${esc(wk.num)} · <span style="color:var(--muted); font-weight:400">${esc(wk.id)}</span></h3>
+      <div class="hint">${cc} · Live: ${ath} Athleten, ${runs} Läufe</div>
+      <div class="form-grid" style="margin-top:.85rem">
+        <div><label>Name</label><input data-f="name" placeholder="${esc(liveInfo.name || wk.name)}" value="${esc(override.name || '')}"></div>
+        <div><label>Datum</label><input data-f="date" placeholder="${esc(liveInfo.date || wk.date)}" value="${esc(override.date || '')}"></div>
+        <div><label>Ort</label><input data-f="location" placeholder="${esc(liveInfo.location || wk.location)}" value="${esc(override.location || '')}"></div>
+        <div><label>Venue</label><input data-f="venue" placeholder="${esc(wk.venue)}" value="${esc(override.venue || '')}"></div>
+        <div><label>Status (Override)</label>
+          <select data-f="status"><option value="">— (automatisch) —</option>${statusOpts}</select>
+        </div>
+      </div>
+      <div class="row-flex" style="margin-top:.85rem">
+        <button class="btn btn-primary" data-act="save">Speichern</button>
+        ${Object.keys(override).length ? '<button class="btn" data-act="reset">Alle Overrides löschen</button>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+  $('#wkCards').innerHTML = cards;
+
+  $('#wkCards').addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const card = btn.closest('[data-wk]'); const wkId = card.dataset.wk;
+    try {
+      if (btn.dataset.act === 'save') {
+        const obj = {};
+        $$('[data-f]', card).forEach(inp => {
+          const v = inp.value.trim();
+          if (v) obj[inp.dataset.f] = v;
+        });
+        if (Object.keys(obj).length === 0) {
+          await deletePaths([`wks/${wkId}`]);
+          toast('Keine Overrides — alle gelöscht', 'ok');
+        } else {
+          await saveUpdates({ [`wks/${wkId}`]: obj });
+          toast('Gespeichert', 'ok');
+        }
+      } else if (btn.dataset.act === 'reset') {
+        if (!confirm('Alle Overrides für diesen WK löschen?')) return;
+        await deletePaths([`wks/${wkId}`]);
+        toast('Zurückgesetzt', 'ok');
+      }
+    } catch (err) { toast('Fehler: ' + err.message, 'err'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: SCORING — formula tuning
+// ═══════════════════════════════════════════════════════════════
+function renderScoring() {
+  const root = $('#tab-scoring');
+  const s = state.admin.scoring;
+  root.innerHTML = `
+    <h2>Scoring</h2>
+    <p class="sub">Punkteberechnung: <code style="color:var(--text)">points = max(minPoints, round(1000 · factor<sup>exp</sup> / 50) · 50) · CV[wk]</code></p>
+
+    <div class="card">
+      <h3>Formel-Parameter</h3>
+      <div class="form-grid">
+        <div><label>Mindestpunkte</label><input type="number" id="sMin" min="0" step="10" value="${s.minPoints}"></div>
+        <div><label>Exponent (Dämpfung)</label><input type="number" id="sExp" min="0.5" max="3" step="0.05" value="${s.exponent}"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>CV-Multiplikator pro Wettkampf</h3>
+      <p class="hint">Gewichtet einzelne Wettkämpfe. Finale typischerweise ×1.5, reguläre WKs ×1.0.</p>
+      <div class="form-grid" style="margin-top:.85rem">
+        <div><label>WK 1</label><input type="number" id="sCv1" min="0" step="0.05" value="${s.cv.wk1}"></div>
+        <div><label>WK 2</label><input type="number" id="sCv2" min="0" step="0.05" value="${s.cv.wk2}"></div>
+        <div><label>Finale</label><input type="number" id="sCvF" min="0" step="0.05" value="${s.cv.finale}"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Vorschau</h3>
+      <p class="hint">So verteilen sich die Punkte mit den aktuellen Parametern (CV ×1.0):</p>
+      <div class="scoring-preview"><table id="scPrev"></table></div>
+    </div>
+
+    <div class="row-flex">
+      <button class="btn btn-primary" id="sSave">Scoring speichern</button>
+      <button class="btn" id="sReset">Auf Defaults zurücksetzen</button>
+    </div>
+  `;
+
+  function renderPreview() {
+    const cfg = {
+      minPoints: +$('#sMin').value || 50,
+      exponent: +$('#sExp').value || 1.3,
+      cv: { wk1:1, wk2:1, finale:1 }
+    };
+    const n = 20;
+    const rows = [];
+    for (let r = 1; r <= 10; r++) rows.push(`<tr><td class="rank">#${r} / ${n}</td><td class="pts">${computePoints(r, n, cfg)}</td></tr>`);
+    rows.push(`<tr><td class="rank">#20 / 20</td><td class="pts">${computePoints(20, n, cfg)}</td></tr>`);
+    $('#scPrev').innerHTML = rows.join('');
+  }
+  ['sMin','sExp'].forEach(id => $('#' + id).addEventListener('input', renderPreview));
+  renderPreview();
+
+  $('#sSave').addEventListener('click', async () => {
+    try {
+      const payload = {
+        minPoints: +$('#sMin').value || 50,
+        exponent: +$('#sExp').value || 1.3,
+        cv: {
+          wk1: +$('#sCv1').value || 1.0,
+          wk2: +$('#sCv2').value || 1.0,
+          finale: +$('#sCvF').value || 1.5
+        }
+      };
+      await saveUpdates({ 'scoring': payload });
+      toast('Scoring gespeichert', 'ok');
+    } catch (e) { toast('Fehler: ' + e.message, 'err'); }
+  });
+
+  $('#sReset').addEventListener('click', async () => {
+    if (!confirm('Scoring auf Defaults zurücksetzen?')) return;
+    try {
+      await deletePaths(['scoring']);
+      toast('Zurückgesetzt', 'ok');
+    } catch (e) { toast('Fehler: ' + e.message, 'err'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: USERS — admin only
+// ═══════════════════════════════════════════════════════════════
+async function renderUsers() {
+  const root = $('#tab-users');
+  if (!state.isAdmin) { root.innerHTML = '<p class="hint">Nur Admins.</p>'; return; }
+
+  root.innerHTML = `
+    <h2>Benutzer</h2>
+    <p class="sub">Wer kann sich im Admin-Panel anmelden. Admins verwalten Benutzer; Editoren bearbeiten Daten.</p>
+
+    <div class="card">
+      <h3>Neuen Benutzer anlegen</h3>
+      <div class="form-grid">
+        <div><label>E-Mail</label><input id="uEmail" type="email" placeholder="name@example.com"></div>
+        <div><label>Passwort (min. 8)</label><input id="uPw" type="password" placeholder="••••••••"></div>
+        <div><label>Rolle</label>
+          <select id="uRole"><option value="editor">Editor</option><option value="admin">Admin</option></select>
+        </div>
+      </div>
+      <div style="margin-top:.85rem"><button class="btn btn-primary" id="uAdd">Benutzer anlegen</button></div>
+    </div>
+
+    <div class="card" style="padding:0">
+      <table class="data">
+        <thead><tr><th>E-Mail</th><th>Rolle</th><th>Status</th><th>Erstellt</th><th>Letzter Login</th><th class="actions">Aktionen</th></tr></thead>
+        <tbody id="uBody"><tr><td colspan="6" style="text-align:center; padding:1rem; color:var(--muted)">Lade…</td></tr></tbody>
+      </table>
+    </div>
+  `;
+
+  let users = [];
+  try {
+    const data = await api('/api/admin/users', 'GET');
+    users = data.users || [];
+    state.usersList = users;
+  } catch (e) {
+    $('#uBody').innerHTML = `<tr><td colspan="6" style="color:#ff6a5c; padding:1rem">Fehler: ${esc(e.message)}</td></tr>`;
+    return;
+  }
+
+  $('#uBody').innerHTML = users.map(u => {
+    const isSelf = u.uid === state.user.uid;
+    const roleOpts = ['editor','admin'].map(r => `<option value="${r}" ${u.role===r?'selected':''}>${r}</option>`).join('');
+    return `
+      <tr data-uid="${esc(u.uid)}">
+        <td>${esc(u.email || '—')}${isSelf?' <span class="badge badge-int">Du</span>':''}</td>
+        <td><select data-f="role" ${isSelf?'disabled':''}>${roleOpts}</select></td>
+        <td>${u.disabled ? '<span class="badge badge-kicked">Deaktiviert</span>' : '<span class="badge badge-ch">Aktiv</span>'}</td>
+        <td class="mono">${u.createdAt ? new Date(u.createdAt).toLocaleDateString('de-CH') : '—'}</td>
+        <td class="mono">${u.lastSignIn ? new Date(u.lastSignIn).toLocaleString('de-CH') : '—'}</td>
+        <td class="actions">
+          <button class="btn btn-sm" data-act="save" ${isSelf?'disabled':''}>Rolle speichern</button>
+          <button class="btn btn-sm" data-act="pw">Passwort ändern</button>
+          ${u.disabled
+            ? `<button class="btn btn-sm" data-act="enable" ${isSelf?'disabled':''}>Aktivieren</button>`
+            : `<button class="btn btn-sm btn-danger" data-act="disable" ${isSelf?'disabled':''}>Deaktivieren</button>`}
+          <button class="btn btn-sm btn-danger" data-act="del" ${isSelf?'disabled':''}>Löschen</button>
+        </td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="6" style="text-align:center; padding:1rem; color:var(--muted)">Keine Benutzer.</td></tr>';
+
+  $('#uAdd').addEventListener('click', async () => {
+    const email = $('#uEmail').value.trim();
+    const password = $('#uPw').value;
+    const role = $('#uRole').value;
+    if (!email || password.length < 8) return toast('E-Mail und Passwort (min. 8) erforderlich', 'err');
+    try {
+      await api('/api/admin/users', 'POST', { email, password, role });
+      toast('Benutzer angelegt', 'ok');
+      $('#uEmail').value = ''; $('#uPw').value = '';
+      renderUsers();
+    } catch (e) { toast('Fehler: ' + e.message, 'err'); }
+  });
+
+  $('#uBody').addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const tr = btn.closest('tr'); const uid = tr.dataset.uid;
+    try {
+      if (btn.dataset.act === 'save') {
+        const role = $('select[data-f="role"]', tr).value;
+        await api('/api/admin/users', 'PATCH', { uid, role });
+        toast('Rolle gespeichert', 'ok');
+      } else if (btn.dataset.act === 'pw') {
+        const pw = prompt('Neues Passwort (min. 8 Zeichen):');
+        if (!pw) return;
+        if (pw.length < 8) return toast('Mindestens 8 Zeichen', 'err');
+        await api('/api/admin/users', 'PATCH', { uid, password: pw });
+        toast('Passwort geändert', 'ok');
+      } else if (btn.dataset.act === 'disable') {
+        await api('/api/admin/users', 'PATCH', { uid, disabled: true });
+        toast('Deaktiviert', 'ok'); renderUsers();
+      } else if (btn.dataset.act === 'enable') {
+        await api('/api/admin/users', 'PATCH', { uid, disabled: false });
+        toast('Aktiviert', 'ok'); renderUsers();
+      } else if (btn.dataset.act === 'del') {
+        if (!confirm('Benutzer endgültig löschen?')) return;
+        await api('/api/admin/users', 'DELETE', { uid });
+        toast('Gelöscht', 'ok'); renderUsers();
+      }
+    } catch (err) { toast('Fehler: ' + err.message, 'err'); }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Initial UI: show login while Firebase resolves
+// ═══════════════════════════════════════════════════════════════
+$('#loginView').classList.remove('hidden');
+</script>
+</body>
+</html>
