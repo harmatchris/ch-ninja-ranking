@@ -9,14 +9,11 @@
       ]
     },
     {
-      "source": "/admin.html",
+      "source": "/admin",
       "headers": [
         { "key": "Cache-Control", "value": "no-store" },
         { "key": "X-Frame-Options", "value": "DENY" }
       ]
     }
-  ],
-  "redirects": [
-    { "source": "/admin", "destination": "/admin.html", "permanent": false }
   ]
 }
