@@ -179,6 +179,7 @@ table.data td.actions { text-align: right; white-space: nowrap; }
       <button data-tab="athletes" class="active"><span class="ico">▸</span>Athleten</button>
       <button data-tab="rankings"><span class="ico">▸</span>Rankings</button>
       <button data-tab="wks"><span class="ico">▸</span>Wettkämpfe</button>
+      <button data-tab="licenses"><span class="ico">▸</span>Lizenzen</button>
       <div class="sidebar-section">System</div>
       <button data-tab="scoring"><span class="ico">▸</span>Scoring</button>
       <button data-tab="users" id="usersTabBtn"><span class="ico">▸</span>Benutzer</button>
@@ -188,6 +189,7 @@ table.data td.actions { text-align: right; white-space: nowrap; }
       <div id="tab-athletes" class="tab-panel"></div>
       <div id="tab-rankings" class="tab-panel hidden"></div>
       <div id="tab-wks" class="tab-panel hidden"></div>
+      <div id="tab-licenses" class="tab-panel hidden"></div>
       <div id="tab-scoring" class="tab-panel hidden"></div>
       <div id="tab-users" class="tab-panel hidden"></div>
     </main>
@@ -245,7 +247,8 @@ const state = {
     excluded: {},
     rankOverrides: {},   // { wk1: { athId: {rank,points} } }
     scoring: { ...DEFAULT_SCORING, cv: { ...DEFAULT_SCORING.cv } },
-    wks: {}
+    wks: {},
+    settings: {}
   },
   wksStatic: [
     { id:'wk1-2026',    num:'WK 1',          name:'OG Games 6.2 (Fun Edition)', date:'18. April 2026', location:'Basel', venue:'Overground · Fun Edition', isFinale:false, status:'upcoming', compCode:'9ALPL5' },
@@ -399,6 +402,7 @@ async function initDataSubscriptions() {
     state.admin.rankOverrides = v.rankOverrides || {};
     state.admin.scoring = Object.assign({}, DEFAULT_SCORING, v.scoring || {}, { cv: Object.assign({}, DEFAULT_SCORING.cv, (v.scoring && v.scoring.cv) || {}) });
     state.admin.wks = v.wks || {};
+    state.admin.settings = v.settings || {};
     renderActiveTab();
   });
 
@@ -423,6 +427,7 @@ function renderActiveTab() {
     athletes: renderAthletes,
     rankings: renderRankings,
     wks: renderWks,
+    licenses: renderLicenses,
     scoring: renderScoring,
     users: renderUsers
   }[state.activeTab];
@@ -922,6 +927,161 @@ function renderScoring() {
       toast('Zurückgesetzt', 'ok');
     } catch (e) { toast('Fehler: ' + e.message, 'err'); }
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TAB: LICENSES — review, approve, reject athlete submissions
+// ═══════════════════════════════════════════════════════════════
+let licenseFilter = { status: '' };
+async function renderLicenses() {
+  const root = $('#tab-licenses');
+  const formOpen = !!(state.admin.settings && state.admin.settings.licenseFormOpen);
+
+  root.innerHTML = `
+    <h2>Lizenzen</h2>
+    <p class="sub">Einreichungen der CH-Lizenz 2026 · prüfen, genehmigen oder ablehnen.</p>
+
+    <div class="card">
+      <h3>Freigabe</h3>
+      <div class="row-flex" style="justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap">
+        <div style="max-width:520px">
+          <div style="font-size:14px; color:#fff; margin-bottom:.25rem"><strong>Öffentliche Unterzeichnung ${formOpen ? 'aktiv' : 'geschlossen'}</strong></div>
+          <div class="hint">
+            ${formOpen
+              ? 'Athleten können sich auf <code style="color:#fff">/lizenz</code> registrieren und den Vertrag unterzeichnen.'
+              : 'Das Formular ist aktuell nur für Admins/Editoren sichtbar. Öffentliche Besucher sehen nur den Vertragstext.'}
+          </div>
+        </div>
+        <button class="btn ${formOpen ? 'btn-danger' : 'btn-primary'}" id="toggleFormOpen">
+          ${formOpen ? 'Schliessen' : 'Für alle Athleten freigeben'}
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <select id="lcStatus">
+        <option value="" ${licenseFilter.status===''?'selected':''}>Alle Status</option>
+        <option value="submitted" ${licenseFilter.status==='submitted'?'selected':''}>Wartet auf Prüfung</option>
+        <option value="approved" ${licenseFilter.status==='approved'?'selected':''}>Genehmigt</option>
+        <option value="rejected" ${licenseFilter.status==='rejected'?'selected':''}>Abgelehnt</option>
+        <option value="draft" ${licenseFilter.status==='draft'?'selected':''}>Entwürfe</option>
+      </select>
+      <button class="btn btn-sm" id="lcReload">Neu laden</button>
+    </div>
+
+    <div class="card" style="padding:0">
+      <table class="data">
+        <thead>
+          <tr><th>Name</th><th>E-Mail</th><th>Verein</th><th>Eingereicht</th><th>Status</th><th class="actions">Aktionen</th></tr>
+        </thead>
+        <tbody id="lcBody"><tr><td colspan="6" style="text-align:center; padding:1rem; color:var(--muted)">Lade…</td></tr></tbody>
+      </table>
+    </div>
+  `;
+
+  $('#toggleFormOpen').addEventListener('click', async () => {
+    try {
+      await saveUpdates({ 'settings/licenseFormOpen': !formOpen });
+      toast(formOpen ? 'Formular geschlossen' : 'Formular freigegeben', 'ok');
+    } catch (e) { toast('Fehler: ' + e.message, 'err'); }
+  });
+  $('#lcStatus').addEventListener('change', e => { licenseFilter.status = e.target.value; loadLicenses(); });
+  $('#lcReload').addEventListener('click', loadLicenses);
+
+  loadLicenses();
+}
+
+async function loadLicenses() {
+  const body = $('#lcBody'); if (!body) return;
+  let items = [];
+  try {
+    const data = await api('/api/admin/licenses?season=' + SEASON, 'GET');
+    items = data.licenses || [];
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="6" style="padding:1rem; color:#ff6a5c">Fehler: ${esc(e.message)}</td></tr>`;
+    return;
+  }
+
+  const filtered = items.filter(i => !licenseFilter.status || (i.status || 'draft') === licenseFilter.status);
+
+  if (!filtered.length) {
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1.5rem; color:var(--muted)">Keine Einträge.</td></tr>';
+    return;
+  }
+
+  body.innerHTML = filtered.map(l => {
+    const name = [l.firstName, l.lastName].filter(Boolean).join(' ') || '—';
+    const submitted = l.submittedAt ? new Date(l.submittedAt).toLocaleDateString('de-CH') : '—';
+    const status = l.status || 'draft';
+    const statusBadge = {
+      draft: '<span class="badge badge-int">Entwurf</span>',
+      submitted: '<span class="badge badge-override">Prüfung</span>',
+      approved: '<span class="badge badge-ch">Genehmigt</span>',
+      rejected: '<span class="badge badge-kicked">Abgelehnt</span>'
+    }[status] || status;
+    const actions = [];
+    if (status === 'submitted' || status === 'draft') {
+      actions.push(`<button class="btn btn-sm btn-primary" data-act="approve">Genehmigen</button>`);
+      actions.push(`<button class="btn btn-sm btn-danger" data-act="reject">Ablehnen</button>`);
+    } else if (status === 'approved' || status === 'rejected') {
+      actions.push(`<button class="btn btn-sm" data-act="reopen">Zurück auf Entwurf</button>`);
+    }
+    actions.push(`<button class="btn btn-sm" data-act="view">Details</button>`);
+    return `
+      <tr data-uid="${esc(l.uid)}">
+        <td>${esc(name)}</td>
+        <td class="mono">${esc(l.email || '—')}</td>
+        <td>${esc(l.club || '—')}</td>
+        <td class="mono">${submitted}</td>
+        <td>${statusBadge}</td>
+        <td class="actions">${actions.join(' ')}</td>
+      </tr>`;
+  }).join('');
+
+  body.addEventListener('click', async e => {
+    const btn = e.target.closest('button[data-act]'); if (!btn) return;
+    const tr = btn.closest('tr'); const uid = tr.dataset.uid;
+    const act = btn.dataset.act;
+    const item = items.find(x => x.uid === uid);
+    try {
+      if (act === 'approve') {
+        if (!confirm('Lizenz genehmigen? Gültig bis in 3 Jahren.')) return;
+        await api('/api/admin/licenses?season=' + SEASON, 'PATCH', { uid, action: 'approve' });
+        toast('Genehmigt', 'ok'); loadLicenses();
+      } else if (act === 'reject') {
+        const reason = prompt('Grund für die Ablehnung:'); if (!reason) return;
+        await api('/api/admin/licenses?season=' + SEASON, 'PATCH', { uid, action: 'reject', rejectionReason: reason });
+        toast('Abgelehnt', 'ok'); loadLicenses();
+      } else if (act === 'reopen') {
+        if (!confirm('Auf Entwurf zurücksetzen? Athlet:in kann dann neu einreichen.')) return;
+        await api('/api/admin/licenses?season=' + SEASON, 'PATCH', { uid, action: 'reopen' });
+        toast('Zurückgesetzt', 'ok'); loadLicenses();
+      } else if (act === 'view') {
+        showLicenseDetail(item);
+      }
+    } catch (err) { toast('Fehler: ' + err.message, 'err'); }
+  }, { once: true });
+}
+
+function showLicenseDetail(item) {
+  if (!item) return;
+  const rows = [
+    ['E-Mail', item.email],
+    ['Vorname', item.firstName],
+    ['Nachname', item.lastName],
+    ['Geburtsdatum', item.birthDate],
+    ['Nationalität', item.nationality],
+    ['Wohnort', item.residence],
+    ['Verein', item.club],
+    ['Nachweis', item.proof],
+    ['Anmerkungen', item.notes],
+    ['Checkboxen', ['c1','c2','c3','c4','c5'].map(k => (item[k] ? '✓' : '✗')).join(' ')],
+    ['Status', item.status || 'draft'],
+    ['Eingereicht', item.submittedAt ? new Date(item.submittedAt).toLocaleString('de-CH') : '—'],
+    ['Letzter Login', item.lastSignIn ? new Date(item.lastSignIn).toLocaleString('de-CH') : '—']
+  ];
+  const msg = rows.map(([k,v]) => k + ': ' + (v || '—')).join('\n');
+  alert(msg);
 }
 
 // ═══════════════════════════════════════════════════════════════

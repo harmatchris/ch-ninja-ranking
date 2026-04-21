@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH Ninja Ranking — Lizenzvertrag</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E63329;
+  --red-dim: #8C1F1B;
+  --bg: #0C0C0C;
+  --bg2: #141414;
+  --bg3: #1C1C1C;
+  --bg4: #242424;
+  --border: #2A2A2A;
+  --border2: #333;
+  --text: #F0F0F0;
+  --muted: #777;
+  --dim: #444;
+  --gold: #C8A84B;
+  --green: #34C759;
+  --amber: #FFB020;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--bg); color: var(--text); font-family: 'Barlow', sans-serif; font-size: 15px; scroll-behavior: smooth; }
+body { min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+/* Topbar (mirrors index.html) */
+.topbar { background: #000; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 44px; position: sticky; top: 0; z-index: 200; }
+.topbar a { font-size: 11px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; transition: color .2s; }
+.topbar a:hover { color: var(--text); }
+.topbar-left { display: flex; gap: 1.5rem; align-items: center; }
+.back-home { padding: 4px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.back-home:hover { border-color: var(--red); color: #fff !important; }
+.topbar-pill { background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 2px; letter-spacing: .07em; text-transform: uppercase; }
+
+/* Hero */
+.hero { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 3rem 2rem 2.5rem; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--red); }
+.hero-inner { max-width: 820px; margin: 0 auto; }
+.hero-eyebrow { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--red); margin-bottom: 1rem; }
+.hero h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: clamp(40px, 7vw, 72px); line-height: .95; text-transform: uppercase; letter-spacing: -.01em; margin-bottom: 1rem; }
+.hero-sub { font-size: 14px; color: var(--muted); max-width: 580px; margin-bottom: 1.75rem; }
+.hero-meta { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; max-width: 600px; }
+.hero-meta-item { flex: 1; min-width: 140px; padding: .8rem 1.1rem; border-right: 1px solid var(--border); }
+.hero-meta-item:last-child { border-right: none; }
+.hero-meta-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.hero-meta-value { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; color: #fff; }
+
+/* Admin banner */
+.admin-banner { max-width: 820px; margin: 1rem auto 0; padding: .6rem 1rem; background: rgba(230,51,41,.08); border: 1px solid rgba(230,51,41,.3); border-radius: 3px; font-size: 12px; color: #ffb1a8; display: flex; align-items: center; gap: .5rem; }
+.admin-banner strong { color: #fff; }
+
+/* Main sections */
+main { max-width: 820px; margin: 0 auto; padding: 3rem 2rem 4rem; }
+.section { margin-bottom: 2.75rem; }
+.section-num { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+.section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 1rem; padding-bottom: .65rem; border-bottom: 1px solid var(--border); }
+
+.clause { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: .85rem 1.1rem .85rem 3rem; margin-bottom: .6rem; font-size: 14px; color: rgba(240,240,240,.85); line-height: 1.65; position: relative; }
+.clause::before { content: attr(data-n); position: absolute; left: 1rem; top: .95rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px; color: var(--red); letter-spacing: .05em; }
+.clause strong { font-weight: 600; color: #fff; }
+.clause.highlight { border-color: rgba(200,168,75,.3); background: rgba(200,168,75,.04); }
+.clause.highlight::before { color: var(--gold); }
+.clause.warn { border-color: rgba(230,51,41,.35); }
+
+table.summary { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: .5rem; }
+table.summary th { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: .6rem .9rem; border-bottom: 1px solid var(--border); background: var(--bg3); }
+table.summary td { padding: .7rem .9rem; border-bottom: 1px solid var(--border); color: rgba(240,240,240,.85); vertical-align: top; }
+table.summary td:first-child { color: #fff; font-weight: 500; white-space: nowrap; }
+table.summary tr:last-child td { border-bottom: none; }
+table.summary .yes { color: var(--green); font-weight: 600; }
+table.summary .opt { color: var(--muted); }
+
+/* Signature / login gate */
+.sign-section { margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2.25rem; }
+.sign-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; margin-bottom: .35rem; }
+.sign-sub { font-size: 13px; color: var(--muted); margin-bottom: 1.5rem; }
+
+.gate-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; text-align: center; }
+.gate-card.muted { border-style: dashed; }
+.gate-card h3 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; text-transform: uppercase; letter-spacing: .03em; color: #fff; margin-bottom: .5rem; }
+.gate-card p { font-size: 13px; color: var(--muted); line-height: 1.6; max-width: 440px; margin: 0 auto .85rem; }
+.gate-card .small { font-size: 12px; margin-top: 1.25rem; color: var(--dim); }
+
+.auth-form { max-width: 360px; margin: 1.25rem auto 0; text-align: left; }
+.auth-form label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin: .9rem 0 .35rem; }
+.auth-form input { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: .55rem .75rem; border-radius: 3px; }
+.auth-form input:focus { outline: none; border-color: var(--red); }
+.auth-form button { width: 100%; background: var(--red); color: #fff; font-weight: 700; padding: .7rem; border-radius: 3px; margin-top: 1rem; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+.auth-form button:hover { background: #d12920; }
+.auth-form .err { color: #ff6a5c; font-size: 12px; margin-top: .6rem; min-height: 1em; }
+.auth-toggle { text-align: center; margin-top: 1rem; font-size: 12px; color: var(--muted); }
+.auth-toggle a { color: var(--red); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .75rem 1rem; }
+.form-grid label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .3rem; }
+.form-grid input, .form-grid select, .form-grid textarea { width: 100%; background: var(--bg); border: 1px solid var(--border2); color: var(--text); padding: .55rem .75rem; border-radius: 3px; font-family: inherit; }
+.form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus { outline: none; border-color: var(--red); }
+.form-grid textarea { min-height: 60px; resize: vertical; }
+.form-grid .full { grid-column: 1 / -1; }
+
+.check-list { margin-top: 1.25rem; display: flex; flex-direction: column; gap: .5rem; }
+.check-list label { display: flex; gap: .65rem; align-items: flex-start; font-size: 13px; color: rgba(240,240,240,.85); cursor: pointer; line-height: 1.5; }
+.check-list input[type=checkbox] { appearance: none; -webkit-appearance: none; width: 17px; height: 17px; min-width: 17px; border: 1px solid var(--border2); border-radius: 2px; background: var(--bg); margin-top: 2px; cursor: pointer; position: relative; }
+.check-list input[type=checkbox]:checked { background: var(--red); border-color: var(--red); }
+.check-list input[type=checkbox]:checked::after { content: '✓'; position: absolute; top: -2px; left: 2px; font-size: 13px; color: #fff; font-weight: 700; }
+
+.submit-row { margin-top: 1.5rem; display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; }
+.btn { font-family: inherit; padding: .6rem 1.1rem; border-radius: 3px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border: 1px solid var(--border2); background: var(--bg3); color: var(--text); cursor: pointer; }
+.btn:hover { border-color: var(--red); color: #fff; }
+.btn-primary { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-primary:hover { background: #d12920; }
+.btn-primary:disabled { background: var(--dim); border-color: var(--dim); cursor: not-allowed; }
+.btn-link { background: transparent; border: none; color: var(--muted); padding: 0 .4rem; font-size: 12px; }
+.btn-link:hover { color: var(--text); }
+
+/* Status banner */
+.status-banner { padding: 1rem 1.25rem; border-radius: 4px; margin-bottom: 1.5rem; font-size: 14px; line-height: 1.5; border: 1px solid var(--border); background: var(--bg2); }
+.status-banner.pending { border-color: rgba(255,176,32,.35); background: rgba(255,176,32,.05); }
+.status-banner.approved { border-color: rgba(52,199,89,.35); background: rgba(52,199,89,.05); }
+.status-banner.rejected { border-color: rgba(230,51,41,.35); background: rgba(230,51,41,.05); color: #ffb1a8; }
+.status-banner strong { color: #fff; }
+
+.toast { position: fixed; bottom: 1.25rem; right: 1.25rem; background: var(--bg3); border: 1px solid var(--border2); color: var(--text); padding: .7rem 1rem; border-radius: 4px; font-size: 13px; z-index: 300; box-shadow: 0 4px 16px rgba(0,0,0,.5); }
+.toast.ok { border-color: var(--green); }
+.toast.err { border-color: var(--red); color: #ffb1a8; }
+.hidden { display: none !important; }
+
+/* Footer */
+footer { border-top: 1px solid var(--border); padding: 1.25rem 2rem; text-align: center; font-size: 11px; color: var(--muted); font-family: 'Barlow Condensed', sans-serif; letter-spacing: .05em; }
+
+@media (max-width: 600px) {
+  .topbar { padding: 0 1rem; }
+  .topbar-left { gap: .8rem; }
+  .hero { padding: 2rem 1rem 1.5rem; }
+  main { padding: 2rem 1rem 3rem; }
+  .hero-meta { flex-direction: column; }
+  .hero-meta-item { border-right: none; border-bottom: 1px solid var(--border); }
+  .hero-meta-item:last-child { border-bottom: none; }
+  .gate-card { padding: 1.5rem 1rem; }
+}
+
+@media print {
+  .topbar, .sign-section, footer, .admin-banner { display: none !important; }
+  body { background: #fff; color: #000; }
+  .hero { background: #f5f5f5; }
+  .clause { background: #f9f9f9; border-color: #ddd; color: #111; }
+  .clause::before { color: #8C1F1B; }
+  .section-title { color: #111; }
+  main { padding: 0 2rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="/" class="back-home">← Zurück zum Ranking</a>
+  </div>
+  <div class="topbar-pill">CH-Lizenz</div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Schweizer Meisterschaft · Ninja Sport</div>
+    <h1>CH-Lizenz<br>Vertrag</h1>
+    <p class="hero-sub">Offizieller Lizenzvertrag zur Teilnahme an der Schweizer Ninja-Sport-Meisterschaft und zur Vertretung der Schweiz an internationalen Wettkämpfen.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><div class="hero-meta-label">Version</div><div class="hero-meta-value">1.0 · 2026</div></div>
+      <div class="hero-meta-item"><div class="hero-meta-label">Laufzeit</div><div class="hero-meta-value">3 Jahre</div></div>
+      <div class="hero-meta-item"><div class="hero-meta-label">Admin</div><div class="hero-meta-value">Sandro Scheibler</div></div>
+      <div class="hero-meta-item"><div class="hero-meta-label">Regelwerk</div><div class="hero-meta-value">IGN 2026</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin-mode banner (nur sichtbar für eingeloggte Admins/Editoren) -->
+<div id="adminBanner" class="admin-banner hidden">
+  <span>🔒</span>
+  <span><strong>Admin-Vorschau:</strong> Das Unterzeichnungs-Formular ist aktuell nur für euch sichtbar. Öffentliche Besucher sehen nur den Vertragstext.</span>
+</div>
+
+<main>
+
+  <!-- Artikel 1 -->
+  <div class="section">
+    <div class="section-num">Artikel 1</div>
+    <div class="section-title">Staatsbürgerschaft & Nationalität</div>
+    <div class="clause" data-n="1.1">Ein <strong>Schweizer Pass ist keine Voraussetzung</strong> für die CH-Lizenz. Staatsbürgerschaft ist kein Kriterium.</div>
+    <div class="clause" data-n="1.2">Massgebend ist ein <strong>nachweisbarer Lebensmittelpunkt in der Schweiz</strong>: Steuerdomizil CH, Hauptarbeitgeber in CH, Schul- oder Ausbildungsort in CH, oder Haupttrainingsort in CH. Grenzgänger mit klarem Lebensmittelpunkt in der Schweiz sind zugelassen.</div>
+  </div>
+
+  <!-- Artikel 2 -->
+  <div class="section">
+    <div class="section-num">Artikel 2</div>
+    <div class="section-title">Vereinsmitgliedschaft & Lizenz</div>
+    <div class="clause" data-n="2.1">Der/die Athlet:in ist <strong>aktives Mitglied in einem Schweizer Ninja-Sport-Verein</strong> (z.B. Overground Basel, Schüür Luzern oder einem anderen akkreditierten Verein).</div>
+    <div class="clause" data-n="2.2">Die <strong>CH-Lizenz wird jährlich ausgestellt</strong> und von <strong>Sandro Scheibler</strong> verwaltet. Ohne gültige Lizenz ist keine CH-Wertung im Ranking möglich.</div>
+    <div class="clause" data-n="2.3">Der/die Athlet:in weist <strong>mindestens 20–30 Trainingstage pro Kalenderjahr</strong> im Schweizer Ninja-Sport-Verein nach. Der Nachweis erfolgt über die Vereinsadministration.</div>
+  </div>
+
+  <!-- Artikel 3 -->
+  <div class="section">
+    <div class="section-num">Artikel 3</div>
+    <div class="section-title">Loyalität & Länderbindung</div>
+    <div class="clause" data-n="3.1">Der Vertrag läuft über eine Mindestlaufzeit von <strong>3 Jahren</strong> ab Unterzeichnung. Während dieser Zeit vertritt der/die Athlet:in <strong>ausschliesslich die Schweiz</strong> an nationalen und internationalen Ninja-Sport-Wettkämpfen.</div>
+    <div class="clause" data-n="3.2">Das Opt-in ist <strong>einmalig und bindend</strong>. Ein Wechsel der Länderzugehörigkeit ist frühestens nach Ablauf der 3-jährigen Vertragslaufzeit möglich.</div>
+    <div class="clause warn" data-n="3.3 ⚠">Bei <strong>vorzeitigem Wechsel</strong> der Länderzugehörigkeit gilt eine <strong>Sperrfrist von 2 Jahren</strong>, in der der/die Athlet:in an keiner Schweizer Meisterschaft teilnahmeberechtigt ist und die Schweiz nicht international vertreten darf.</div>
+  </div>
+
+  <!-- Artikel 4 -->
+  <div class="section">
+    <div class="section-num">Artikel 4</div>
+    <div class="section-title">Wettkampf-Präsenz</div>
+    <div class="clause" data-n="4.1">Zur Aufrechterhaltung der CH-Lizenz und zur Berechtigung an der <strong>Europameisterschaft</strong> sind pro Saison <strong>mindestens 2 akkreditierte CH-Ranking-Wettkämpfe</strong> erforderlich — als aktive Teilnahme oder als akkreditierter Orga-/Coach-Einsatz.</div>
+    <div class="clause" data-n="4.2">Eine Finalteilnahme (OG Games Dezember) ist nur berechtigt, wenn die Division nicht vollständig ausgebucht ist. Bei vollen Tiers hat der reguläre Ranking-Weg Vorrang.</div>
+    <div class="clause highlight" data-n="4.3 ★"><strong>Ausnahmeregelung für Orga & Aufbau:</strong> Athlet:innen, die aktiv am Aufbau der Schweizer Meisterschaft beteiligt sind (Orgateam, Head Coach, technische Leitung), können die Wettkampfpflicht durch <strong>nachgewiesene Orga-Einsätze</strong> erfüllen. Diese Ausnahme wird jährlich durch Sandro Scheibler genehmigt und dokumentiert.</div>
+  </div>
+
+  <!-- Artikel 5 -->
+  <div class="section">
+    <div class="section-num">Artikel 5</div>
+    <div class="section-title">Sprachliche Anforderungen</div>
+    <div class="clause" data-n="5.1">Der/die Athlet:in ist in der Lage, <strong>offizielle Interviews und Medienanfragen</strong> in mindestens einer der Schweizer Landessprachen zu beantworten: <strong>Deutsch, Französisch oder Italienisch</strong>.</div>
+    <div class="clause" data-n="5.2">Englisch allein ist nicht ausreichend. Diese Anforderung dient der Repräsentation der Schweiz gegenüber lokalen Medien und dem Publikum.</div>
+  </div>
+
+  <!-- Artikel 6 -->
+  <div class="section">
+    <div class="section-num">Artikel 6</div>
+    <div class="section-title">Teamengagement</div>
+    <div class="clause" data-n="6.1">Der/die Athlet:in nimmt pro Jahr an <strong>mindestens einem offiziellen Teamanlass</strong> teil (z.B. Teamcamp, Medientag, Athleten-Workshop, Community-Event).</div>
+    <div class="clause" data-n="6.2">Wer <strong>2 aufeinanderfolgende Saisons</strong> die Wettkampf- und Engagementpflichten nicht erfüllt, verliert die CH-Lizenz <strong>automatisch</strong> ohne separates Ausschlussverfahren.</div>
+  </div>
+
+  <!-- Artikel 7 -->
+  <div class="section">
+    <div class="section-num">Artikel 7</div>
+    <div class="section-title">Zusammenfassung — Kriterienübersicht</div>
+    <table class="summary">
+      <thead><tr><th>Kriterium</th><th>Anforderung</th><th>Pflicht?</th></tr></thead>
+      <tbody>
+        <tr><td>CH-Pass</td><td>Nicht erforderlich</td><td class="opt">—</td></tr>
+        <tr><td>Lebensmittelpunkt CH</td><td>Steuerdomizil, Arbeit, Schule oder Training in CH</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Vereinsmitgliedschaft</td><td>Aktives Mitglied Schweizer Ninja-Verein</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Trainingstage</td><td>20–30 Tage/Jahr im Verein</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Vertragslaufzeit</td><td>3 Jahre Mindestbindung, Schweiz exklusiv</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Wechselsperre</td><td>2 Jahre bei vorzeitigem Länderwechsel</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Wettkampf-Präsenz</td><td>Min. 2 CH-Ranking-WK/Saison (oder Orga-Ausnahme)</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Sprache</td><td>Interview auf DE / FR / IT</td><td class="yes">✓ Ja</td></tr>
+        <tr><td>Teamanlass</td><td>Min. 1 Event/Jahr</td><td class="yes">✓ Ja</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────
+       SIGN SECTION — gated by feature flag + admin/editor role
+       ───────────────────────────────────────────────────────── -->
+  <div class="sign-section">
+    <div class="sign-title">Unterschrift & Bestätigung</div>
+    <div class="sign-sub">Bitte alle Felder ausfüllen. Der Vertrag wird nach Unterzeichnung von Sandro Scheibler gegengezeichnet.</div>
+
+    <!-- View: public, form closed -->
+    <div id="publicClosedView" class="gate-card muted hidden">
+      <h3>Unterzeichnung noch nicht offen</h3>
+      <p>Das digitale Unterzeichnungs-Formular wird demnächst freigeschaltet. Bis dahin bitte die Lizenz direkt über Sandro Scheibler klären.</p>
+      <div class="small">Bei Fragen: <a href="mailto:sandro@overground.ch" style="color:var(--text)">sandro@overground.ch</a></div>
+    </div>
+
+    <!-- View: logged out (admin testing phase → show login; open phase → show signup) -->
+    <div id="loggedOutView" class="gate-card hidden">
+      <h3 id="loggedOutTitle">Anmelden</h3>
+      <p id="loggedOutSub">Bitte einloggen, um den Lizenzvertrag digital zu unterzeichnen.</p>
+      <form id="authForm" class="auth-form" autocomplete="on">
+        <label>E-Mail</label>
+        <input type="email" id="authEmail" required autocomplete="email">
+        <label>Passwort</label>
+        <input type="password" id="authPassword" required autocomplete="current-password" minlength="8">
+        <div id="signupNameWrap" class="hidden">
+          <label>Vollständiger Name</label>
+          <input type="text" id="authName" autocomplete="name">
+        </div>
+        <button type="submit" id="authSubmit">Anmelden</button>
+        <div class="err" id="authErr"></div>
+      </form>
+      <div class="auth-toggle" id="authToggle"></div>
+    </div>
+
+    <!-- View: logged in, no submission yet -->
+    <div id="formView" class="hidden">
+      <div id="userBar" style="font-size:12px; color:var(--muted); margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem">
+        <span>Eingeloggt als <strong id="currentEmail" style="color:#fff">—</strong> <span id="roleBadge"></span></span>
+        <button class="btn-link" id="logoutBtn">Abmelden</button>
+      </div>
+      <div id="existingStatus"></div>
+
+      <form id="licenseForm">
+        <div class="form-grid">
+          <div><label>Vorname *</label><input type="text" name="firstName" required></div>
+          <div><label>Nachname *</label><input type="text" name="lastName" required></div>
+          <div><label>Geburtsdatum *</label><input type="date" name="birthDate" required></div>
+          <div><label>Nationalität / Pass</label><input type="text" name="nationality" placeholder="z.B. Schweizerisch, Deutsch…"></div>
+          <div><label>Wohnort / Lebensmittelpunkt *</label><input type="text" name="residence" required placeholder="Stadt, Land"></div>
+          <div><label>Schweizer Ninja-Verein *</label><input type="text" name="club" required placeholder="z.B. Overground Basel"></div>
+          <div class="full"><label>Nachweis Lebensmittelpunkt CH</label><textarea name="proof" placeholder="z.B. Arbeitgeber in Basel, Steuerdomizil CH, Training bei OG Basel…"></textarea></div>
+          <div class="full"><label>Anmerkungen (optional)</label><textarea name="notes" placeholder="Orga-Einsätze, Head-Coach-Rolle etc."></textarea></div>
+        </div>
+
+        <div class="check-list">
+          <label><input type="checkbox" name="c1" required><span>Ich bestätige, dass ich die Eligibility-Kriterien für die CH-Lizenz erfülle und die Angaben wahrheitsgemäss sind.</span></label>
+          <label><input type="checkbox" name="c2" required><span>Ich verpflichte mich für eine Mindestlaufzeit von 3 Jahren, ausschliesslich die Schweiz zu vertreten.</span></label>
+          <label><input type="checkbox" name="c3" required><span>Ich habe die Wechselsperre (2 Jahre bei vorzeitigem Länderwechsel) zur Kenntnis genommen.</span></label>
+          <label><input type="checkbox" name="c4" required><span>Ich bin bereit, pro Saison mindestens 2 CH-Ranking-Wettkämpfe zu bestreiten (oder Orga-Ausnahme beantragt).</span></label>
+          <label><input type="checkbox" name="c5" required><span>Ich bin in der Lage, offizielle Interviews in Deutsch, Französisch oder Italienisch zu geben.</span></label>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="btn btn-primary" id="submitBtn">Vertrag einreichen</button>
+          <button type="button" class="btn" id="saveDraftBtn">Als Entwurf speichern</button>
+          <span id="formHint" style="font-size:12px; color:var(--muted); margin-left:auto"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</main>
+
+<footer>CH Ninja Ranking · IGN-Regelwerk 2026 · Overground Basel &amp; Schüür Luzern</footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════
+const FIREBASE_CFG = {
+  apiKey: "AIzaSyBQPi4f2qWg3xA65hLL7IpxOiq3kzVk5ls",
+  authDomain: "ninja-hq-chris.firebaseapp.com",
+  databaseURL: "https://ninja-hq-chris-default-rtdb.firebaseio.com",
+  projectId: "ninja-hq-chris"
+};
+const SEASON = 2026;
+
+firebase.initializeApp(FIREBASE_CFG);
+const auth = firebase.auth();
+const db = firebase.database();
+
+// ═══════════════════════════════════════════════════════════════
+// STATE & HELPERS
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  user: null,
+  role: null,            // 'admin' | 'editor' | 'athlete' | null
+  formOpenForAthletes: false, // feature flag from ogn/admin/{year}/settings/licenseFormOpen
+  authMode: 'login'      // 'login' | 'signup'
+};
+
+const $ = s => document.querySelector(s);
+const show = (id, yes) => $(id).classList.toggle('hidden', !yes);
+const toast = (msg, kind) => {
+  const prev = document.getElementById('toast'); if (prev) prev.remove();
+  const t = document.createElement('div'); t.id = 'toast'; t.className = 'toast ' + (kind || '');
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), kind === 'err' ? 5000 : 2500);
+};
+
+// ═══════════════════════════════════════════════════════════════
+// FEATURE FLAG — read `ogn/admin/{year}/settings/licenseFormOpen`
+// When false: only admins/editors can see the form (testing phase)
+// When true:  any logged-in user can sign (live)
+// ═══════════════════════════════════════════════════════════════
+db.ref(`ogn/admin/${SEASON}/settings/licenseFormOpen`).on('value', snap => {
+  state.formOpenForAthletes = snap.val() === true;
+  renderGate();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// AUTH STATE
+// ═══════════════════════════════════════════════════════════════
+auth.onAuthStateChanged(async user => {
+  state.user = user;
+  if (user) {
+    try {
+      const tok = await user.getIdTokenResult(true);
+      state.role = tok.claims.admin ? 'admin' : (tok.claims.editor ? 'editor' : 'athlete');
+    } catch { state.role = 'athlete'; }
+  } else {
+    state.role = null;
+  }
+  renderGate();
+});
+
+function renderGate() {
+  const user = state.user;
+  const isPrivileged = state.role === 'admin' || state.role === 'editor';
+  const isFormOpen = state.formOpenForAthletes || isPrivileged;
+
+  // Admin banner visible only to privileged users while public flag is off
+  show('#adminBanner', isPrivileged && !state.formOpenForAthletes);
+
+  // Public-closed fallback (no one should sign yet, not privileged)
+  show('#publicClosedView', !isFormOpen && !user);
+
+  // Logged-out view (form is open OR privileged testing) — show login/signup
+  show('#loggedOutView', isFormOpen && !user);
+
+  // Logged in → show form
+  show('#formView', !!user);
+
+  if (user) {
+    $('#currentEmail').textContent = user.email;
+    $('#roleBadge').innerHTML = isPrivileged
+      ? ` <span style="background:var(--red);color:#fff;font-size:10px;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.05em;margin-left:.4rem">${state.role}</span>`
+      : '';
+    loadExistingSubmission();
+  }
+
+  // Toggle login/signup mode
+  updateAuthMode();
+}
+
+function updateAuthMode() {
+  const mode = state.authMode;
+  $('#loggedOutTitle').textContent = mode === 'signup' ? 'Account erstellen' : 'Anmelden';
+  $('#loggedOutSub').textContent = mode === 'signup'
+    ? 'Erstelle dein Athleten-Konto, um den Lizenzvertrag zu unterzeichnen.'
+    : 'Bitte einloggen, um den Lizenzvertrag digital zu unterzeichnen.';
+  $('#authSubmit').textContent = mode === 'signup' ? 'Account erstellen' : 'Anmelden';
+  show('#signupNameWrap', mode === 'signup');
+  $('#authPassword').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+  $('#authToggle').innerHTML = mode === 'signup'
+    ? 'Bereits registriert? <a data-switch="login">Anmelden</a>'
+    : 'Noch kein Account? <a data-switch="signup">Jetzt registrieren</a>';
+}
+
+document.addEventListener('click', e => {
+  const sw = e.target.closest('[data-switch]');
+  if (sw) { state.authMode = sw.dataset.switch; updateAuthMode(); $('#authErr').textContent = ''; }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// LOGIN / SIGNUP
+// ═══════════════════════════════════════════════════════════════
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#authEmail').value.trim();
+  const password = $('#authPassword').value;
+  const name = $('#authName').value.trim();
+  const btn = $('#authSubmit');
+  $('#authErr').textContent = '';
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '…';
+  try {
+    if (state.authMode === 'signup') {
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      if (name) await cred.user.updateProfile({ displayName: name });
+      await db.ref(`athletes-profile/${cred.user.uid}`).set({
+        email, displayName: name || null, createdAt: Date.now()
+      });
+    } else {
+      await auth.signInWithEmailAndPassword(email, password);
+    }
+  } catch (err) {
+    $('#authErr').textContent = err.message.replace(/^Firebase: /, '');
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+});
+
+$('#logoutBtn').addEventListener('click', () => auth.signOut());
+
+// ═══════════════════════════════════════════════════════════════
+// LICENSE SUBMISSION
+// ═══════════════════════════════════════════════════════════════
+async function loadExistingSubmission() {
+  if (!state.user) return;
+  try {
+    const snap = await db.ref(`licenses/${SEASON}/${state.user.uid}`).once('value');
+    const existing = snap.val();
+    const statusBox = $('#existingStatus');
+    const form = $('#licenseForm');
+
+    if (existing) {
+      // Pre-fill form
+      form.querySelectorAll('input,textarea').forEach(el => {
+        if (el.type === 'checkbox') el.checked = !!existing[el.name];
+        else if (existing[el.name] != null) el.value = existing[el.name];
+      });
+
+      const status = existing.status || 'draft';
+      let bannerClass = 'status-banner', msg = '';
+      if (status === 'submitted') { bannerClass += ' pending'; msg = '<strong>Eingereicht.</strong> Dein Antrag wurde am ' + new Date(existing.submittedAt||Date.now()).toLocaleDateString('de-CH') + ' eingereicht und wartet auf Freigabe durch Sandro Scheibler.'; }
+      else if (status === 'approved') { bannerClass += ' approved'; msg = '<strong>Lizenz bestätigt.</strong> Deine CH-Lizenz ist aktiv bis ' + (existing.validUntil ? new Date(existing.validUntil).toLocaleDateString('de-CH') : 'auf Widerruf') + '.'; }
+      else if (status === 'rejected') { bannerClass += ' rejected'; msg = '<strong>Abgelehnt.</strong> ' + (existing.rejectionReason || 'Bitte kontaktiere Sandro Scheibler.'); }
+      else { msg = '<strong>Entwurf gespeichert.</strong> Du kannst die Angaben noch anpassen und dann einreichen.'; }
+      statusBox.innerHTML = `<div class="${bannerClass}">${msg}</div>`;
+
+      const locked = status === 'submitted' || status === 'approved';
+      form.querySelectorAll('input,textarea,button[type=submit],#saveDraftBtn').forEach(el => { el.disabled = locked; });
+    } else {
+      statusBox.innerHTML = '';
+    }
+  } catch (e) {
+    console.error('loadExistingSubmission failed', e);
+  }
+}
+
+async function saveSubmission(statusValue) {
+  if (!state.user) return;
+  const form = $('#licenseForm');
+  const data = {};
+  form.querySelectorAll('input,textarea').forEach(el => {
+    data[el.name] = el.type === 'checkbox' ? !!el.checked : el.value.trim();
+  });
+  data.email = state.user.email;
+  data.uid = state.user.uid;
+  data.season = SEASON;
+  data.status = statusValue;
+  data.updatedAt = Date.now();
+  if (statusValue === 'submitted') data.submittedAt = Date.now();
+
+  await db.ref(`licenses/${SEASON}/${state.user.uid}`).update(data);
+}
+
+$('#licenseForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  // all required checkboxes & fields? browser validation should catch
+  const form = e.target;
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const btn = $('#submitBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '…';
+  try {
+    await saveSubmission('submitted');
+    toast('Vertrag eingereicht', 'ok');
+    loadExistingSubmission();
+  } catch (err) {
+    toast('Fehler: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+});
+
+$('#saveDraftBtn').addEventListener('click', async () => {
+  const btn = $('#saveDraftBtn');
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '…';
+  try {
+    await saveSubmission('draft');
+    toast('Entwurf gespeichert', 'ok');
+  } catch (err) {
+    toast('Fehler: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
+});
+
+updateAuthMode();
+</script>
+</body>
+</html>

@@ -8,7 +8,8 @@ const ALLOWED_SECTIONS = new Set([
   'excluded',
   'rankOverrides',
   'scoring',
-  'wks'
+  'wks',
+  'settings'
 ]);
 
 function safeKey(k) {
