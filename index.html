@@ -36,6 +36,9 @@ button{font-family:inherit;cursor:pointer}
 .topbar a{font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:.04em;text-transform:uppercase;transition:color .2s}
 .topbar a:hover{color:var(--text)}
 .topbar-pill{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase}
+.topbar-pill.is-muted{background:transparent;border:1px solid var(--border2);color:var(--muted)}
+.topbar-pill .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#fff;margin-right:5px;vertical-align:middle;animation:livePulse 1.4s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:.4}50%{opacity:1}}
 .topbar-season{display:flex;align-items:center;gap:4px}
 .season-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;letter-spacing:.04em;transition:all .2s}
 .auth-box{display:flex;align-items:center;gap:6px}
@@ -345,7 +348,7 @@ footer a:hover{color:var(--muted)}
       <button class="season-btn" onclick="setSeason(2025,this)">2025</button>
       <button class="season-btn active" onclick="setSeason(2026,this)">2026</button>
     </div>
-    <div class="topbar-pill" id="live-pill">Saison 2026 · Live</div>
+    <div class="topbar-pill is-muted" id="live-pill">Saison 2026</div>
     <div class="auth-box" id="auth-box">
       <a class="auth-pill" id="auth-link" href="/admin">Login</a>
     </div>
@@ -850,7 +853,7 @@ function setSeason(year, btn) {
   btn.classList.add('active');
   currentSeason = year;
   document.getElementById('hero-label').textContent = `Saison ${year} — Offizielle Rangliste`;
-  document.getElementById('live-pill').textContent = `Saison ${year} · Live`;
+  renderLivePill();
   document.getElementById('ranking-season-label').textContent = `Saison ${year}`;
   document.getElementById('events-season-label').textContent = `Saison ${year}`;
   renderAll();
@@ -1744,6 +1747,25 @@ function renderAll() {
   renderDivTabs();
   renderWkCards();
   renderRankingTable();
+  renderLivePill();
+}
+
+// Topbar pill: red + pulsing dot only when a WK is actually live,
+// otherwise muted "Saison {year}"
+function renderLivePill() {
+  const pill = document.getElementById('live-pill');
+  if (!pill) return;
+  const season = DATA.seasons[currentSeason];
+  const liveWk = season && season.wks.find(w => w.status === 'live');
+  if (liveWk) {
+    pill.className = 'topbar-pill';
+    pill.innerHTML = `<span class="live-dot"></span>Live · ${liveWk.num}`;
+    pill.title = liveWk.name + ' — läuft gerade';
+  } else {
+    pill.className = 'topbar-pill is-muted';
+    pill.textContent = `Saison ${currentSeason}`;
+    pill.title = '';
+  }
 }
 
 // ════════════════════════════════════════════
