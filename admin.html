@@ -167,6 +167,7 @@ table.data td.actions { text-align: right; white-space: nowrap; }
       <div class="brand-tag">Admin</div>
     </div>
     <div class="topbar-right">
+      <a href="/" id="toPublicLink" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:4px 10px;border:1px solid var(--border2);border-radius:3px;text-decoration:none" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">Zur Website ↗</a>
       <span class="user-email" id="userEmail">—</span>
       <span id="userRole" class="badge badge-int">—</span>
       <button id="logoutBtn">Logout</button>
@@ -373,7 +374,11 @@ $('#loginForm').addEventListener('submit', async e => {
   }
 });
 
-$('#logoutBtn').addEventListener('click', () => auth.signOut());
+$('#logoutBtn').addEventListener('click', async () => {
+  try { await auth.signOut(); } catch(e) { console.warn('signOut failed', e); }
+  // Send user back to the public site after logout
+  location.href = '/';
+});
 
 // ═══════════════════════════════════════════════════════════════
 // DATA SUBSCRIPTIONS

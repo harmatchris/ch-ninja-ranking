@@ -37,6 +37,14 @@ input, select, textarea { font-family: inherit; font-size: inherit; color: inher
 .back-home { padding: 4px 10px; border: 1px solid var(--border2); border-radius: 3px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
 .back-home:hover { border-color: var(--red); color: #fff !important; }
 .topbar-pill { background: var(--red); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 2px; letter-spacing: .07em; text-transform: uppercase; }
+.topbar-right { display: flex; align-items: center; gap: .75rem; }
+.auth-box { display: flex; align-items: center; gap: 6px; }
+.auth-pill { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 3px; letter-spacing: .07em; text-transform: uppercase; transition: all .2s; cursor: pointer; font-family: inherit; text-decoration: none; }
+.auth-pill:hover { color: var(--text) !important; border-color: var(--text); }
+.auth-pill.is-in { color: var(--text); border-color: var(--red); }
+.auth-pill.is-in:hover { background: var(--red); color: #fff !important; }
+.auth-logout { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: .04em; cursor: pointer; font-family: inherit; transition: all .2s; }
+.auth-logout:hover { color: #ff6a5c; border-color: #ff6a5c; }
 
 /* Hero */
 .hero { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 3rem 2rem 2.5rem; position: relative; overflow: hidden; }
@@ -164,7 +172,12 @@ footer { border-top: 1px solid var(--border); padding: 1.25rem 2rem; text-align:
   <div class="topbar-left">
     <a href="/" class="back-home">← Zurück zum Ranking</a>
   </div>
-  <div class="topbar-pill">CH-Lizenz</div>
+  <div class="topbar-right">
+    <div class="topbar-pill">CH-Lizenz</div>
+    <div class="auth-box" id="auth-box">
+      <a class="auth-pill" id="auth-link" href="/admin">Login</a>
+    </div>
+  </div>
 </div>
 
 <!-- Hero -->
@@ -355,6 +368,22 @@ const SEASON = 2026;
 firebase.initializeApp(FIREBASE_CFG);
 const auth = firebase.auth();
 const db = firebase.database();
+
+// Auth-aware topbar: toggles Login ↔ Admin + Logout
+auth.onAuthStateChanged(user => {
+  const box = document.getElementById('auth-box');
+  if (!box) return;
+  if (user && !user.isAnonymous && user.email) {
+    box.innerHTML = '<a class="auth-pill is-in" id="auth-link" href="/admin" title="' + user.email + '">Admin</a><button class="auth-logout" id="auth-logout" type="button">Logout</button>';
+    const btn = document.getElementById('auth-logout');
+    if (btn) btn.addEventListener('click', async () => {
+      try { await auth.signOut(); } catch(e) { console.warn('signOut failed', e); }
+      location.reload();
+    });
+  } else {
+    box.innerHTML = '<a class="auth-pill" id="auth-link" href="/admin">Login</a>';
+  }
+});
 
 // ═══════════════════════════════════════════════════════════════
 // STATE & HELPERS

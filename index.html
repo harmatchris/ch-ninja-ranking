@@ -38,6 +38,13 @@ button{font-family:inherit;cursor:pointer}
 .topbar-pill{background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:2px;letter-spacing:.07em;text-transform:uppercase}
 .topbar-season{display:flex;align-items:center;gap:4px}
 .season-btn{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;letter-spacing:.04em;transition:all .2s}
+.auth-box{display:flex;align-items:center;gap:6px}
+.auth-pill{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:700;padding:3px 10px;border-radius:3px;letter-spacing:.07em;text-transform:uppercase;transition:all .2s;cursor:pointer;font-family:inherit}
+.auth-pill:hover{color:var(--text);border-color:var(--text)}
+.auth-pill.is-in{color:var(--text);border-color:var(--red)}
+.auth-pill.is-in:hover{background:var(--red);color:#fff}
+.auth-logout{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:10px;font-weight:600;padding:3px 8px;border-radius:3px;letter-spacing:.04em;cursor:pointer;font-family:inherit;transition:all .2s}
+.auth-logout:hover{color:#ff6a5c;border-color:#ff6a5c}
 .season-btn:hover,.season-btn.active{border-color:var(--red);color:var(--text);background:rgba(230,51,41,.1)}
 
 /* ── Nav ── */
@@ -339,6 +346,9 @@ footer a:hover{color:var(--muted)}
       <button class="season-btn active" onclick="setSeason(2026,this)">2026</button>
     </div>
     <div class="topbar-pill" id="live-pill">Saison 2026 · Live</div>
+    <div class="auth-box" id="auth-box">
+      <a class="auth-pill" id="auth-link" href="/admin">Login</a>
+    </div>
   </div>
 </div>
 
@@ -1865,6 +1875,24 @@ tryLoadData();
       projectId: "ninja-hq-chris"
     };
     if (!firebase.apps.length) firebase.initializeApp(cfg);
+
+    // Auth-aware topbar: toggles Login ↔ Admin + Logout
+    firebase.auth().onAuthStateChanged(user => {
+      const box = document.getElementById('auth-box');
+      if (!box) return;
+      if (user && !user.isAnonymous && user.email) {
+        box.innerHTML = '<a class="auth-pill is-in" id="auth-link" href="/admin" title="' + user.email + '">Admin</a><button class="auth-logout" id="auth-logout" type="button">Logout</button>';
+        const btn = document.getElementById('auth-logout');
+        if (btn) btn.addEventListener('click', async () => {
+          try { await firebase.auth().signOut(); } catch(e) { console.warn('signOut failed', e); }
+          // keep user on the public site
+          location.reload();
+        });
+      } else {
+        box.innerHTML = '<a class="auth-pill" id="auth-link" href="/admin">Login</a>';
+      }
+    });
+
     try { await firebase.auth().signInAnonymously(); } catch(e) { console.warn('[LiveSync] anon auth warn', e); }
 
     // Category map: comp-app catId -> ranking division id
