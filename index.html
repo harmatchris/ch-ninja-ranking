@@ -277,6 +277,27 @@ footer a:hover{color:var(--muted)}
 .detail-wk-meta{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* ── Stats Charts ── */
+/* ── WK Overview KPIs + Survival Curve ── */
+.wk-overview{margin-top:2rem;margin-bottom:.5rem}
+.wk-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1rem}
+.wk-kpi{background:linear-gradient(135deg,var(--bg2) 0%,var(--bg3) 100%);border:1px solid var(--border);border-radius:6px;padding:.85rem 1rem;position:relative;overflow:hidden;min-height:78px}
+.wk-kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red)}
+.wk-kpi-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+.wk-kpi-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-.01em}
+.wk-kpi-val.is-red{color:var(--red)}
+.wk-kpi-sub{font-size:10px;color:var(--dim);margin-top:.3rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk-curve-box{background:linear-gradient(180deg,var(--bg2) 0%,#0F0F0F 100%);border:1px solid var(--border);border-radius:8px;padding:1.1rem 1.3rem 1rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
+.wk-curve-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.wk-curve-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.85rem;flex-wrap:wrap}
+.wk-curve-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.wk-curve-title::before{content:'';display:inline-block;width:3px;height:14px;background:var(--red);border-radius:1px}
+.wk-curve-meta{font-size:10px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.wk-curve-meta b{color:var(--red);font-weight:700}
+.wk-curve-canvas-wrap{position:relative;height:220px}
+.wk-curve-loading{padding:3rem 1rem;text-align:center;color:var(--muted);font-size:12px}
+@media (max-width:780px){.wk-kpi-strip{grid-template-columns:repeat(2,1fr)}.wk-kpi-val{font-size:24px}}
+@media (max-width:480px){.wk-kpi-strip{grid-template-columns:1fr 1fr}.wk-curve-canvas-wrap{height:180px}}
+
 .stats-tabs{display:flex;gap:.4rem;margin-bottom:1.25rem;flex-wrap:wrap}
 .stats-tab{padding:.35rem .9rem;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--border2);border-radius:3px;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;font-family:inherit}
 .stats-tab:hover{border-color:var(--dim);color:var(--text)}
@@ -746,9 +767,25 @@ footer a:hover{color:var(--muted)}
     <div id="detail-fb-results" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden"></div>
   </div>
 
-  <!-- Stats Section -->
-  <div class="section-head" style="margin-top:2rem">
-    <div class="section-title">Statistiken</div>
+  <!-- WK Overview: aggregate stats across all divisions -->
+  <div class="wk-overview" id="detail-wk-overview" style="display:none">
+    <div class="section-head" style="margin-bottom:1rem">
+      <div class="section-title">Wettkampf-Übersicht</div>
+      <div class="section-sub" id="detail-overview-sub">Aggregiert über alle Kategorien</div>
+    </div>
+    <div class="wk-kpi-strip" id="detail-kpi-strip"></div>
+    <div class="wk-curve-box" id="detail-curve-box">
+      <div class="wk-curve-head">
+        <div class="wk-curve-title">Survival Curve</div>
+        <div class="wk-curve-meta" id="detail-curve-meta">— Athleten · — Hindernisse</div>
+      </div>
+      <div class="wk-curve-canvas-wrap"><canvas id="detail-curve-canvas"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Stats Section (per-division) -->
+  <div class="section-head" style="margin-top:1.5rem">
+    <div class="section-title">Statistiken pro Division</div>
     <div class="section-sub" id="detail-stats-sub"></div>
   </div>
 
@@ -1223,7 +1260,13 @@ function renderDetailPage() {
     }
   }
   // Trigger real Firebase stats if this WK has a comp code
-  if(wk.compCode) loadFirebaseStatsForDetail();
+  if(wk.compCode) {
+    loadFirebaseStatsForDetail();
+    loadAndRenderWkOverview();
+  } else {
+    const ov = document.getElementById('detail-wk-overview');
+    if(ov) ov.style.display = 'none';
+  }
 }
 
 function renderDetailDivTabs() {
@@ -1441,6 +1484,137 @@ async function fetchFirebaseStats(compCode, catId) {
   }
 }
 
+// ─── Firebase WK-aggregate stats (all categories) ─────────
+const fbWkAggCache = {}; // key: compCode
+
+async function fetchFirebaseWkAggStats(compCode) {
+  if(fbWkAggCache[compCode] !== undefined) return fbWkAggCache[compCode];
+  fbWkAggCache[compCode] = null;
+  try {
+    // The compCode IS the Firebase key under /ogn/
+    const matchId = compCode;
+
+    const [runsRes, globObstRes] = await Promise.all([
+      fetch(`${FB_BASE}/ogn/${matchId}/completedRuns.json`),
+      fetch(`${FB_BASE}/ogn/${matchId}/obstacles.json`),
+    ]);
+    const runsObj = runsRes.ok ? await runsRes.json() : null;
+    if(!runsObj) return null;
+
+    let globalObst = {};
+    if(globObstRes.ok) { const o = await globObstRes.json(); if(o) globalObst = {...o}; }
+
+    const allRuns = Object.values(runsObj || {}).filter(Boolean);
+    if(allRuns.length === 0) return null;
+
+    // Group runs by stage; build curve from the stage with the most runs
+    const byStage = {};
+    allRuns.forEach(r => {
+      const sid = r.stageId || 'main';
+      (byStage[sid] = byStage[sid] || []).push(r);
+    });
+    const mainStageId = Object.keys(byStage).sort((a,b) => byStage[b].length - byStage[a].length)[0];
+    const stageRuns = byStage[mainStageId];
+
+    // Best run per athlete within main stage
+    const byAth = new Map();
+    stageRuns.forEach(r => {
+      const cps = (r.doneCP || []).length;
+      const t = r.finalTime || r.officialTime || r.endTime || 0;
+      const isComplete = r.status === 'complete' ? 1 : 0;
+      const score = isComplete * 1e12 + cps * 1e9 - (t > 0 ? t : 1e8);
+      const key = r.athleteId || r.athId || 'unknown';
+      const cur = byAth.get(key);
+      if(!cur || score > cur.score) byAth.set(key, {run:r, score});
+    });
+    const bestRuns = [...byAth.values()].map(x => x.run);
+    const total = bestRuns.length;
+    if(total === 0) return null;
+
+    // Build obstacle list for the main stage. The runs' doneCP entries already
+    // carry name + obsId, so we infer the canonical order from how often each
+    // obstacle is cleared (more clears = earlier in the course).
+    const obstStats = new Map();
+    stageRuns.forEach(r => {
+      (r.doneCP || []).forEach((cp, i) => {
+        if(!cp) return;
+        const id = (typeof cp === 'object') ? cp.obsId : cp;
+        const nm = (typeof cp === 'object') ? (cp.name || id) : id;
+        if(!id) return;
+        const cur = obstStats.get(id) || {key:id, name:nm, count:0, idxSum:0, idxN:0};
+        cur.count += 1;
+        cur.idxSum += i;
+        cur.idxN += 1;
+        obstStats.set(id, cur);
+      });
+    });
+
+    // If the global obstacle metadata exists, use its order field to sort;
+    // otherwise sort by reached-count desc (≈ position in course).
+    const obstList = [...obstStats.values()]
+      .map(o => {
+        const meta = globalObst[o.key];
+        return {
+          ...o,
+          order: meta && typeof meta === 'object' && typeof meta.order === 'number'
+            ? meta.order
+            : (o.idxSum / Math.max(o.idxN,1)),
+          isCP: meta && typeof meta === 'object' ? (meta.isCP !== false) : true,
+        };
+      })
+      .filter(o => o.isCP)
+      .sort((a, b) => a.order - b.order);
+
+    // Survival curve based on best run per athlete
+    const cpIds = bestRuns.map(r => new Set((r.doneCP || []).map(cp => (cp && typeof cp === 'object') ? cp.obsId : cp)));
+    const survival = obstList.map(obs => ({
+      key: obs.key,
+      label: obs.name,
+      reached: cpIds.filter(s => s.has(obs.key)).length,
+    }));
+    const curve = survival.map((s,i) => ({
+      label: s.label,
+      pct: Math.round(s.reached / total * 100),
+      reached: s.reached,
+      drop: i === 0 ? (total - s.reached) : (survival[i-1].reached - s.reached),
+    }));
+
+    // Hardest obstacle = the one that eliminated the most athletes in absolute numbers
+    let hardest = null;
+    curve.forEach(c => { if(!hardest || c.drop > hardest.drop) hardest = c; });
+
+    // Finishers (in this stage) = best run had status 'complete'
+    const finishers = bestRuns.filter(r => r.status === 'complete').length;
+
+    // Best time across entire competition (any stage)
+    let bestRun = null;
+    allRuns.forEach(r => {
+      if(r.status !== 'complete') return;
+      const t = r.finalTime || r.officialTime || r.endTime || 0;
+      if(t > 0 && (!bestRun || t < bestRun.t)) bestRun = { t, name: r.athleteName || r.name };
+    });
+    const bestTime = bestRun ? formatTime(bestRun.t) : null;
+    const bestName = bestRun ? (bestRun.name || '—') : null;
+
+    const result = {
+      total,
+      finishers,
+      finishersPct: total > 0 ? Math.round(finishers / total * 100) : 0,
+      bestTime,
+      bestName,
+      hardest,
+      curve,
+      obstacleCount: obstList.length,
+    };
+    fbWkAggCache[compCode] = result;
+    return result;
+  } catch(e) {
+    console.warn('Firebase WK-agg fetch error:', e);
+    fbWkAggCache[compCode] = null;
+    return null;
+  }
+}
+
 // ─── Firebase run results cache & fetch ─────────
 const fbRunsCache = {};
 
@@ -1533,6 +1707,11 @@ function formatTime(ms) {
   const msRem = totalMs % 1000;
   if(minutes > 0) return `${minutes}:${String(seconds).padStart(2,'0')}.${String(msRem).padStart(3,'0')}`;
   return `${seconds}.${String(msRem).padStart(3,'0')}`;
+}
+
+function esc(s) {
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 async function loadAndRenderFirebaseResults() {
@@ -1638,6 +1817,125 @@ function computePointsDist(wkIdx) {
     buckets.push({ label: `${b}–${b + step - 1}`, count });
   }
   return buckets.filter(b => b.count > 0);
+}
+
+// ─── WK Overview: KPIs + filled survival curve ─────
+async function loadAndRenderWkOverview() {
+  const season = DATA.seasons[currentSeason];
+  const wk = season?.wks.find(w => w.id === currentDetailWk);
+  const overview = document.getElementById('detail-wk-overview');
+  if(!overview || !wk) return;
+  if(!wk.compCode) { overview.style.display = 'none'; return; }
+  overview.style.display = '';
+
+  // Loading state
+  const kpiEl = document.getElementById('detail-kpi-strip');
+  if(kpiEl) kpiEl.innerHTML = `
+    <div class="wk-kpi"><div class="wk-kpi-label">Athleten</div><div class="wk-kpi-val">—</div></div>
+    <div class="wk-kpi"><div class="wk-kpi-label">Finisher</div><div class="wk-kpi-val">—</div></div>
+    <div class="wk-kpi"><div class="wk-kpi-label">Bestzeit</div><div class="wk-kpi-val">—</div></div>
+    <div class="wk-kpi"><div class="wk-kpi-label">Härtester Stand</div><div class="wk-kpi-val">—</div></div>
+  `;
+
+  const data = await fetchFirebaseWkAggStats(wk.compCode);
+  if(!data) {
+    overview.style.display = 'none';
+    return;
+  }
+
+  // KPIs
+  if(kpiEl) {
+    kpiEl.innerHTML = `
+      <div class="wk-kpi">
+        <div class="wk-kpi-label">Athleten</div>
+        <div class="wk-kpi-val">${data.total}</div>
+        <div class="wk-kpi-sub">am Start</div>
+      </div>
+      <div class="wk-kpi">
+        <div class="wk-kpi-label">Finisher</div>
+        <div class="wk-kpi-val ${data.finishers > 0 ? 'is-red' : ''}">${data.finishers}</div>
+        <div class="wk-kpi-sub">${data.finishersPct}% durchgekommen</div>
+      </div>
+      <div class="wk-kpi">
+        <div class="wk-kpi-label">Bestzeit</div>
+        <div class="wk-kpi-val">${data.bestTime || '—'}</div>
+        <div class="wk-kpi-sub">${data.bestName ? esc(data.bestName) : 'Noch keine Zeit'}</div>
+      </div>
+      <div class="wk-kpi">
+        <div class="wk-kpi-label">Härtester Stand</div>
+        <div class="wk-kpi-val is-red">${data.hardest ? data.hardest.drop : '—'}</div>
+        <div class="wk-kpi-sub" title="${data.hardest ? esc(data.hardest.label) : ''}">${data.hardest ? esc(data.hardest.label) : '—'}</div>
+      </div>
+    `;
+  }
+
+  const meta = document.getElementById('detail-curve-meta');
+  if(meta) meta.innerHTML = `<b>${data.total}</b> Athleten · ${data.obstacleCount} Hindernisse`;
+
+  // Survival curve — filled area chart
+  const canvas = document.getElementById('detail-curve-canvas');
+  if(!canvas) return;
+  if(window._wkCurveChart) { window._wkCurveChart.destroy(); window._wkCurveChart = null; }
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height || 220);
+  grad.addColorStop(0, 'rgba(230,51,41,0.55)');
+  grad.addColorStop(1, 'rgba(230,51,41,0.02)');
+
+  // Prepend "Start" point at 100%
+  const labels = ['Start', ...data.curve.map(c => c.label)];
+  const values = [100, ...data.curve.map(c => c.pct)];
+  const reached = [data.total, ...data.curve.map(c => c.reached)];
+
+  window._wkCurveChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: grad,
+        borderColor: '#E63329',
+        borderWidth: 2.5,
+        pointRadius: 3,
+        pointBackgroundColor: '#E63329',
+        pointBorderColor: '#0C0C0C',
+        pointBorderWidth: 1.5,
+        pointHoverRadius: 6,
+        fill: true,
+        tension: 0.32,
+        cubicInterpolationMode: 'monotone',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1C1C1C',
+          borderColor: '#2A2A2A',
+          borderWidth: 1,
+          titleColor: '#F0F0F0',
+          bodyColor: '#A0A0A0',
+          padding: 10,
+          callbacks: {
+            label: c => `${c.parsed.y}% · ${reached[c.dataIndex]} von ${data.total}`,
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#666', font: { size: 10 }, maxRotation: 35, autoSkip: true, autoSkipPadding: 8 },
+        },
+        y: {
+          min: 0, max: 100,
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { color: '#666', font: { size: 10 }, callback: v => v + '%' },
+        }
+      }
+    }
+  });
 }
 
 // ─── Unified chart renderer ──────────────────────
