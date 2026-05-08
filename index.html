@@ -277,6 +277,70 @@ footer a:hover{color:var(--muted)}
 .detail-wk-meta{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* ── Stats Charts ── */
+/* ── Next-WK announcement (Schür / generic) ── */
+.next-wk{position:relative;background:linear-gradient(135deg,#1a0a0a 0%,var(--bg2) 45%,var(--bg3) 100%);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:1.5rem 0 2rem;padding:1.5rem 1.75rem 1.6rem}
+.next-wk::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red) 0%,#ff5e3a 50%,var(--gold) 100%)}
+.next-wk::after{content:'';position:absolute;top:-40%;right:-10%;width:340px;height:340px;background:radial-gradient(circle,rgba(230,51,41,0.16) 0%,transparent 65%);pointer-events:none}
+.next-wk-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap;position:relative;z-index:1}
+.next-wk-eyebrow{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.next-wk-eyebrow::after{content:'';flex:0 0 30px;height:1px;background:var(--red)}
+.next-wk-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,4.5vw,40px);font-weight:900;line-height:.95;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:.4rem}
+.next-wk-meta{display:flex;flex-wrap:wrap;gap:1.1rem;font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.next-wk-meta span{display:inline-flex;align-items:center;gap:.35rem}
+.next-wk-meta b{color:var(--text);font-weight:700}
+.next-wk-countdown{flex-shrink:0;padding:.6rem .9rem;background:rgba(230,51,41,0.08);border:1px solid rgba(230,51,41,0.35);border-radius:6px;text-align:right;min-width:170px}
+.next-wk-cd-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:.2rem}
+.next-wk-cd-val{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;color:var(--text);line-height:1}
+.next-wk-cd-sub{font-size:10px;color:var(--muted);margin-top:.2rem;letter-spacing:.04em}
+
+.next-wk-format{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1.2rem;position:relative;z-index:1}
+.next-wk-fmt{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:6px;padding:.7rem .85rem;display:flex;align-items:flex-start;gap:.65rem}
+.next-wk-fmt-ico{font-size:18px;line-height:1;flex-shrink:0;margin-top:1px}
+.next-wk-fmt-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.15rem}
+.next-wk-fmt-detail{font-size:11px;color:var(--muted);line-height:1.35}
+
+.next-wk-days{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-bottom:1.1rem;position:relative;z-index:1}
+.next-wk-day{background:linear-gradient(180deg,var(--bg3) 0%,#101010 100%);border:1px solid var(--border);border-radius:8px;padding:1rem 1.1rem;position:relative;overflow:hidden}
+.next-wk-day::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:var(--day-color,var(--red))}
+.next-wk-day-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;margin-bottom:.55rem}
+.next-wk-day-date{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.15rem}
+.next-wk-day-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;letter-spacing:-.01em;text-transform:uppercase;line-height:1}
+.next-wk-day-tier{display:inline-block;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:3px;color:#fff;flex-shrink:0}
+.next-wk-day-tier-sub{font-size:10px;color:var(--dim);margin-top:.25rem;letter-spacing:.04em;text-transform:uppercase}
+.next-wk-day-divs{display:flex;flex-wrap:wrap;gap:.3rem;margin:.6rem 0 .85rem}
+.next-wk-day-div{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--border2);border-radius:3px;color:var(--text)}
+.next-wk-day-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.next-wk-btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;padding:.55rem .9rem;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;text-decoration:none;border:1px solid;transition:all .15s;cursor:pointer;font-family:inherit}
+.next-wk-btn.is-primary{background:var(--red);border-color:var(--red);color:#fff}
+.next-wk-btn.is-primary:hover{background:#d12920;border-color:#d12920}
+.next-wk-btn.is-primary.locked{background:var(--bg3);border-color:var(--border2);color:var(--muted);cursor:not-allowed}
+.next-wk-btn.is-primary.locked:hover{background:var(--bg3)}
+.next-wk-btn.is-ghost{background:transparent;border-color:var(--border2);color:var(--muted)}
+.next-wk-btn.is-ghost:hover{color:var(--text);border-color:var(--text)}
+
+.next-wk-toggle{background:none;border:none;color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.45rem .75rem;border:1px solid var(--border2);border-radius:4px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:.4rem;transition:all .15s}
+.next-wk-toggle:hover{color:var(--text);border-color:var(--text)}
+.next-wk-toggle .chev{transition:transform .2s}
+.next-wk-toggle.open .chev{transform:rotate(180deg)}
+
+.next-wk-details{display:none;border-top:1px solid var(--border);padding-top:1.1rem;margin-top:1rem;position:relative;z-index:1;animation:nwkFade .25s ease}
+.next-wk-details.open{display:block}
+@keyframes nwkFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.next-wk-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.9rem 1.4rem;margin-bottom:1rem}
+.next-wk-detail-block{}
+.next-wk-detail-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+.next-wk-detail-val{font-size:13px;color:var(--text);line-height:1.45}
+.next-wk-detail-val small{display:block;color:var(--muted);font-size:11px;margin-top:.15rem}
+.next-wk-warn{background:rgba(255,159,10,0.08);border:1px solid rgba(255,159,10,0.35);border-radius:5px;padding:.6rem .85rem;font-size:11px;color:#ffcb6b;line-height:1.45;margin-top:.6rem;display:flex;gap:.5rem;align-items:flex-start}
+.next-wk-warn::before{content:'⚠';flex-shrink:0}
+
+@media (max-width:780px){
+  .next-wk{padding:1.25rem 1.1rem 1.2rem}
+  .next-wk-format{grid-template-columns:1fr}
+  .next-wk-days{grid-template-columns:1fr}
+  .next-wk-countdown{width:100%;text-align:left;min-width:0}
+}
+
 /* ── WK Overview KPIs + Survival Curve ── */
 .wk-overview{margin-top:2rem;margin-bottom:.5rem}
 .wk-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:.65rem;margin-bottom:1rem}
@@ -430,6 +494,9 @@ footer a:hover{color:var(--muted)}
 <!-- ║   PAGE: RANKING              ║ -->
 <!-- ╚══════════════════════════════╝ -->
 <div class="page active" id="page-ranking">
+
+  <!-- Next-WK announcement (rendered dynamically) -->
+  <div id="next-wk-callout"></div>
 
   <!-- WK Cards -->
   <div class="section-head">
@@ -815,7 +882,57 @@ const DATA = {
     2026: {
       wks: [
         {id:'wk1-2026', num:'WK 1', name:'OG Games 6.2 (Fun Edition)', date:'18. April 2026', location:'Basel', venue:'Overground · Fun Edition', isFinale:false, cv:{}, status:'upcoming', compCode:'9ALPL5', liveSync:true},
-        {id:'wk2-2026', num:'WK 2', name:'TBD', date:'TBD', location:'TBD', venue:'TBD', isFinale:false, cv:{}, status:'future'},
+        {id:'wk2-2026', num:'WK 2', name:'Schür Oftringen', date:'27.–28. Juni 2026', dateISO:'2026-06-27', location:'Oftringen', venue:'Schür Oftringen', isFinale:false, cv:{}, status:'upcoming',
+          announcement: {
+            organizer:'Schür GmbH · Sandro Scheibler',
+            registerOpensISO:'2026-05-01T18:00:00+02:00',
+            mergeDeadlineISO:'2026-06-01',
+            slots:30,
+            slotsNote:'Plätze pro Wettkampf · Warteliste bei Auslastung',
+            feeExternal:55,
+            feeInternal:50,
+            feeNote:'Bar vor Ort (auch EUR) oder per PayPal',
+            mergeNote:'Bei <20 Anmeldungen pro Tag bis 1.6. werden beide Tage zusammengelegt.',
+            format:[
+              {icon:'🧠', name:'Skills', detail:'20 Skills · 1 Stunde · Technik & Vielseitigkeit'},
+              {icon:'⚡', name:'Speed Stage', detail:'3 Leben · Schnelligkeit & Effizienz'},
+              {icon:'🧗', name:'Stage', detail:'5 Leben · 3 pro Sektion · Technik & Ausdauer'},
+            ],
+            scoring:'Rangpunkte über alle 3 Disziplinen · Niedrigste Summe gewinnt',
+            schedule:[
+              {label:'Check-in', time:'08:00 – 08:30'},
+              {label:'Skills', time:'09:00'},
+              {label:'Rangverkündigung', time:'ca. 16:00'},
+            ],
+            prizes:'Pokale Top 3 pro Division · Schür Gutscheine · Sachpreise',
+            cancel:'Bis 21 Tage vorher kostenlos · Danach keine Rückerstattung',
+            contact:{ name:'Sandro Scheibler', email:'Info@sandroscheibler.ch', phone:'+41 79 953 47 34' },
+            days:[
+              {
+                day:'Samstag',
+                dateLabel:'27.06.2026',
+                dateISO:'2026-06-27',
+                tier:'LK 2',
+                tierColor:'#34C759',
+                tierLabel:'Einsteiger & Fortgeschrittene',
+                divisions:['Teens LK 2', 'Adults LK 2', 'Masters'],
+                registerUrl:'https://schuer.webling.ch/forms/memberform/1fdf06534697d3e56e1a',
+                waitlistUrl:'https://schuer.webling.ch/forms/memberform/c8af9dc63eab9beef0bf',
+              },
+              {
+                day:'Sonntag',
+                dateLabel:'28.06.2026',
+                dateISO:'2026-06-28',
+                tier:'LK 1',
+                tierColor:'#E63329',
+                tierLabel:'Fortgeschrittene · Elite',
+                divisions:['Teens LK 1', 'Adults LK 1'],
+                registerUrl:'https://schuer.webling.ch/forms/memberform/8ede02b494e26200b15c',
+                waitlistUrl:'https://schuer.webling.ch/forms/memberform/b0ca20d206b5611bb756',
+              },
+            ],
+          },
+        },
         {id:'finale-2026', num:'Finale · WK 3', name:'OG Finale 2026', date:'TBD', location:'Basel', venue:'Overground Basel', isFinale:true, cv:{}, status:'future'},
       ],
       divisions: [
@@ -894,6 +1011,171 @@ function setSeason(year, btn) {
   document.getElementById('ranking-season-label').textContent = `Saison ${year}`;
   document.getElementById('events-season-label').textContent = `Saison ${year}`;
   renderAll();
+}
+
+// ════════════════════════════════════════════
+// RENDER — NEXT WK ANNOUNCEMENT
+// ════════════════════════════════════════════
+function renderNextWk() {
+  const container = document.getElementById('next-wk-callout');
+  if(!container) return;
+  const season = DATA.seasons[currentSeason];
+  if(!season) { container.innerHTML = ''; return; }
+  // Pick the next WK with announcement details that hasn't happened yet
+  const today = new Date(); today.setHours(0,0,0,0);
+  const wk = season.wks.find(w => {
+    if(!w.announcement) return false;
+    if(w.status === 'done') return false;
+    if(!w.dateISO) return true;
+    const d = new Date(w.dateISO + 'T00:00:00');
+    return d >= today;
+  });
+  if(!wk) { container.innerHTML = ''; return; }
+  const a = wk.announcement;
+
+  // Countdown to registration open or to event
+  const regOpen = a.registerOpensISO ? new Date(a.registerOpensISO) : null;
+  const eventDate = wk.dateISO ? new Date(wk.dateISO + 'T00:00:00') : null;
+  const now = new Date();
+  let cdLabel, cdValue, cdSub, registerLocked = false;
+  if(regOpen && now < regOpen) {
+    registerLocked = true;
+    const diff = regOpen - now;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    cdLabel = 'Anmeldung öffnet';
+    cdValue = days > 0 ? `${days}T ${hours}h` : `${hours}h`;
+    cdSub = regOpen.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'}) + ' · 18:00';
+  } else if(eventDate && now < eventDate) {
+    const diff = eventDate - now;
+    const days = Math.ceil(diff / 86400000);
+    cdLabel = 'Noch';
+    cdValue = days + (days === 1 ? ' Tag' : ' Tage');
+    cdSub = 'bis Wettkampf';
+  } else {
+    cdLabel = 'Status';
+    cdValue = 'Live';
+    cdSub = '';
+  }
+
+  const fmtHtml = (a.format || []).map(f => `
+    <div class="next-wk-fmt">
+      <div class="next-wk-fmt-ico">${f.icon}</div>
+      <div>
+        <div class="next-wk-fmt-name">${esc(f.name)}</div>
+        <div class="next-wk-fmt-detail">${esc(f.detail)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const daysHtml = (a.days || []).map(d => {
+    const btnLabel = registerLocked ? 'Bald · ' + (d.tier || 'Anmelden') : 'Anmelden ' + (d.tier || '');
+    const btnPrimary = registerLocked
+      ? `<span class="next-wk-btn is-primary locked">${esc(btnLabel)}</span>`
+      : `<a class="next-wk-btn is-primary" href="${esc(d.registerUrl)}" target="_blank" rel="noopener">${esc(btnLabel)} →</a>`;
+    const btnWaitlist = d.waitlistUrl
+      ? `<a class="next-wk-btn is-ghost" href="${esc(d.waitlistUrl)}" target="_blank" rel="noopener">Warteliste</a>`
+      : '';
+    return `
+      <div class="next-wk-day" style="--day-color:${esc(d.tierColor || 'var(--red)')}">
+        <div class="next-wk-day-head">
+          <div>
+            <div class="next-wk-day-date">${esc(d.day)} · ${esc(d.dateLabel)}</div>
+            <div class="next-wk-day-title">${esc(d.tier)}</div>
+            <div class="next-wk-day-tier-sub">${esc(d.tierLabel || '')}</div>
+          </div>
+        </div>
+        <div class="next-wk-day-divs">
+          ${(d.divisions || []).map(x => `<span class="next-wk-day-div">${esc(x)}</span>`).join('')}
+        </div>
+        <div class="next-wk-day-actions">
+          ${btnPrimary}
+          ${btnWaitlist}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const scheduleHtml = (a.schedule || []).map(s => `<div>${esc(s.label)}: <b>${esc(s.time)}</b></div>`).join('');
+
+  container.innerHTML = `
+    <div class="next-wk">
+      <div class="next-wk-head">
+        <div>
+          <div class="next-wk-eyebrow">Nächster Wettkampf · ${esc(wk.num)}</div>
+          <div class="next-wk-title">${esc(wk.name)}</div>
+          <div class="next-wk-meta">
+            <span>📅 <b>${esc(wk.date)}</b></span>
+            <span>📍 <b>${esc(wk.venue)}</b></span>
+            <span>👥 <b>${a.slots} Plätze/Tag</b></span>
+            <span>💰 <b>CHF ${a.feeExternal}</b> ext · CHF ${a.feeInternal} Schür</span>
+          </div>
+        </div>
+        <div class="next-wk-countdown">
+          <div class="next-wk-cd-label">${esc(cdLabel)}</div>
+          <div class="next-wk-cd-val">${esc(cdValue)}</div>
+          ${cdSub ? `<div class="next-wk-cd-sub">${esc(cdSub)}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="next-wk-format">${fmtHtml}</div>
+
+      <div class="next-wk-days">${daysHtml}</div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;position:relative;z-index:1">
+        <button class="next-wk-toggle" onclick="toggleNextWkDetails(this)">
+          <span>Mehr Details</span><span class="chev">▼</span>
+        </button>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:.04em">${esc(a.scoring || '')}</div>
+      </div>
+
+      <div class="next-wk-details" id="next-wk-details">
+        <div class="next-wk-detail-grid">
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Wertung</div>
+            <div class="next-wk-detail-val">${esc(a.scoring)}</div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Zeitplan</div>
+            <div class="next-wk-detail-val">${scheduleHtml}</div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Startgebühr</div>
+            <div class="next-wk-detail-val">CHF ${a.feeExternal} extern · CHF ${a.feeInternal} Schür<small>${esc(a.feeNote)}</small></div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Plätze</div>
+            <div class="next-wk-detail-val">${a.slots} pro Wettkampf<small>${esc(a.slotsNote || '')}</small></div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Preise</div>
+            <div class="next-wk-detail-val">${esc(a.prizes)}<small>Kein fixes Preisgeld</small></div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Stornobedingungen</div>
+            <div class="next-wk-detail-val">${esc(a.cancel)}</div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Veranstalter</div>
+            <div class="next-wk-detail-val">${esc(a.organizer || '')}<small>${a.contact?.email ? esc(a.contact.email) : ''}${a.contact?.phone ? ' · ' + esc(a.contact.phone) : ''}</small></div>
+          </div>
+          <div class="next-wk-detail-block">
+            <div class="next-wk-detail-label">Divisions-Regelung</div>
+            <div class="next-wk-detail-val">Teens 12–15 · Adults ab 16 · Masters ab 40<small>Im Übergangsjahr Wahl möglich, gilt dann fürs ganze Jahr.</small></div>
+          </div>
+        </div>
+        ${a.mergeNote ? `<div class="next-wk-warn">${esc(a.mergeNote)} Information bis ${esc(a.mergeDeadlineISO || '01.06.2026')} per E-Mail.</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function toggleNextWkDetails(btn) {
+  const det = document.getElementById('next-wk-details');
+  if(!det) return;
+  det.classList.toggle('open');
+  btn.classList.toggle('open');
+  btn.querySelector('span:first-child').textContent = det.classList.contains('open') ? 'Weniger Details' : 'Mehr Details';
 }
 
 // ════════════════════════════════════════════
@@ -2042,6 +2324,7 @@ function formatNum(n) {
 // INIT
 // ════════════════════════════════════════════
 function renderAll() {
+  renderNextWk();
   renderDivTabs();
   renderWkCards();
   renderRankingTable();
