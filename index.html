@@ -424,9 +424,9 @@ footer a:hover{color:var(--muted)}
 <!-- ══ TOPBAR ══ -->
 <div class="topbar">
   <div class="topbar-left">
-    <a href="#">IGN-Regelwerk</a>
-    <a href="#" class="topbar-link-og">OG Basel</a>
-    <a href="#" class="topbar-link-s">Schüür Luzern</a>
+    <a href="#" onclick="event.preventDefault();showPage('regelwerk',document.getElementById('nav-regelwerk'));return false">IGN-Regelwerk</a>
+    <a href="https://overground-basel.ch" target="_blank" rel="noopener" class="topbar-link-og">OG Basel</a>
+    <a href="https://sandroscheibler.ch" target="_blank" rel="noopener" class="topbar-link-s">Schür Oftringen</a>
   </div>
   <div style="display:flex;align-items:center;gap:.75rem">
     <div class="topbar-season">
@@ -468,7 +468,7 @@ footer a:hover{color:var(--muted)}
     <div>
       <div class="hero-label" id="hero-label">Saison 2026 — Offizielle Rangliste</div>
       <div class="hero-title">CH Ninja<br><span>Ranking</span></div>
-      <div class="hero-meta">IGN-Regelwerk · 2–3 Wettkämpfe · OG Basel &amp; Schüür Luzern</div>
+      <div class="hero-meta">IGN-Regelwerk · 2–3 Wettkämpfe · OG Basel &amp; Schür Oftringen</div>
     </div>
     <div class="hero-stats">
       <div class="stat">
@@ -869,7 +869,7 @@ footer a:hover{color:var(--muted)}
 <!-- ══ FOOTER ══ -->
 <footer>
   <div>CH Ninja Ranking · Powered by OG Ninja Comp App · IGN-Regelwerk 2026 · <a href="#">Datenschutz</a></div>
-  <div>Overground Basel &amp; Schüür Luzern</div>
+  <div>Overground Basel &amp; Schür Oftringen</div>
 </footer>
 
 
